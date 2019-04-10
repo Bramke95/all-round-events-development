@@ -1,0 +1,108 @@
+
+#main_wrapper{
+	width: 94rem;
+	margin-top: 100px;
+	height: 212%;
+}
+#front_picture {
+	float: left;
+	width: 30rem;
+	margin-top: 15px;
+	height: 30
+
+}
+#front_picture img {
+    margin: 0 auto;
+	height: 28rem;
+	width: 28rem;
+
+}
+#main_info {
+	float: left;
+	width: 62.5rem;
+	margin-right: 1rem;
+	background-color: white;
+	margin-top: 15px;
+	height: 28rem;
+
+}
+#main_info {
+	float: left;
+}
+#main_info_placeholder {
+	float: left;
+	margin-left: 7px;
+}
+#main_data_placeholder {
+	float: left;
+	margin-left: 7px;
+}
+#vl {
+ 	float: left; 
+	border-left: 2px solid;
+	margin-left: 85px;
+	margin-right: 20px;
+	height: 20rem;
+	margin-top: 52px
+}
+#study {
+	float: left;
+	width: 100%;
+}
+#languages {
+	float: left;
+	width: 100%;
+}
+#languages h1{
+	text-decoration: underline;
+}
+
+#study h1{
+	text-decoration: underline;
+}
+#schools{
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 98.5%;
+  margin-top: 10px;
+}
+
+#language{
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 98.5%;
+  margin-top: 10px;
+}
+
+#schools td, #schools th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#schools tr:nth-child(even){background-color: #f2f2f2;}
+
+#schools tr:hover {background-color: #ddd;}
+
+#schools th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: gray;
+  color: white;
+}
+#language td, #language th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#language tr:nth-child(even){background-color: #f2f2f2;}
+
+#language tr:hover {background-color: #ddd;}
+
+#language th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: gray;
+  color: white;
+}

@@ -1,0 +1,8 @@
+error codes! 
+
+0 : no error
+1 : email address is already in use ( email must be unique in the database)
+2 : password does not meet the requirements (it must have more then 5 characters)
+3 : Wrong activation code. I valid activation code is needed to activate an accound 
+4 : not all required fields in the body where available
+5 : The activation code is valid but was already used

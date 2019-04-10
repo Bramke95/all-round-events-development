@@ -1,0 +1,41 @@
+
+#user_space {
+	float: right;
+	text-align: center;
+	width: 90rem; 
+}
+#main_wrapper{
+	width: 94rem;
+	margin-top: 100px;
+	height: 212%;
+}
+#person_box {
+	float: left;
+	width: 30rem;
+	margin-right: 1rem;
+	background-color: white;
+	margin-top: 15px;
+	border:1px solid black;
+}
+#person_box img{
+	display: block;
+    margin: 0 auto;
+	height: 28rem;
+	width: 28rem;
+}
+#person_box p{
+	margin-left: 8px;
+	margin-right: 8px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+#person_box h2{
+	text-align: center;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+#person_box h3{
+	margin-left: 8px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
