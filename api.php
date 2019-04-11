@@ -1,18 +1,30 @@
 <?php
-	// global functions
+	
 	function token_check($id, $token_user, $db) {
+		//
+		// Following things can happend with the token chock
+		// => The token is completelyy invalid and the api is returned with an error
+		// => The token gives full access and the functions returns true
+		// => The token give ony read access and the function returns false
     	$statement = $db->prepare('SELECT HASH FROM mydb.users inner join mydb.hashess on mydb.hashess.users_Id_Users = mydb.users.Id_Users where Id_Users = ?');
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		$token_db = $res["HASH"];
+		$type = $res["Type"];
+		// check if the token excists 
 		if ($token_db != $token_user){
 			exit(json_encode(array(
-				'status' => $token_db,
-				'error_type' => $token_user,
+				'status' => 409,
+				'error_type' => 6,
 				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
 			)));
 		}
-		return true;
+
+		if ($type == "read/write"){
+			return true;
+		} 
+		return false; 
+		
 
 	}
 	// include DB configuration
@@ -182,6 +194,10 @@
 			)));
 		 }
 	}
+	//
+	// Logout, this is pritty useless but provides a safety feature for the end user. The token he used is now 
+	// invalided so no one can use it to acces his date
+	//
 	elseif ($action == "logout") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -209,5 +225,52 @@
 			'error_message' => "Logout ok"
 		)));
 	}
+	//
+	// This api inserts or updates the main data from. Only the password, salt, Id and email cannot be changed. 
+	// This api works as an update, it will overwrite everything if the content is not the same.
+	// ! a valid token is needed to acces the info
+	//
+	elseif ($action == "insert_main") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$name = $xml["name"];
+			$date_of_birth = $xml["date_of_birth"];
+			$gender = $xml["Gender"];
+			$address_line_one = $xml["adres_line_one"];
+			$adress_line_two = $xml["adres_line_two"];
+			$driver_license = $xml["driver_license"];
+			$nationality = $xml["nationality"];
+			$telephone = $xml["telephone"];
+			$marital_state = $xml["marital_state"];
+			$text = $xml["text"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		if (!token_check($ID, $HASH, $db)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 7,
+				'error_message' => "Token only has reading rights! "
+			)));
+		}
+		$statement = $db->prepare('UPDATE users set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, profile_complete=1');
+		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text)); 
+		exit(json_encode(array(
+			'status' => 409,
+			'error_type' => 7,
+			'error_message' => "Token only has reading rights! "
+		)));
+
+
+	}
+
+
 	
 // EOF

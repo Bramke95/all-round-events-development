@@ -6,3 +6,5 @@ error codes!
 3 : Wrong activation code. I valid activation code is needed to activate an accound 
 4 : not all required fields in the body where available
 5 : The activation code is valid but was already used
+6 : the request was made with an invalid token or a ID/Token mismatch 
+7 : This token has only reading rights, this action cannot be performed with this token
