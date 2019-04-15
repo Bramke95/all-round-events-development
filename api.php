@@ -235,6 +235,8 @@
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
 			$name = $xml["name"];
 			$date_of_birth = $xml["date_of_birth"];
 			$gender = $xml["Gender"];
@@ -253,6 +255,7 @@
 				'error_message' => "Not all fields where available, need: ID, HASH"
 			)));
 		}
+		// check if the api had a valid token that has read/write property
 		if (!token_check($ID, $HASH, $db)){
 			exit(json_encode(array(
 				'status' => 409,
@@ -260,14 +263,51 @@
 				'error_message' => "Token only has reading rights! "
 			)));
 		}
+		//  put everything in the database 
 		$statement = $db->prepare('UPDATE users set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, profile_complete=1');
 		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text)); 
+		// end the api
 		exit(json_encode(array(
-			'status' => 409,
-			'error_type' => 7,
-			'error_message' => "Token only has reading rights! "
+			'status' => 200,
+			'error_type' => 0
 		)));
+	}
+	//
+	// get all main information from the database
+	// To get the information an ID and a HASH is needed, the hash only needs write access
+	//
+	elseif ($action == "get_main") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
 
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT * FROM users WHERE id = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'name' => $res['name'],
+			'date_of_birth' => $res['date_of_birth'],
+			'Gender' => $res['Gender'],
+			'adres_line_one' => $res['adres_line_one'],
+			'adres_line_two' => $res['adres_line_two'],
+			'driver_license' => $res['driver_license'],
+			'nationality' => $res['nationality'],
+			'telephone' => $res['telephone'],
+			'marital_state' => $res['marital_state'],
+			'text' => $res['text']
+		)));
 
 	}
 
