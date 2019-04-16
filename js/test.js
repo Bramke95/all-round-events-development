@@ -34,8 +34,8 @@ function loging_callback(res){
 };
 
 // creating basic accound + callback 
-function create_basic_user(username, pass){
-	api("new_user", {"email" : username, "pass" : pass}, loging_callback)
+function create_basic_user(username, pass, code){
+	api("new_user", {"email" : username, "pass" : pass, "activation_code": code}, loging_callback)
 };
 function create_basic_user_callback(res){
 	$("#results").html("")
@@ -57,7 +57,8 @@ function create_basic_user_callback(res){
 			$("#create_login").click(function() {
 				var user = $("#username").val()
 				var pass = $("#pass").val()
-				create_basic_user(user, pass)
+				var code = $("#access_code").val()
+				create_basic_user(user, pass, code)
 			});
 		});
 })();

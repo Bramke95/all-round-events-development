@@ -1,5 +1,5 @@
 <?php
-	
+	error_reporting(E_ALL ^ E_DEPRECATED);
 	function token_check($id, $token_user, $db) {
 		//
 		// Following things can happend with the token chock
@@ -264,7 +264,7 @@
 			)));
 		}
 		//  put everything in the database 
-		$statement = $db->prepare('UPDATE users set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, profile_complete=1');
+		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, profile_complete=1');
 		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text)); 
 		// end the api
 		exit(json_encode(array(
@@ -291,7 +291,7 @@
 			)));
 		}
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT * FROM users WHERE id = ?');
+		$statement = $db->prepare('SELECT * FROM users_data WHERE id = ?');
 		$statement->execute(array($ID));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		exit(json_encode(array(
