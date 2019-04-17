@@ -31,17 +31,17 @@
 			<h2>Vul onderstaande gegevens in om uw acount aan te maken : </h2>
 				<div id="form">
 				  <div class="container">
-				  	<div id="error"><p><strong> This is some type of error messages to inform the user what he did wrong </strong></p></div>
+				  	<div id="error"></div>
 				    <label for="uname"><b>Email adres:</b></label>
-				    <input type="text" placeholder="email adres" name="uname" required>
+				    <input type="text" placeholder="email adres" name="uname" required id="email_textfield">
 
 				    <label for="psw"><b>paswoord:</b></label>
-				    <input type="password" placeholder="wachtwoord" name="psw" required>
+				    <input type="password" placeholder="wachtwoord" name="psw" required id="pass_textfield">
 
 				    <label for="uverf_code"><b>Toegangscode:</b></label>
-				    <input type="text" placeholder="Toegangscode" name="verf_code" required>
+				    <input type="text" placeholder="Toegangscode" name="verf_code" required id="token_textfield">
 
-				    <button type="submit">Registeren</button>
+				    <button type="submit" id="BUT_reg">Registeren</button>
 				    <label>
 				      <input type="checkbox" checked="checked" name="remember"> Remember me
 				    </label>
