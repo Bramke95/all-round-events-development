@@ -10,7 +10,6 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="../../js/login.js"></script>
 	</head>
-
 	<header>
 		<div id="title_box">
 			<h1><strong>Welcome to youspace</strong></h1>
@@ -19,7 +18,7 @@
 			<nav>
 				<ul>
 					<li><a href="Home.html">Home</a></li>
-					<li><a href="Register.html">Registreren</a></li>
+					<li><a href="register.html">Registeren</a></li>
 					<li><a href="Search.html">Zoeken</a></li>
 					<li><a href="Info.html">Info</a></li>
 					<li><a href="Contact.html">Contact</a></li>
@@ -38,17 +37,14 @@
 				    <label for="psw"><b>paswoord:</b></label>
 				    <input type="password" placeholder="wachtwoord" name="psw" required id="pass_textfield">
 
-				    <label for="uverf_code"><b>Toegangscode:</b></label>
-				    <input type="text" placeholder="Toegangscode" name="verf_code" required id="token_textfield">
-
 				    <button type="submit" id="BUT_reg">Registeren</button>
 				    <label>
 				      <input type="checkbox" checked="checked" name="remember"> Remember me
 				    </label>
 				  </div>
 				  <div class="container" style="background-color:#f1f1f1">
-				    <button type="button" class="cancelbtn">Cancel</button>
-				    <span class="psw">Al een account? Dan kan je <a href="#">inloggen.</a></span>
+				    <button type="button" class="cancelbtn" id="cancel">Cancel</button>
+				    <span class="psw">Nog geen account? Dan kan je <a href="login.html">registeren.</a></span>
 				  </div>
 				</div>
 		<div id="activation_code">
@@ -62,6 +58,5 @@
 			</div>
 		</div>	
 	</footer>
-
 </body>
 </html>

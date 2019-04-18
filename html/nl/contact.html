@@ -5,10 +5,10 @@
 		<link rel="shortcut icon" href="favicon.ico" />
 		<meta charset="utf-8" />
 		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
-		<link href="../../css/homePoint.css" rel="stylesheet" />
+		<link href="../../css/contact.css" rel="stylesheet" />
 		<link href="../../css/mainPageShared.css" rel="stylesheet" />
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		<script src="../../js/homePoint.js"></script>
+		<script src="../../js/contact.js"></script>
 	</head>
 
 	<header>
@@ -25,7 +25,25 @@
 					<li><a href="Contact.html">Contact</a></li>
 				</ul>
 			</nav>
-			<div id ="user_space">
+			<div id ="contact_space">
+				<div class="container">
+				    <label for="fname">Vooraam</label>
+				    <input type="text" id="fname" name="firstname" placeholder="U vooraam..">
+				    <label for="lname">Achternaam</label>
+				    <input type="text" id="lname" name="lastname" placeholder="U achternaam..">
+				    <label for="country">rede</label>
+				    <select id="country" name="country">
+				      <option value="Complaint">Klacht</option>
+				      <option value="Bug">Bug</option>
+				      <option value="Safety_issue">Veiligheidslek</option>
+				      <option value="Question">Vraag</option>
+				      <option value="Acount">Acount</option>
+				      <option value="Other">Andere</option>
+				    </select>
+				    <label for="subject">Tekst</label>
+				    <textarea id="subject" name="subject" placeholder="Schrijf iets.." style="height:200px"></textarea>
+				    <input type="submit" value="verstuur">
+				</div>
 			</div>
 		</div>
 		

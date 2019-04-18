@@ -5,10 +5,10 @@
 		<link rel="shortcut icon" href="favicon.ico" />
 		<meta charset="utf-8" />
 		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
-		<link href="../../css/homePoint.css" rel="stylesheet" />
+		<link href="../../css/register.css" rel="stylesheet" />
 		<link href="../../css/mainPageShared.css" rel="stylesheet" />
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		<script src="../../js/homePoint.js"></script>
+		<script src="../../js/register.js"></script>
 	</head>
 
 	<header>
@@ -19,19 +19,43 @@
 			<nav>
 				<ul>
 					<li><a href="Home.html">Home</a></li>
-					<li><a href="Login.html">Login</a></li>
+					<li><a href="login.html">Login</a></li>
 					<li><a href="Search.html">Zoeken</a></li>
 					<li><a href="Info.html">Info</a></li>
 					<li><a href="Contact.html">Contact</a></li>
 				</ul>
 			</nav>
-			<div id ="user_space">
-			</div>
 		</div>
-		
+	</header>
+		<div id="login_space">
+			<h2>Vul onderstaande gegevens in om uw acount aan te maken : </h2>
+				<div id="form">
+				  <div class="container">
+				  	<div id="error"></div>
+				    <label for="uname"><b>Email adres:</b></label>
+				    <input type="text" placeholder="email adres" name="uname" required id="email_textfield">
+
+				    <label for="psw"><b>paswoord:</b></label>
+				    <input type="password" placeholder="wachtwoord" name="psw" required id="pass_textfield">
+
+				    <label for="uverf_code"><b>Toegangscode:</b></label>
+				    <input type="text" placeholder="Toegangscode" name="verf_code" required id="token_textfield">
+
+				    <button type="submit" id="BUT_reg">Registeren</button>
+				    <label>
+				      <input type="checkbox" checked="checked" name="remember"> Remember me
+				    </label>
+				  </div>
+				  <div class="container" style="background-color:#f1f1f1">
+				    <button type="button" class="cancelbtn" id="cancel">Cancel</button>
+				    <span class="psw">Al een account? Dan kan je <a href="login.html">inloggen.</a></span>
+				  </div>
+				</div>
+		<div id="activation_code">
+			<h3>Geen verificatiecode?</h3>
+			<p>Dit is een website die is gemaakt voor mijn persoonlijk gebruik. Doordaar het niet op zware hardware draait wil ik het aantal gebruikers beperken. Op sommige momenten zal ik een inlog code beschikbaar stellen. Indien u toch enorm graag  deze website wilt gebruiken kan u een mail sturen. De gegevens vindt u bij contact</p>
+		</div>
 	<footer>
-		<div id = "spacer">
-		</div>
 		<div id ="footer">
 			<div id="bottom">
 				<p>ik weet tijdelijk niet wat te zetten hier, komt dus wel. Weet gewoon dat dit de footer is </p>

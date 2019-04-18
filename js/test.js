@@ -24,14 +24,7 @@ function api(action, body, callback){
 	    }
 	});
 };
-// logging in + callback
-function login(username, pass){
-	api("login", {"email" : username, "pass" : pass}, loging_callback)
-};
-function loging_callback(res){
-	$("#results").html("")
-	$("#results").append(res)
-};
+
 
 // creating basic accound + callback 
 function create_basic_user(username, pass, code){
@@ -41,7 +34,6 @@ function create_basic_user_callback(res){
 	$("#results").html("")
 	$("#results").append(res)
 };
-
 
 // event handleres 
 ;(function() { 

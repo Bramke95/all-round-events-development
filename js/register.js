@@ -12,6 +12,7 @@
 	 var TOKEN = "";
 	 var LOGGED_IN = false;
 	 var url = "../../api.php?action="
+	 var PASS = "";
 
 	// function that performes api calls to the server
 	function api(action, body, callback){
@@ -31,11 +32,11 @@
     	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     	return re.test(String(email).toLowerCase());
 	};
-	// logging in + callback
-	function login(username, pass){
-		api("login", {"email" : username, "pass" : pass}, loging_callback)
+	// creating basic accound + callback 
+	function create_basic_user(username, pass, code){
+		api("new_user", {"email" : username, "pass" : pass, "activation_code": code}, create_basic_user_callback)
 	};
-	function loging_callback(res){
+	function create_basic_user_callback(res){
 		if (res == "ERROR"){
 			$("#error").html("<p><strong>De server is niet bereikbaar, bent u nog verbonden met het Internet?</strong></p>");
 		}
@@ -45,23 +46,25 @@
 			// the user should be re-directed to his userspace page
 		}
 		else {
-			if (res["error_type"] == 6){
-				$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
+			if (res["error_type"] == 3){
+				$("#error").html("<p><strong>De toegangscode die u opgaf is niet geldig!</strong></p>");
 			}
-			else if (res["error_type"] == 5){
-				$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
+			else if (res["error_type"] == 1){
+				$("#error").html("<p><strong>U email adres is reeds gebruikt, gelieve in te loggen!</strong></p>");
 			}
 			else {
-				$$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
+				$("#error").html("<p><strong>De server geeft volgende error code : "+ res["error_message"]+"</strong></p>");
 			}
 		}
 	};
-
 	$( document ).ready(function() {
+		// 
     	$("#BUT_reg").click(function() {
 			var email = $("#email_textfield").val()
 			var pass = $("#pass_textfield").val()
-			if (email == "" || pass == ""){
+			var code = $("#token_textfield").val()
+			GLOBAL_PASS = pass;
+			if (email == "" || pass == "" || code == ""){
 				$("#error").html("<p><strong>Niet alle velden zijn ingevuld! </strong></p>");
 				return;
 			}
@@ -69,11 +72,14 @@
 				$("#error").html("<p><strong>Ongeldig email adres verwacht formaat : voorbeeld@email.com</strong></p>");
 				return;
 			}
-			login(email, pass)
+			if (pass.length < 5){
+				$("#error").html("<p><strong> Uw passwoord moet uit minstens 6 karakters bestaan.</strong></p>");
+				return;
+			}
+			create_basic_user(email, pass, code)
 		});
-		$("cancel").click(function(){
+		$("#cancel").click(function(){
 			window.location.href = "home.html";
 		});
-
 	});
 })();
