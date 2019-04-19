@@ -25,14 +25,19 @@
 					<li><a href="Contact.html">Contact</a></li>
 				</ul>
 			</nav>
+		</div>
+	</header>
 			<div id ="contact_space">
 				<div class="container">
+					<div id="error"></div>
 				    <label for="fname">Vooraam</label>
-				    <input type="text" id="fname" name="firstname" placeholder="U vooraam..">
+				    <input type="text" id="first_name" name="firstname" placeholder="U vooraam..">
 				    <label for="lname">Achternaam</label>
-				    <input type="text" id="lname" name="lastname" placeholder="U achternaam..">
-				    <label for="country">rede</label>
-				    <select id="country" name="country">
+				    <input type="text" id="name" name="lastname" placeholder="U achternaam..">
+				    <label for="email">Email</label>
+				    <input type="text" id="email" name="lastname" placeholder="U email adres">
+				    <label for="type">rede</label>
+				    <select id="type" name="type_of_complaint">
 				      <option value="Complaint">Klacht</option>
 				      <option value="Bug">Bug</option>
 				      <option value="Safety_issue">Veiligheidslek</option>
@@ -41,11 +46,10 @@
 				      <option value="Other">Andere</option>
 				    </select>
 				    <label for="subject">Tekst</label>
-				    <textarea id="subject" name="subject" placeholder="Schrijf iets.." style="height:200px"></textarea>
-				    <input type="submit" value="verstuur">
+				    <textarea id="text" name="subject" placeholder="Schrijf iets.." style="height:200px"></textarea>
+				    <input id="send" type="submit" value="verstuur">
 				</div>
 			</div>
-		</div>
 		
 	<footer>
 		<div id = "spacer">

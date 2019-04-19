@@ -310,6 +310,32 @@
 		)));
 
 	}
+	elseif ($action == "insert_complaint") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$name = $xml["name"];
+			$first_name = $xml["first_name"];
+			$type = $xml["type"];
+			$text = $xml["text"];
+			
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, first_name, type, text"
+			)));
+		}
+		$statement = $db->prepare('INSERT INTO complains (name, first_name, type, text) VALUES (?,?,?,?)');
+		$statement->execute(array($name, $first_name, $type, $text));
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+		)));
+	}
+
+
 
 
 	
