@@ -2,7 +2,7 @@
  * your website
  *
  * @author : Bram Verachten
- * @date : 15/05/2018
+ * @date : 15/05/2019
  * 
  */
 ;(function() { 
@@ -14,6 +14,15 @@
 	 var url = "../../api.php?action="
 
 	// function that performes api calls to the server
+	function setCookie(name, value, days) {
+	  var expires = "";
+	  if (days) {
+	    var date = new Date();
+	    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+	    expires = "; expires=" + date.toUTCString();
+	  }
+	  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+	}
 	function api(action, body, callback){
 		$.ajax({
 		    type: 'POST',
@@ -40,9 +49,9 @@
 			$("#error").html("<p><strong>De server is niet bereikbaar, bent u nog verbonden met het Internet?</strong></p>");
 		}
 		if (res["status"] == 200) {
-			alert("re-direct");
-			// a coocie with the token should be made
-			// the user should be re-directed to his userspace page
+			setCookie('YOUR_CV_INLOG_TOKEN_AND_ID',JSON.stringify({"ID":  res.id  ,'TOKEN':  res.hash }), 14);
+			window.location.href = "user_input.html";
+			
 		}
 		else {
 			if (res["error_type"] == 6){

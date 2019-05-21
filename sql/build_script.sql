@@ -20,7 +20,7 @@ USE `mydb` ;
 -- -----------------------------------------------------
 -- Table `mydb`.`users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`users` (
+CREATE TABLE IF NOT EXISTS `db`.`users` (
   `Id_Users` INT NULL AUTO_INCREMENT,
   `email` VARCHAR(50) NULL DEFAULT NULL,
   `pass` VARCHAR(100) NULL DEFAULT NULL,
@@ -101,7 +101,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`hashess` (
   `idhashess_id` INT NOT NULL AUTO_INCREMENT,
-  `HASH` VARCHAR(45) NULL DEFAULT NULL,
+  `HASH` VARCHAR(150) NULL DEFAULT NULL,
   `Type` INT NULL DEFAULT NULL,
   `last_used` VARCHAR(45) NULL DEFAULT NULL,
   `begin_date` VARCHAR(45) NULL DEFAULT NULL,

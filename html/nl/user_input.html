@@ -1,0 +1,155 @@
+
+<body>
+	<head>
+		<title>your CV</title>
+		<link rel="shortcut icon" href="favicon.ico" />
+		<meta charset="utf-8" />
+		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+		<link href="../../css/user_input.css" rel="stylesheet" />
+		<link href="../../css/mainPageShared.css" rel="stylesheet" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="../../js/user_input.js"></script>
+	</head>
+
+	<header>
+		<div id="title_box">
+			<h1><strong>Bram Verachten</strong></h1>
+		</div>
+		<div id="top_menu">
+			<nav>
+				<ul>
+					<li><a href="#">wijzingen</a></li>
+					<li><a href="#">profiel</a></li>
+					<li><a href="#">Bestanden</a></li>
+					<li><a href="#">Contacteren</a></li>
+					<li><a href="#">Terug</a></li>
+				</ul>
+			</nav>
+			<div id ="user_space">
+			</div>
+		</div>
+
+	</header>
+	<div id="main_wrapper">
+		<div class="container">
+			<div id="error"></div>
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">Volledige naam:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="fname" name="full_name" placeholder="Voornaam + achternaam">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="lname">Geboortedatum:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="date" name="dateofbirth" id="dateofbirth">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="country">geslacht : </label>
+		      </div>
+		      <div class="col-75">
+		        <select id="gender" name="gender">
+		          <option value="0">Man</option>
+		          <option value="1">Vrouw</option>
+		          <option value="2">Anders</option>
+		        </select>
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">adres regel1: </label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="address_1" name="full_name" placeholder="straat + nr">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">adres regel2: </label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="address_2" name="full_name" placeholder="postcode + gemeente">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">Telefoon nr: </label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="tel" name="full_name" placeholder="tel">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">Rijbewijs: </label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="license" name="full_name" placeholder="rijbewijs type">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="country">Nationaliteit: </label>
+		      </div>
+		      <div class="col-75">
+		        <select id="country" name="gender">
+		          <option value="Man">Belg</option>
+		          <option value="vrouw">Nederlander</option>
+		          <option value="ander">Frankrijker</option>
+		          <option value="ander">Andere</option>
+		        </select>
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="country">Burgelijke staat: </label>
+		      </div>
+		      <div class="col-75">
+		        <select id="marital_state" name="gender">
+		          <option value="0">Ongehuwd</option>
+		          <option value="2">gehuwd</option>
+		          <option value="3">gescheiden</option>
+		          <option value="4">verweduwd</option>
+		        </select>
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="subject">Jouw persoonlijke tekst : </label>
+		      </div>
+		      <div class="col-75">
+		        <textarea id="text" name="subject" placeholder="Schrijf jouw verhaal.." style="height:200px"></textarea>
+		      </div>
+		    </div>
+		    <div class="row">
+		      <input id="submit "type="submit" value="Plaatsen">
+		    </div>
+		</div>
+	</div>
+	<footer>
+		<div id = "spacer">
+		</div>
+		<div id ="footer">
+			<div id="bottom">
+				<p>ik weet tijdelijk niet wat te zetten hier, komt dus wel. Weet gewoon dat dit de footer is </p>
+			</div>
+		</div>	
+	</footer>
+
+</body>
+</html>

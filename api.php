@@ -1,16 +1,16 @@
 <?php
 	error_reporting(E_ALL ^ E_DEPRECATED);
+
 	function token_check($id, $token_user, $db) {
 		//
-		// Following things can happend with the token chock
-		// => The token is completelyy invalid and the api is returned with an error
+		// Following things can happend with the token check
+		// => The token is completely invalid and the api is returned with an error
 		// => The token gives full access and the functions returns true
 		// => The token give ony read access and the function returns false
     	$statement = $db->prepare('SELECT HASH FROM mydb.users inner join mydb.hashess on mydb.hashess.users_Id_Users = mydb.users.Id_Users where Id_Users = ?');
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		$token_db = $res["HASH"];
-		$type = $res["Type"];
 		// check if the token excists 
 		if ($token_db != $token_user){
 			exit(json_encode(array(
@@ -19,11 +19,7 @@
 				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
 			)));
 		}
-
-		if ($type == "read/write"){
-			return true;
-		} 
-		return false; 
+		return true; 
 		
 
 	}
@@ -228,7 +224,7 @@
 	//
 	// This api inserts or updates the main data from. Only the password, salt, Id and email cannot be changed. 
 	// This api works as an update, it will overwrite everything if the content is not the same.
-	// ! a valid token is needed to acces the info
+	// ! a valid token is needed to access the info
 	//
 	elseif ($action == "insert_main") {
 		// get the contenct from the api body
@@ -263,9 +259,19 @@
 				'error_message' => "Token only has reading rights! "
 			)));
 		}
+		// See if the user is setting new date or overwriting it : 
+		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		//  put everything in the database 
-		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, profile_complete=1');
+		if(!$res){
+		$statement = $db->prepare('INSERT INTO users_data (name,date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+				$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
+		}
+		else {
+		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?');
 		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text)); 
+		}
 		// end the api
 		exit(json_encode(array(
 			'status' => 200,
@@ -291,9 +297,20 @@
 			)));
 		}
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT * FROM users_data WHERE id = ?');
+		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
 		$statement->execute(array($ID));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
+
+		$statement = $db->prepare('SELECT * FROM users WHERE Id_Users = ?');
+		$statement->execute(array($ID));
+		$res2 = $statement->fetch(PDO::FETCH_ASSOC);
+
+		if (!$res){
+			exit(json_encode(array(
+				'status' => 200,
+				'error_type' => 100,
+			)));
+		}
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0,
@@ -306,11 +323,18 @@
 			'nationality' => $res['nationality'],
 			'telephone' => $res['telephone'],
 			'marital_state' => $res['marital_state'],
+			'email' => $res2['email'],
 			'text' => $res['text']
 		)));
 
 	}
+
+	//
+	// this is where the complaints are stored, the user must not be logged in for this section. 
+	// The only requirement is that all string are there. 
+	//
 	elseif ($action == "insert_complaint") {
+		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -327,6 +351,7 @@
 				'error_message' => "Not all fields where available, need: name, first_name, type, text"
 			)));
 		}
+		// entering the complaint in the DB
 		$statement = $db->prepare('INSERT INTO complains (name, first_name, type, text) VALUES (?,?,?,?)');
 		$statement->execute(array($name, $first_name, $type, $text));
 		exit(json_encode(array(
