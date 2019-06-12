@@ -15,7 +15,7 @@
 		if ($token_db != $token_user){
 			exit(json_encode(array(
 				'status' => 409,
-				'error_type' => 6,
+				'error_type' => 4,
 				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
 			)));
 		}
@@ -105,10 +105,29 @@
 		// everything is ok, save 		
 		$statement = $db->prepare('INSERT INTO users (email, pass, salt) VALUES(?, ?, ?)');
 		$statement->execute(array($email, $hashed_pass, $salt));
+
+		$statement = $db->prepare('SELECT ID_Users from users WHERE email = ?');
+		$statement->execute(array($email));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		if ($res){
+
+			$user_hash = bin2hex(mcrypt_create_iv(44,MCRYPT_DEV_URANDOM));
+			$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
+			$statement->execute(array($user_hash, 1,$res["ID_Users"]));
+
+			exit(json_encode(array(
+				'status' => 200,
+				'error_type' => 0,
+				'id' => $res["ID_Users"],
+				'hash' => $user_hash,
+			)));
+		}
 		exit(json_encode(array(
 			'status' => 200,
-			'error_type' => 0,
-		)));		
+			'error_type' => 10,
+		)));
+
+		
 	}
 	//
 	// The whole site works with an authorization token. This token is generated in this function when 
@@ -359,6 +378,93 @@
 			'error_type' => 0
 		)));
 	}
+
+	//
+	// this if statement adds a education to the databse 
+	// the record is added for one specific devide 
+	//
+	elseif ($action == "add_education") {
+				// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$from = $xml["from"];
+			$to = $xml["to"];
+			$school = $xml["school"];
+			$education = $xml["education"];
+			$percentage = $xml["percentage"];
+
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the api had a valid token that has read/write property
+		if (!token_check($ID, $HASH, $db)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 7,
+				'error_message' => "Token only has reading rights! "
+			)));
+		}
+		$statement = $db->prepare('INSERT INTO educations (from_date, to_date, school, education, percentage, users_Id_Users) VALUES (?,?,?,?,?,?)');
+				$statement->execute(array($from, $to, $school, $education, $percentage, $ID)); 
+		
+
+		// end the api
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 100
+		)));
+	}
+
+	// 
+	// gets a list of all the educations 
+	//
+	//
+	elseif ($action == "get_education") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT * FROM educations WHERE users_Id_Users = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		$api_res = array();
+		if ($res){
+			foreach ($res as $education_times){
+				$temp = array(
+				'status' => 200,
+				'error_type' => 0,
+				'from' => $education_times['from_date'],
+				'to' => $education_times['to_date'],
+				'school' => $education_times['school'],
+				'education' => $education_times['education'],
+				'percentage' => $education_times['percentage'],
+				);
+				array_push($api_res, $temp);
+			}
+
+		}
+		exit(json_encode($api_res));
+
+	}	
+
 
 
 

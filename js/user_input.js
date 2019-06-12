@@ -98,10 +98,11 @@
 		if (!coockie){
 			window.location.href = "login.html";
 		}
-		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback )
+		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback_main )
+		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},autofill_callback_education)
 	}
 
-	function autofill_callback(res){
+	function autofill_callback_main(res){
 		if (res == "ERROR"){
 			alert("Communication to the server failed")
 		}
@@ -126,11 +127,40 @@
 		}
 	}
 
+	function add_education(from, to, school_name, education, results) {
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		if (!coockie){
+			window.location.href = "login.html";
+		}
+		body = {
+			"id": coockie.ID,
+			 "hash" : coockie.TOKEN,
+			 "from" : from,
+			 "to"   : to,
+			 "school" : school_name,
+			 "education" : education,
+			 "percentage" : results
+		};
+		api("add_education",body, add_education_callback )
+	}
+
+	function add_education_callback(res) {
+		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},add_education_callback)
+	}
+	function autofill_callback_education(res) {
+		console.log(res);
+		for(var i = 0; i < res.length; i++) {
+			"<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>"
+			$("#educations_input").append();
+		}	
+	}
+
+
 	// wait till DOM is loaded
 	$( document ).ready(function() {
 
 		// click to insert data
-    	$(":submit").click(function() {
+    	$("#submit").click(function() {
 			var user = $("#fname").val();
 			var date_of_birth = $("#dateofbirth").val();
 			var gender = $("#gender").val();
@@ -142,6 +172,17 @@
 			var text = $("#text").val();
 			var marital_state = $("#marital_state").val();
 			insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state);
+		});
+
+		$("#submit_education").click(function(){
+			var from = $("#from").val();
+			var to = $("#to").val();
+			var school_name = $("#school").val();
+			var educations = $("#education").val();
+			var results = $("#results").val();
+
+			add_education(from, to, school_name, educations, results);
+
 		});
 		// get date to automaticly fill
 		autofill();

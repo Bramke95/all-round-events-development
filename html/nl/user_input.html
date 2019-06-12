@@ -18,11 +18,10 @@
 		<div id="top_menu">
 			<nav>
 				<ul>
-					<li><a href="#">wijzingen</a></li>
-					<li><a href="#">profiel</a></li>
+					<li><a href="user.html">profiel</a></li>
 					<li><a href="#">Bestanden</a></li>
 					<li><a href="#">Contacteren</a></li>
-					<li><a href="#">Terug</a></li>
+					<li><a href="home.html">Terug</a></li>
 				</ul>
 			</nav>
 			<div id ="user_space">
@@ -137,8 +136,34 @@
 		      </div>
 		    </div>
 		    <div class="row">
-		      <input id="submit "type="submit" value="Plaatsen">
+		      <input id="submit" type="submit" value="Plaatsen">
 		    </div>
+		</div>
+
+		<div id="educations">
+			<h2>OPLEIDINGEN</h2>
+			<table id="schools">
+			  <tr>
+			    <th>Van</th>
+			    <th>Tot</th>
+			    <th>school</th>
+			    <th>opleiding</th>
+			    <th>percentage</th>
+			    <th>	</th>
+			  </tr>
+			  <div id="educations_list"></div>
+
+			  <div id="educations_input">
+				  <tr>
+				    <td><input type="text" id="from" name="from" 		 placeholder=""></td>
+				    <td><input type="text" id="to" name="to"   		 placeholder=""></td>
+				    <td><input type="text" id="school" name="school_name" placeholder=""></td>
+				    <td><input type="text" id="education" name="educations"  placeholder=""></td>
+				    <td><input type="text" id="results" name="result"      placeholder=""></td>
+				    <td><input type="submit" id="submit_education" name="add" value="Toevoegen" placeholder=""></td>
+				  </tr>
+			</div>
+			</table>
 		</div>
 	</div>
 	<footer>

@@ -97,6 +97,22 @@ input {
   color: red;
 }
 
+#schools td, #schools th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#schools tr:nth-child(even){background-color: #f2f2f2;}
+
+#schools tr:hover {background-color: #ddd;}
+
+#schools th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: gray;
+  color: white;
+}
 
 /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
 @media screen and (max-width: 600px) {
