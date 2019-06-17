@@ -326,8 +326,9 @@
 
 		if (!$res){
 			exit(json_encode(array(
-				'status' => 200,
-				'error_type' => 100,
+				'status' => 409,
+				'error_type' => 8,
+				'errpr_message' => "no info found",
 			)));
 		}
 		exit(json_encode(array(
@@ -428,6 +429,7 @@
 	//
 	//
 	elseif ($action == "get_education") {
+		// get all the info from the api 
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -441,33 +443,167 @@
 				'error_message' => "Not all fields where available, need: ID, HASH"
 			)));
 		}
+		// check if the user is and token is valid 
 		token_check($ID, $HASH, $db);
+
 		$statement = $db->prepare('SELECT * FROM educations WHERE users_Id_Users = ?');
 		$statement->execute(array($ID));
-		$res = $statement->fetch(PDO::FETCH_ASSOC);
-		$api_res = array();
+		$res = $statement->fetchAll();
+
 		if ($res){
-			foreach ($res as $education_times){
-				$temp = array(
-				'status' => 200,
-				'error_type' => 0,
-				'from' => $education_times['from_date'],
-				'to' => $education_times['to_date'],
-				'school' => $education_times['school'],
-				'education' => $education_times['education'],
-				'percentage' => $education_times['percentage'],
-				);
-				array_push($api_res, $temp);
-			}
-
+			$json = json_encode($res);
+			exit($json);
 		}
-		exit(json_encode($api_res));
-
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 4,
+			'error_message' => "No education found"
+		)));
+		
 	}	
 
+	elseif ($action == "delete_education") {
+		// get all the info from the api 
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$edu_id = $xml["education_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('DELETE FROM educations WHERE users_Id_Users = ? AND ideducations_id = ?');
+		$statement->execute(array($ID, $edu_id));
+		// end the api
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 100
+		)));
+	}
+
+	//
+	// this if statement adds a education to the databse 
+	// the record is added for one specific devide 
+	//
+	elseif ($action == "add_language") {
+				// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$lang = $xml["lang"];
+			$speak = $xml["speak"];
+			$write = $xml["write"];
+			$read = $xml["read"];
+
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the api had a valid token that has read/write property
+		if (!token_check($ID, $HASH, $db)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 7,
+				'error_message' => "Token only has reading rights! "
+			)));
+		}
+		$statement = $db->prepare('INSERT INTO language (language, speaking, writing, reading, users_Id_Users) VALUES (?,?,?,?,?)');
+				$statement->execute(array($lang, $speak, $write, $read, $ID)); 
+		
+
+		// end the api
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 100
+		)));
+	}
+
+	// 
+	// gets a list of all the languages
+	//
+	//
+	elseif ($action == "get_languages") {
+		// get all the info from the api 
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+
+		$statement = $db->prepare('SELECT * FROM language WHERE users_Id_Users = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 4,
+			'error_message' => "No languages found"
+		)));
+		
+	}	
+
+	elseif ($action == "delete_language") {
+		// get all the info from the api 
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$language_id = $xml["language_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('DELETE FROM language WHERE users_Id_Users = ? AND language_id = ?');
+		$statement->execute(array($ID, $language_id));
+		// end the api
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 100
+		)));
+	}
+
+	else {
+		exit(json_encode(array(
+			'status' => 404,
+			'error_type' => 10,
+			'error_message' => "not a valid action"
+		)));
+	}
 
 
 
-
-	
-// EOF

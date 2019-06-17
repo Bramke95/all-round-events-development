@@ -8,3 +8,4 @@ error codes!
 5 : The activation code is valid but was already used
 6 : the request was made with an invalid token or a ID/Token mismatch 
 7 : This token has only reading rights, this action cannot be performed with this token
+8 : not a valid action 

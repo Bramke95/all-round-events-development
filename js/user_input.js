@@ -47,7 +47,7 @@
 		        callback(JSON.parse(resp));
 		    },
 		    error: function(XMLHttpRequest, textStatus, errorThrown) { 
-                 callback("ERROR")   
+                 window.location.href = "error.html";   
             } 
 		});
 	};
@@ -98,8 +98,10 @@
 		if (!coockie){
 			window.location.href = "login.html";
 		}
+		$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th><th></th></tr>');
 		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback_main )
-		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},autofill_callback_education)
+		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
+		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
 	}
 
 	function autofill_callback_main(res){
@@ -144,15 +146,93 @@
 		api("add_education",body, add_education_callback )
 	}
 
-	function add_education_callback(res) {
-		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},add_education_callback)
+	function add_language(lang, speak, write, read) {
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		if (!coockie){
+			window.location.href = "login.html";
+		}
+		body = {
+			"id": coockie.ID,
+			 "hash" : coockie.TOKEN,
+			 "lang" : lang,
+			 "speak"   : speak,
+			 "write" : write,
+			 "read" : read
+		};
+		api("add_language",body, add_language_callback )
 	}
+
+	function add_education_callback(res) {
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
+	}
+
+	function add_language_callback(res) {
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
+	}
+
 	function autofill_callback_education(res) {
 		console.log(res);
 		for(var i = 0; i < res.length; i++) {
 			"<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>"
 			$("#educations_input").append();
 		}	
+	}
+	function delete_education(education_id){
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("delete_education",{"id" : coockie.ID, "hash" : coockie.TOKEN, "education_id" : education_id},delete_callback)
+	}
+
+	function delete_language(language_id){
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("delete_language",{"id" : coockie.ID, "hash" : coockie.TOKEN, "language_id" : language_id},delete_callback)
+	}
+
+	function delete_callback(res){
+		autofill();
+	}
+
+	function get_education_callback(res){
+		$("#schools").html("");
+		for(var i = 0; i < res.length; i++) {
+			$("#schools").prepend('<tr><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td><td>'+ res[i].school +'</td><td>'+ res[i].education +'</td><td>'+ res[i].percentage +'</td><td><input type="submit" class="delete_education" name="'+ res[i].ideducations_id +'" value="Verwijderen" placeholder=""></td></tr>');
+		}
+		$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th><th></th></tr>');
+		$("#schools").append('<tr><td><input type="text" id="from" name="from" 		 placeholder=""></td><td><input type="text" id="to" name="to" placeholder=""></td><td><input type="text" id="school" name="school_name" placeholder=""></td><td><input type="text" id="education" name="educations"  placeholder=""></td><td><input type="text" id="results" name="result"placeholder=""></td><td><input type="submit" id="submit_education" name="add" value="Toevoegen" placeholder=""></td></tr>');
+		$("#submit_education").click(function(){
+			var from = $("#from").val();
+			var to = $("#to").val();
+			var school_name = $("#school").val();
+			var educations = $("#education").val();
+			var results = $("#results").val();
+
+			add_education(from, to, school_name, educations, results);
+		});
+		$(".delete_education").click(function(){
+			delete_education(this.name);
+		});
+	}
+
+	function get_language_callback(res){
+		$("#languages").html("");
+		for(var i = 0; i < res.length; i++) {
+			$("#languages").prepend('<tr><td>'+ res[i].language +'</td><td>'+ res[i].speaking +'</td><td>'+ res[i].writing +'</td><td>'+ res[i].reading +'</td><td><input type="submit" class="delete_languages" name="'+ res[i].language_id +'" value="Verwijderen" placeholder=""></td></tr>');
+		}
+		$("#languages").prepend('<tr><th>Taal</th><th>Spreken</th><th>Schrijven</th><th>Lezen</th><th></th></tr>');
+		$("#languages").append('<tr><td><input type="text" id="lang" name="from" placeholder=""></td><td><input type="text" id="speak" name="to" placeholder=""></td><td><input type="text" id="write" name="school_name" placeholder=""></td><td><input type="text" id="read" name="educations"  placeholder=""></td><td><input type="submit" id="submit_languages" name="add" value="Toevoegen" placeholder=""></td></tr>');
+		$("#submit_languages").click(function(){
+			var lang = $("#lang").val();
+			var speak = $("#speak").val();
+			var write = $("#write").val();
+			var read = $("#read").val();
+
+
+			add_language(lang, speak, write, read);
+		});
+		$(".delete_languages").click(function(){
+			delete_language(this.name);
+		});
 	}
 
 
@@ -182,6 +262,17 @@
 			var results = $("#results").val();
 
 			add_education(from, to, school_name, educations, results);
+
+		});
+
+		$("#submit_education").click(function(){
+			var from = $("#from").val();
+			var to = $("#to").val();
+			var school_name = $("#school").val();
+			var educations = $("#education").val();
+			var results = $("#results").val();
+
+			add_language(from, to, school_name, educations, results);
 
 		});
 		// get date to automaticly fill

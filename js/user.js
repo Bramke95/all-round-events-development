@@ -67,6 +67,9 @@
 		if (res.error_type == 4){
 			window.location.href = "login.html";
 		}
+		if (res.error_type == 8){
+			window.location.href = "user_input.html";
+		}
 		if (res != 100){
 			// infill
 			var date = new Date(res.date_of_birth);

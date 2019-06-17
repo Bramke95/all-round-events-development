@@ -102,11 +102,28 @@ input {
   padding: 8px;
 }
 
-#schools tr:nth-child(even){background-color: #f2f2f2;}
+#schools tr {background-color: white;}
 
 #schools tr:hover {background-color: #ddd;}
 
 #schools th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: gray;
+  color: white;
+}
+
+#languages td, #languages th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#languages tr {background-color: white;}
+
+#languages tr:hover {background-color: #ddd;}
+
+#languages th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
