@@ -597,6 +597,115 @@
 		)));
 	}
 
+	//
+	// this if statement adds a expierences to the databse 
+	// the record is added for one specific devide 
+	//
+	elseif ($action == "add_expierence") {
+				// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$company = $xml["company"];
+			$jobtitle = $xml["jobtitle"];
+			$from_date = $xml["from_date"];
+			$to_date = $xml["to_date"];
+
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the api had a valid token that has read/write property
+		if (!token_check($ID, $HASH, $db)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 7,
+				'error_message' => "Token only has reading rights! "
+			)));
+		}
+		$statement = $db->prepare('INSERT INTO expierence (compamy, jobtitle, from_date, to_date, users_Id_Users) VALUES (?,?,?,?,?)');
+		$statement->execute(array($company, $jobtitle, $from_date, $to_date, $ID)); 
+		// end the api
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 100
+		)));
+	}
+
+	// 
+	// gets a list of all the expierences
+	//
+	//
+	elseif ($action == "get_expierence") {
+		// get all the info from the api 
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+
+		$statement = $db->prepare('SELECT * FROM expierence WHERE users_Id_Users = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 4,
+			'error_message' => "No languages found"
+		)));
+		
+	}	
+	//
+	// delete expierences from db
+	//
+	elseif ($action == "delete_expierence") {
+		// get all the info from the api 
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$language_id = $xml["idexpierence"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('DELETE FROM expierence WHERE users_Id_Users = ? AND idexpierence = ?');
+		$statement->execute(array($ID, $language_id));
+		// end the api
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 100
+		)));
+	}
+
+
 	else {
 		exit(json_encode(array(
 			'status' => 404,

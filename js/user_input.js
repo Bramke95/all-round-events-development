@@ -102,6 +102,7 @@
 		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback_main )
 		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
 		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
+		api("get_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_expierence_callback)
 	}
 
 	function autofill_callback_main(res){
@@ -162,6 +163,22 @@
 		api("add_language",body, add_language_callback )
 	}
 
+	function add_expierence(company, jobtitle, from_date, to_date) {
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		if (!coockie){
+			window.location.href = "login.html";
+		}
+		body = {
+			"id": coockie.ID,
+			 "hash" : coockie.TOKEN,
+			 "company" : company,
+			 "jobtitle"   : jobtitle,
+			 "from_date" : from_date,
+			 "to_date" : to_date
+		};
+		api("add_expierence",body, add_expierence_callback )
+	}
+
 	function add_education_callback(res) {
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
@@ -172,13 +189,11 @@
 		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
 	}
 
-	function autofill_callback_education(res) {
-		console.log(res);
-		for(var i = 0; i < res.length; i++) {
-			"<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>"
-			$("#educations_input").append();
-		}	
+	function add_expierence_callback(res) {
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("get_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_expierence_callback)
 	}
+
 	function delete_education(education_id){
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 		api("delete_education",{"id" : coockie.ID, "hash" : coockie.TOKEN, "education_id" : education_id},delete_callback)
@@ -187,6 +202,11 @@
 	function delete_language(language_id){
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 		api("delete_language",{"id" : coockie.ID, "hash" : coockie.TOKEN, "language_id" : language_id},delete_callback)
+	}
+
+	function delete_expierence(expierence_id){
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("delete_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN, "idexpierence" : expierence_id},delete_callback)
 	}
 
 	function delete_callback(res){
@@ -235,6 +255,27 @@
 		});
 	}
 
+	function get_expierence_callback(res){
+		$("#work").html("");
+		for(var i = 0; i < res.length; i++) {
+			$("#work").prepend('<tr><td>'+ res[i].compamy +'</td><td>'+ res[i].jobtitle +'</td><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td><td><input type="submit" class="delete_expierence" name="'+ res[i].idexpierence +'" value="Verwijderen" placeholder=""></td></tr>');
+		}
+		$("#work").prepend('<tr><th>Bedrijf</th><th>job titel</th><th>Van</th><th>Tot</th><th></th></tr>');
+		$("#work").append('<tr><td><input type="text" id="company" name="from" placeholder=""></td><td><input type="text" id="jobtitle" name="to" placeholder=""></td><td><input type="text" id="from_work" name="school_name" placeholder=""></td><td><input type="text" id="to_work" name="educations"  placeholder=""></td><td><input type="submit" id="submit_expierence" name="add" value="Toevoegen" placeholder=""></td></tr>');
+		$("#submit_expierence").click(function(){
+			var compamy = $("#company").val();
+			var jobtitle = $("#jobtitle").val();
+			var from_date = $("#from_work").val();
+			var to_date = $("#to_work").val();
+
+
+			add_expierence(compamy, jobtitle, from_date, to_date);
+		});
+		$(".delete_expierence").click(function(){
+			delete_expierence(this.name);
+		});
+	}
+
 
 	// wait till DOM is loaded
 	$( document ).ready(function() {
@@ -266,7 +307,7 @@
 		});
 
 		$("#submit_education").click(function(){
-			var from = $("#from").val();
+			var compamy = $("#from").val();
 			var to = $("#to").val();
 			var school_name = $("#school").val();
 			var educations = $("#education").val();
