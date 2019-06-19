@@ -26,9 +26,8 @@ label {
   display: inline-block;
 }
 
-/* Style the submit button */
 input[type=submit] {
-  background-color: #4CAF50;
+  background-color: red;
   color: white;
   padding: 12px 20px;
   border: none;

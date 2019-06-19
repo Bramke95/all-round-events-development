@@ -73,6 +73,12 @@
   width: 98.5%;
   margin-top: 10px;
 }
+#work{
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 98.5%;
+  margin-top: 10px;
+}
 
 #schools td, #schools th {
   border: 1px solid #ddd;
@@ -90,6 +96,8 @@
   background-color: gray;
   color: white;
 }
+
+
 #language td, #language th {
   border: 1px solid #ddd;
   padding: 8px;
@@ -100,6 +108,23 @@
 #language tr:hover {background-color: #ddd;}
 
 #language th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: gray;
+  color: white;
+}
+
+#work td, #work th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#work tr:nth-child(even){background-color: #f2f2f2;}
+
+#work tr:hover {background-color: #ddd;}
+
+#work th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;

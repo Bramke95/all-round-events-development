@@ -57,10 +57,36 @@
 		if (!coockie){
 			window.location.href = "login.html";
 		}
-		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback )
+		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback)
+		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
+		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
+		api("get_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_expierence_callback)
 	}
 
+	function get_education_callback(res){
+		$("#schools").html("");
+		for(var i = 0; i < res.length; i++) {
+			$("#schools").prepend('<tr><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td><td>'+ res[i].school +'</td><td>'+ res[i].education +'</td><td>'+ res[i].percentage +'</td></tr>');
+		}
+		$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th></tr>');
+	}
+	function get_language_callback(res){
+		$("#language").html("");
+		for(var i = 0; i < res.length; i++) {
+			$("#language").prepend('<tr><td>'+ res[i].language +'</td><td>'+ res[i].speaking +'</td><td>'+ res[i].writing +'</td><td>'+ res[i].reading +'</td></tr>');
+		}
+		$("#language").prepend('<tr><th>Taal</th><th>Lezen</th><th>schrijven</th><th>Sprken</th></tr>');
+	}
+	function get_expierence_callback(res){
+		$("#work").html("");
+		for(var i = 0; i < res.length; i++) {
+			$("#work").prepend('<tr><td>'+ res[i].compamy +'</td><td>'+ res[i].jobtitle +'</td><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td></tr>');
+		}
+		$("#work").prepend('<tr><th>Bedrijf</th><th>job titel</th><th>Van</th><th>Tot</th></tr>');
+
+	}
 	function autofill_callback(res){
+		$("#title_box").prepend("<h1><strong>"+ res.name +"</strong></h1>");
 		if (res == "ERROR"){
 			alert("Communication to the server failed")
 		}

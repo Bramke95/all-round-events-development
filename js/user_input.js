@@ -219,7 +219,7 @@
 			$("#schools").prepend('<tr><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td><td>'+ res[i].school +'</td><td>'+ res[i].education +'</td><td>'+ res[i].percentage +'</td><td><input type="submit" class="delete_education" name="'+ res[i].ideducations_id +'" value="Verwijderen" placeholder=""></td></tr>');
 		}
 		$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th><th></th></tr>');
-		$("#schools").append('<tr><td><input type="text" id="from" name="from" 		 placeholder=""></td><td><input type="text" id="to" name="to" placeholder=""></td><td><input type="text" id="school" name="school_name" placeholder=""></td><td><input type="text" id="education" name="educations"  placeholder=""></td><td><input type="text" id="results" name="result"placeholder=""></td><td><input type="submit" id="submit_education" name="add" value="Toevoegen" placeholder=""></td></tr>');
+		$("#schools").append('<tr><td><input type="text" id="from" name="from" 		 placeholder=""></td><td><input type="text" id="to" name="to" placeholder=""></td><td><input type="text" id="school" name="school_name" placeholder=""></td><td><input type="text" id="education" name="educations"  placeholder=""></td><td><input type="text" id="results" name="result"placeholder=""></td><td><input type="submit" id="submit_education" name="add" value="Toevoegen" placeholder=""style="background-color: #4CAF50;"></td></tr>');
 		$("#submit_education").click(function(){
 			var from = $("#from").val();
 			var to = $("#to").val();
@@ -240,7 +240,7 @@
 			$("#languages").prepend('<tr><td>'+ res[i].language +'</td><td>'+ res[i].speaking +'</td><td>'+ res[i].writing +'</td><td>'+ res[i].reading +'</td><td><input type="submit" class="delete_languages" name="'+ res[i].language_id +'" value="Verwijderen" placeholder=""></td></tr>');
 		}
 		$("#languages").prepend('<tr><th>Taal</th><th>Spreken</th><th>Schrijven</th><th>Lezen</th><th></th></tr>');
-		$("#languages").append('<tr><td><input type="text" id="lang" name="from" placeholder=""></td><td><input type="text" id="speak" name="to" placeholder=""></td><td><input type="text" id="write" name="school_name" placeholder=""></td><td><input type="text" id="read" name="educations"  placeholder=""></td><td><input type="submit" id="submit_languages" name="add" value="Toevoegen" placeholder=""></td></tr>');
+		$("#languages").append('<tr><td><input type="text" id="lang" name="from" placeholder=""></td><td><input type="text" id="speak" name="to" placeholder=""></td><td><input type="text" id="write" name="school_name" placeholder=""></td><td><input type="text" id="read" name="educations"  placeholder=""></td><td><input type="submit" id="submit_languages" name="add" value="Toevoegen" placeholder="" style="background-color: #4CAF50;"></td></tr>');
 		$("#submit_languages").click(function(){
 			var lang = $("#lang").val();
 			var speak = $("#speak").val();
@@ -261,7 +261,7 @@
 			$("#work").prepend('<tr><td>'+ res[i].compamy +'</td><td>'+ res[i].jobtitle +'</td><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td><td><input type="submit" class="delete_expierence" name="'+ res[i].idexpierence +'" value="Verwijderen" placeholder=""></td></tr>');
 		}
 		$("#work").prepend('<tr><th>Bedrijf</th><th>job titel</th><th>Van</th><th>Tot</th><th></th></tr>');
-		$("#work").append('<tr><td><input type="text" id="company" name="from" placeholder=""></td><td><input type="text" id="jobtitle" name="to" placeholder=""></td><td><input type="text" id="from_work" name="school_name" placeholder=""></td><td><input type="text" id="to_work" name="educations"  placeholder=""></td><td><input type="submit" id="submit_expierence" name="add" value="Toevoegen" placeholder=""></td></tr>');
+		$("#work").append('<tr><td><input type="text" id="company" name="from" placeholder=""></td><td><input type="text" id="jobtitle" name="to" placeholder=""></td><td><input type="text" id="from_work" name="school_name" placeholder=""></td><td><input type="text" id="to_work" name="educations"  placeholder=""></td><td><input type="submit" id="submit_expierence" name="add" value="Toevoegen" placeholder=""style="background-color: #4CAF50;"></td></tr>');
 		$("#submit_expierence").click(function(){
 			var compamy = $("#company").val();
 			var jobtitle = $("#jobtitle").val();
@@ -295,27 +295,27 @@
 			insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state);
 		});
 
-		$("#submit_education").click(function(){
-			var from = $("#from").val();
-			var to = $("#to").val();
-			var school_name = $("#school").val();
-			var educations = $("#education").val();
-			var results = $("#results").val();
-
-			add_education(from, to, school_name, educations, results);
-
-		});
-
-		$("#submit_education").click(function(){
-			var compamy = $("#from").val();
-			var to = $("#to").val();
-			var school_name = $("#school").val();
-			var educations = $("#education").val();
-			var results = $("#results").val();
-
-			add_language(from, to, school_name, educations, results);
-
-		});
+        $("#form_img").submit(function(e){
+            e.preventDefault();
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            var formData = new FormData($("#form_img")[0]);
+            formData.append("auth", JSON.stringify(coockie))
+            $.ajax({
+                url : $("#form_img").attr('action'),
+                type : 'POST',
+                data : formData,
+                contentType : false,
+                processData : false,
+                success: function(resp) {
+                    console.log(resp);
+                    // fotos uploaded...                         
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                    alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+                } 
+            });
+        });    
+           
 		// get date to automaticly fill
 		autofill();
 	});
