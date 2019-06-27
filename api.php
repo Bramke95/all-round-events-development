@@ -522,7 +522,7 @@
 			)));
 		}
 		$statement = $db->prepare('INSERT INTO language (language, speaking, writing, reading, users_Id_Users) VALUES (?,?,?,?,?)');
-				$statement->execute(array($lang, $speak, $write, $read, $ID)); 
+		$statement->execute(array($lang, $speak, $write, $read, $ID)); 
 		
 
 		// end the api
@@ -704,27 +704,34 @@
 			'error_type' => 100
 		)));
 	}
-
+	//
+	// adding an picture to the DB 
+	// The image is stored on the local file system. Only the name and location 
+	//
 	elseif ($action == "upload_picture"){
-		var $ID = json_encode(json_decode($_POST["auth"])->ID);
-		var $TOKEN =json_encode(json_decode($_POST["auth"])->TOKEN);
+		$ID = json_encode(json_decode($_POST["auth"])->ID);
+		$TOKEN =json_encode(json_decode($_POST["auth"])->TOKEN);
 		token_check($ID, $HASH, $db);
 
 		// TODO : check if the max amount of results is not higher than 5
-		$statement = $db->prepare('SELECT * FROM Images WHERE users_Id_Users = ?');
+		$statement = $db->prepare('SELECT COUNT(*) FROM Images WHERE users_Id_Users = 1;');
 		$statement->execute(array($ID));
-		$res = $statement->fetchAll();
-		
-		// TODO : generate random picture name, save the name in the DB 
-
-		// TOOO : change code to save as the random file name 
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		$count = $res["COUNT(*)"];
+		if ($count > 5){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 9,
+				'error_message => "Only 5 pictures allowed!"'
+			)));
+		}
+		//throw new Exception($count);
+		$random_hash = bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
 		$target_dir = "upload/";
 		$target_file = $target_dir . basename($_FILES["img"]["name"]);
 		$uploadOk = 1;
 		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-		$random_hash = "test123";
 		$target_file = $target_dir . $random_hash . ".". $imageFileType;
-		// Check if image file is a actual image or fake image
 		if(isset($_POST["submit"])) {
 	    	$check = getimagesize($_FILES["img"]["tmp_name"]);
 	    	if($check !== false) {
@@ -735,11 +742,7 @@
 	        		$uploadOk = 0;
 	    	}
 		}
-		// Check if file already exists
-		if (file_exists($target_file)) {
-	    	echo "Sorry, file already exists.";
-	    	$uploadOk = 0;
-		}
+
 		// Check file size
 		if ($_FILES["fileToUpload"]["size"] > 250000) {
 	    	echo "Sorry, your file is too large.";
@@ -757,13 +760,54 @@
 				// if everything is ok, try to upload file
 		} else {
 	    	if (move_uploaded_file($_FILES["img"]["tmp_name"], $target_file)) {
-	        		echo "The file ". basename( $_FILES["img"]["name"]). " has been uploaded.";
+	    			$ID = str_replace('"', "", $ID);
+	        		echo "The file ". basename( $_FILES["img"]["name"]) . " has been uploaded.";
+	        		$statement = $db->prepare('INSERT INTO images (picture_name, users_Id_Users) VALUES (?,?)');
+					$statement->execute(array($target_file, (int)$ID)); 
+
+	        		// TODO adding image name to DB
 	    	} else {
 	        	echo "Sorry, there was an error uploading your file.";
 	    	}
 		}
 	}
+	//
+	// This function gets all the pictures locactions from the user id
+	// 
+	//
+	elseif ($action == "get_pictures"){
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
 
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+
+		$statement = $db->prepare('SELECT picture_name, is_primary  FROM Images WHERE users_Id_Users = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 4,
+			'error_message' => "No languages found"
+		)));
+
+
+	}	
 	else {
 		exit(json_encode(array(
 			'status' => 404,

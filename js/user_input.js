@@ -5,6 +5,9 @@
  * @date : 15/05/2019
  * 
  */
+
+
+
 ;(function() { 
 
 	 // global variables that are needed to use the api 
@@ -103,6 +106,7 @@
 		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
 		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
 		api("get_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_expierence_callback)
+		api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)
 	}
 
 	function autofill_callback_main(res){
@@ -276,7 +280,13 @@
 		});
 	}
 
-
+	function get_pictures_callback(res){
+		$("#picture_placeholder").html("");
+		for(var i = 0; i < res.length; i++) {
+			console.log(res[i].picture_name);
+			$("#picture_placeholder").prepend('<img src=/'+ res[i].picture_name +' alt="">');
+		}
+	}
 	// wait till DOM is loaded
 	$( document ).ready(function() {
 
@@ -308,15 +318,14 @@
                 processData : false,
                 success: function(resp) {
                     console.log(resp);
-                    // fotos uploaded...                         
+                    api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)                         
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) { 
                     alert("Status: " + textStatus); alert("Error: " + errorThrown); 
                 } 
             });
-        });    
-           
-		// get date to automaticly fill
-		autofill();
+        });
+        autofill();
+             
 	});
 })();
