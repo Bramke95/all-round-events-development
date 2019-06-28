@@ -61,6 +61,7 @@
 		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
 		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
 		api("get_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_expierence_callback)
+		api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)
 	}
 
 	function get_education_callback(res){
@@ -84,6 +85,16 @@
 		}
 		$("#work").prepend('<tr><th>Bedrijf</th><th>job titel</th><th>Van</th><th>Tot</th></tr>');
 
+	}
+	function get_pictures_callback(res){
+		if (res.length > 0){
+			$("#front_picture").html("");
+			for(var i = 0; i < res.length; i++) {
+				if (res[i].is_primary == 1){
+					$("#front_picture").append('<img src=/'+ res[i].picture_name +' alt="Smiley face" height="42" width="42">');
+				}	
+			}	
+		}			
 	}
 	function autofill_callback(res){
 		$("#title_box").prepend("<h1><strong>"+ res.name +"</strong></h1>");

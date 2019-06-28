@@ -81,7 +81,7 @@
 			$("#error").html("<p><strong>De server is niet bereikbaar, bent u nog verbonden met het Internet?</strong></p>");
 		}
 		if (res["status"] == 200) {
-			window.location.href = "user.html";
+			alert("Alle gegevens zijn opgeslagen!");
 			
 		}
 		else {
@@ -216,6 +216,10 @@
 	function delete_callback(res){
 		autofill();
 	}
+	function picture_update_callback(res){
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)
+	}	
 
 	function get_education_callback(res){
 		$("#schools").html("");
@@ -241,7 +245,8 @@
 	function get_language_callback(res){
 		$("#languages").html("");
 		for(var i = 0; i < res.length; i++) {
-			$("#languages").prepend('<tr><td>'+ res[i].language +'</td><td>'+ res[i].speaking +'</td><td>'+ res[i].writing +'</td><td>'+ res[i].reading +'</td><td><input type="submit" class="delete_languages" name="'+ res[i].language_id +'" value="Verwijderen" placeholder=""></td></tr>');
+				$("#languages").prepend('<tr><td>'+ res[i].language +'</td><td>'+ res[i].speaking +'</td><td>'+ res[i].writing +'</td><td>'+ res[i].reading +'</td><td><input type="submit" class="delete_languages" name="'+ res[i].language_id +'" value="Verwijderen" placeholder=""></td></tr>');
+				
 		}
 		$("#languages").prepend('<tr><th>Taal</th><th>Spreken</th><th>Schrijven</th><th>Lezen</th><th></th></tr>');
 		$("#languages").append('<tr><td><input type="text" id="lang" name="from" placeholder=""></td><td><input type="text" id="speak" name="to" placeholder=""></td><td><input type="text" id="write" name="school_name" placeholder=""></td><td><input type="text" id="read" name="educations"  placeholder=""></td><td><input type="submit" id="submit_languages" name="add" value="Toevoegen" placeholder="" style="background-color: #4CAF50;"></td></tr>');
@@ -283,9 +288,23 @@
 	function get_pictures_callback(res){
 		$("#picture_placeholder").html("");
 		for(var i = 0; i < res.length; i++) {
-			console.log(res[i].picture_name);
-			$("#picture_placeholder").prepend('<img src=/'+ res[i].picture_name +' alt="">');
+			if (res[i].is_primary == 0){
+				$("#picture_placeholder").append('<div class="show-image"><img src=/'+ res[i].picture_name +' /><input class="make_profile" type="button" value="profielfoto" name="'+ res[i].picture_name+'" /><input class="delete" type="button" value="Verwijder" name="'+res[i].picture_name+'"/></div>');
+			}
+			else {
+				$("#picture_placeholder").prepend('<div class="show-image"><img style="border: 4px solid green;" src=/'+ res[i].picture_name +' /><input class="delete" type="button" value="Verwijder" name="'+res[i].picture_name+'"/></div>');
+
+			}
 		}
+		$(".make_profile").click(function() {
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("make_profile",{"id" : coockie.ID, "hash" : coockie.TOKEN, "image" : this.name}, picture_update_callback)
+		});
+		$(".delete").click(function() {
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("delete_picture",{"id" : coockie.ID, "hash" : coockie.TOKEN,  "image" : this.name}, picture_update_callback)
+		});			
+		
 	}
 	// wait till DOM is loaded
 	$( document ).ready(function() {
@@ -318,7 +337,19 @@
                 processData : false,
                 success: function(resp) {
                     console.log(resp);
-                    api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)                         
+					if (JSON.parse(resp).error_type == 9){
+						alert("Je kan niet meer dan 5 afbeeldingen opslaan per gebruiker. ");
+					}
+					else if (JSON.parse(resp).error_type == 11){
+						alert("Geen geldige afbeeldingen gevonden, gelieve een gif, jpg, jpeg of png file te gebruiken! ");
+					}
+					else if (JSON.parse(resp).error_type != 0){
+						alert("Het uploaden van de afbeelding is mislukt!  ");
+					}
+					else {
+						api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback) 
+					}
+                                            
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) { 
                     alert("Status: " + textStatus); alert("Error: " + errorThrown); 

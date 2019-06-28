@@ -711,21 +711,25 @@
 	elseif ($action == "upload_picture"){
 		$ID = json_encode(json_decode($_POST["auth"])->ID);
 		$TOKEN =json_encode(json_decode($_POST["auth"])->TOKEN);
+		$is_primary = 0; 
 		token_check($ID, $HASH, $db);
 
 		// TODO : check if the max amount of results is not higher than 5
-		$statement = $db->prepare('SELECT COUNT(*) FROM Images WHERE users_Id_Users = 1;');
-		$statement->execute(array($ID));
+		$ID = str_replace('"', "", $ID);
+		$statement = $db->prepare('SELECT COUNT(*) FROM images WHERE users_Id_Users = ?;');
+		$statement->execute(array((int)$ID));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		$count = $res["COUNT(*)"];
-		if ($count > 5){
+		if ($count > 4){
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 9,
 				'error_message => "Only 5 pictures allowed!"'
 			)));
 		}
-		//throw new Exception($count);
+		if ($count == 0){
+			$is_primary = 1;
+		}	
 		$random_hash = bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
 		$target_dir = "upload/";
 		$target_file = $target_dir . basename($_FILES["img"]["name"]);
@@ -751,7 +755,11 @@
 		// Allow certain file formats
 		if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
 		&& $imageFileType != "gif" ) {
-	    	echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+	    	exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 11,
+				'error_message => "Not a valid format"'
+			)));
 	    	$uploadOk = 0;
 		}
 		// Check if $uploadOk is set to 0 by an error
@@ -761,9 +769,13 @@
 		} else {
 	    	if (move_uploaded_file($_FILES["img"]["tmp_name"], $target_file)) {
 	    			$ID = str_replace('"', "", $ID);
-	        		echo "The file ". basename( $_FILES["img"]["name"]) . " has been uploaded.";
-	        		$statement = $db->prepare('INSERT INTO images (picture_name, users_Id_Users) VALUES (?,?)');
-					$statement->execute(array($target_file, (int)$ID)); 
+	        		$statement = $db->prepare('INSERT INTO images (picture_name, is_primary, users_Id_Users) VALUES (?,?,?)');
+					$statement->execute(array($target_file,(int)$is_primary, (int)$ID)); 
+					exit(json_encode(array(
+						'status' => 200,
+						'error_type' => 0,
+						'error_message' => "OK"
+					)));
 
 	        		// TODO adding image name to DB
 	    	} else {
@@ -806,8 +818,91 @@
 			'error_message' => "No languages found"
 		)));
 
+	}
 
-	}	
+	elseif ($action == "delete_picture"){	
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$picture = $xml["image"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+		
+		if (file_exists($picture)) {
+			unlink($picture);
+		}
+		$statement = $db->prepare('select is_primary from images WHERE users_Id_Users = ? and picture_name = ?');
+		$statement->execute(array($ID, $picture));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		if ($res) {
+			if ($res["is_primary"] == 1){
+				$statement = $db->prepare('select picture_name from images WHERE users_Id_Users = ? AND is_primary !=1 LIMIT 1');
+				$statement->execute(array($ID));
+				$res = $statement->fetch(PDO::FETCH_ASSOC);
+				$name = $res["picture_name"];	
+				$statement = $db->prepare('UPDATE images set is_primary=1 where users_Id_Users=? and picture_name=?');
+				$statement->execute(array((int)$ID, $name)); 		
+			}
+		}
+		
+		$statement = $db->prepare('DELETE FROM images WHERE users_Id_Users = ? and picture_name = ?');
+		$statement->execute(array($ID, $picture));
+
+		
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'error_message' => "ok"
+		)));
+		
+	}
+	elseif ($action == "make_profile"){
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$picture = $xml["image"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
+		token_check($ID, $HASH, $db);
+		if (file_exists($picture)) {
+			$statement = $db->prepare('UPDATE images set is_primary=0 where users_Id_Users=?');
+			$statement->execute(array((int)$ID)); 
+			$statement = $db->prepare('UPDATE images set is_primary=1 where users_Id_Users=? and picture_name=?');
+			$statement->execute(array((int)$ID, $picture)); 
+			exit(json_encode(array(
+				'status' => 200,
+				'error_type' => 0,
+				'error_message' => "OK"
+			)));
+		}else{
+			exit(json_encode(array(
+				'status' => 200,
+				'error_type' => 10,
+				'error_message' => "File does not excists"
+			)));
+		}
+	}
+		
+	
 	else {
 		exit(json_encode(array(
 			'status' => 404,
