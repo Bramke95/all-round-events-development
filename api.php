@@ -288,8 +288,8 @@
 				$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
 		}
 		else {
-		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?');
-		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text)); 
+		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
+		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
 		}
 		// end the api
 		exit(json_encode(array(
@@ -901,8 +901,21 @@
 			)));
 		}
 	}
+	elseif ($action == "home_page"){
+		$statement = $db->prepare('SELECT * FROM users_data inner join users on users_data.users_Id_Users = users.Id_Users inner join images on users.Id_Users = images.users_Id_Users where is_primary = 1 limit 12;');
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if (true){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 4,
+			'error_message' => "No profiles found!"
+		)));
+	}
 		
-	
 	else {
 		exit(json_encode(array(
 			'status' => 404,

@@ -91,7 +91,7 @@
 			$("#front_picture").html("");
 			for(var i = 0; i < res.length; i++) {
 				if (res[i].is_primary == 1){
-					$("#front_picture").append('<img src=/'+ res[i].picture_name +' alt="Smiley face" height="42" width="42">');
+					$("#front_picture").append('<img src=/'+ res[i].picture_name +' alt="Smiley face" ">');
 				}	
 			}	
 		}			
