@@ -4,6 +4,7 @@ var USER_ID = "";
 var TOKEN = "";
 var LOGGED_IN = false;
 var url = "../../api.php?action="
+const select_type = '<select style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="2">Open met vrije inschrijving</option><option value="3">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
 	
 	
 $( document ).ready(function() {
@@ -25,7 +26,7 @@ $( document ).ready(function() {
 			var date_object = new Date(date);
 			var input_date = formatDate(date_object)
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-			api("add_festival",{"id" : coockie.ID, "hash" : coockie.TOKEN, name: festiname, festival_discription: festival_discription, status: status, date: input_date },added_festival);
+			api("add_festival",{"id" : coockie.ID, "hash" : coockie.TOKEN, name: festiname, festival_discription: festival_discription, status: status, date: input_date }, festival_processing);
 			
 		});
 	});
@@ -94,19 +95,47 @@ function autofill_festivals(){
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "all": 0}, festival_processing);
 }
 
-// a festival is added, update the page to add the evenement
-function added_festival(data){
-	$("#add_fesitvail").fadeOut( "slow" );
-	console.log(data);
+// get the stastus from the id 
+function id_to_status(id){
+	if(id == 0){
+		return "opvraging interesse";
+	}
+	else if (id == 1){
+		return "Aangekondigd";
+	}
+	else if (id == 2){
+		return "Open met vrije inschrijving";
+	}
+	else if (id == 3){
+		return "open met reservatie";
+	}
+	else if (id == 4){
+		return "festival bezig";
+	}
+	else if (id == 5){
+		return "eindafrekeningen";
+	}
+	else if (id == 6){
+		return "afgesloten";
+	}
+	else if (id == 7){
+		return "geannuleerd";
+	}
+	else {
+		return "unknown";
+	}
 }
+
 
 // callback for the get_festivals
 function festival_processing(data){
-	
+	$( "#add_festival_start" ).off();
+	$("#add_fesitvail").fadeOut("slow");
+	$("#festival_list").html("");
+	$("festivals_li").css({"textDecoration":"underline"});
+	for (let x = 0; x < data.length; x++){
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>"+ select_type + "</div>");
+		$('#' + data[x].idfestival + " select").val(data[x].status);
+	}
 }
-
-
-
-
-
 
