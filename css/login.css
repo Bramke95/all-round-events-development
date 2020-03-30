@@ -1,4 +1,6 @@
-
+html {
+	background: url("/img/background.jpg");
+}
 #activation_code {
 	width: 100%;
 	float : left;
@@ -46,6 +48,7 @@ button:hover {
 /* Add padding to containers */
 .container {
   padding: 16px;
+  background-color : #f1f1f1;
 }
 
 /* The "Forgot password" text */
@@ -69,4 +72,16 @@ span.psw {
   .cancelbtn {
     width: 100%;
   }
+}
+
+#activation_code {
+	background-color: #f1f1f1;
+	
+}
+
+#activation_code h3{
+	margin-left: 10px;
+}
+#activation_code p {
+	margin-left: 10px;
 }

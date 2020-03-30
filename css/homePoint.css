@@ -1,44 +1,45 @@
-
+html {
+	background: url("/img/background.jpg");
+}
 #user_space {
 	float: right;
 	text-align: center;
 	width: 90rem; 
 }
-#main_wrapper{
-	width: 94rem;
+#background {
+	position: fixed;
+	width: 92.5rem;
+	height: 100%;
+	background-color: gray;
+	opacity : 0.7;
+	z-index: -5;
+}
+#main_wrapper {
+	position: fixed;
+	width: 92.5rem;
 	margin-top: 100px;
-	height: 212%;
+	height: 100%;
+
 }
-#person_box {
-	float: left;
-	width: 30rem;
-	margin-right: 1rem;
-	background-color: white;
-	margin-top: 15px;
-	border:1px solid black;
-}
-#person_box img{
-	display: block;
-    margin: 0 auto;
-	height: 28rem;
-	width: 28rem;
-}
-#person_box p{
-	margin-left: 8px;
-	margin-right: 8px;
-	margin-top: 8px;
-	margin-bottom: 8px;
-}
-#person_box h2{
-	text-align: center;
-	margin-top: 8px;
-	margin-bottom: 8px;
-}
-#person_box h3{
-	margin-left: 8px;
-	margin-top: 8px;
-	margin-bottom: 8px;
-}
+
+#picture_placeholder{
+	height : 350px;
+	
+}	
+
 footer {
-	height: 100rem;
+
+}
+.info_block {
+
+	margin-left: 10px;
+	margin-top: 10px;
+	border : solid 2px;
+	border-radius: 5px;
+	float: left;
+	position: relative;
+	background-color: #f1f1f1;
+}
+.info_block p, h2 {
+	padding: 10px;
 }

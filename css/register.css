@@ -1,7 +1,10 @@
-
+html {
+	background: url("/img/background.jpg");
+}
 #activation_code {
 	width: 100%;
 	float : left;
+	background-color : #f1f1f1;
 }
 
 /* Bordered form */
@@ -46,6 +49,7 @@ button:hover {
 /* Add padding to containers */
 .container {
   padding: 16px;
+    background-color : #f1f1f1;
 }
 
 /* The "Forgot password" text */
@@ -59,7 +63,12 @@ span.psw {
 #error p {
 	color: red;
 }
-
+#activation_code h3{
+	margin-left: 10px;
+}
+#activation_code p {
+	margin-left: 10px;
+}
 /* Change styles for span and cancel button on extra small screens */
 @media screen and (max-width: 300px) {
   span.psw {

@@ -9,6 +9,4 @@ error codes!
 6 : the request was made with an invalid token or a ID/Token mismatch 
 7 : This token has only reading rights, this action cannot be performed with this token
 8 : not a valid action 
-9 : more then 5 files are saved for one user! 
-10 : the user tries to delete an invalid file. 
-11 : nu valid file
+9 : max amount of pictures is 5 

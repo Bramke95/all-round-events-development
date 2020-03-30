@@ -30,7 +30,7 @@
 
 	// format date to the correct format for the input field 
 	function formatDate(date) {
-    var d = new Date(date),
+		var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
@@ -292,7 +292,7 @@
 				$("#picture_placeholder").append('<div class="show-image"><img src=/'+ res[i].picture_name +' /><input class="make_profile" type="button" value="profielfoto" name="'+ res[i].picture_name+'" /><input class="delete" type="button" value="Verwijder" name="'+res[i].picture_name+'"/></div>');
 			}
 			else {
-				$("#picture_placeholder").prepend('<div class="show-image"><img style="border: 4px solid green;" src=/'+ res[i].picture_name +' /><input class="delete" type="button" value="Verwijder" name="'+res[i].picture_name+'"/></div>');
+				$("#picture_placeholder").prepend('<div class="show-image"><img style="border: 4px solid green;" src=/'+ res[i].picture_name +' /><input class="delete" type="button" value="Verwijder" name="'+res[i].picture_name+'"/><input class="delete" type="button" value="Verwijder" name="'+res[i].picture_name+'"/></div>');
 
 			}
 		}
@@ -305,6 +305,15 @@
 			api("delete_picture",{"id" : coockie.ID, "hash" : coockie.TOKEN,  "image" : this.name}, picture_update_callback)
 		});			
 		
+	}
+	function add_optional_management(){
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("is_admin",{"id" : coockie.ID, "hash" : coockie.TOKEN}, add_optional_management_callback)
+	}
+	function add_optional_management_callback(is_admin){
+		if(is_admin.status == 200){
+			$("#top_menu ul").append("<li><a href='admin.html'>Beheer</a></li>");
+		}
 	}
 	// wait till DOM is loaded
 	$( document ).ready(function() {
@@ -356,6 +365,7 @@
                 } 
             });
         });
+		add_optional_management();
         autofill();
              
 	});

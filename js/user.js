@@ -24,6 +24,14 @@
 	  }
 	  return null;
 	}
+	
+	function calculateAge(date) { // birthday is a date
+		var dateParts = date.split("/");
+		var birthday = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
+		var ageDifMs = Date.now() - birthday.getTime();
+		var ageDate = new Date(ageDifMs); // miliseconds from epoch
+		return Math.abs(ageDate.getUTCFullYear() - 1970);
+	}
 
 	// format date to the correct format for the input field 
 	function formatDate(date) {
@@ -127,7 +135,7 @@
 			$("#gender").text(gender_name);
 			$("#address_1").text(res.adres_line_one);
 			$("#address_2").text(res.adres_line_two);
-			$("#age").text("23");
+			$("#age").text(calculateAge(input_date));
 			$("#license").text(res.driver_license);
 			$("#nationality").text(res.nationality);
 			$("#email").text(res.email);
@@ -138,10 +146,21 @@
 			
 		}
 	}
+	
+	function add_optional_management(){
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("is_admin",{"id" : coockie.ID, "hash" : coockie.TOKEN}, add_optional_management_callback)
+	}
+	function add_optional_management_callback(is_admin){
+		if(is_admin.status == 200){
+			$("#top_menu ul").append("<li><a href='admin.html'>Beheer</a></li>");
+		}
+	}
 
 	// wait till DOM is loaded
 	$( document ).ready(function() {
 		// get date to automaticly fill
+		add_optional_management();
 		autofill();
 	});
 })();

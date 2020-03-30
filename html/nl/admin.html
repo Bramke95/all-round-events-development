@@ -1,0 +1,106 @@
+
+<body>
+	<head>
+		<title>All Round Events</title>
+		<link rel="shortcut icon" href="favicon.ico" />
+		<meta charset="utf-8" />
+		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+		<link href="../../css/admin.css" rel="stylesheet" />
+		<link href="../../css/mainPageShared.css" rel="stylesheet" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="../../js/admin.js"></script>
+	</head>
+
+	<header>
+		<div id="title_box">
+			<h1><strong>All Round Events</strong></h1>
+		</div>
+		<div id="top_menu">
+			<nav>
+				<ul>
+					<li><a id='festivals_li' href="#">Festivals</a></li>
+					<li><a id='shifts_li' href="#">Shiften</a></li>
+					<li><a id='users_li' href="#">Leden</a></li>
+					<li><a id='payouts_li' href="#">Uitbetalingen</a></li>
+					<li><a href="user.html">Terug</a></li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+	
+	<div id ="user_space">
+		<div id='top_user_space'>
+			<input type="submit" id="add_festit_init" name="add" value="Festival toevoegen" placeholder="" style="background-color: #4CAF50;">
+		</div>
+	</div>
+	
+	
+	<div id='add_fesitvail'>
+	
+		<div class="row">
+			<div class="col-25">
+				<label for="fname">Evenement naam: </label>
+			</div>
+			<div class="col-75">
+				<input type="text" id="festi_name" name="festi_name" placeholder="Festivalnaam">
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-25">
+				<label for="fname">Evenement beschrijving: </label>
+			</div>
+			<div class="col-75">
+				<input type="text" id="festi_discription" name="festi_name" placeholder="Bescrijving">
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-25">
+		        <label for="lname">Datum:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="date" name="dateofbirth" id="festi_date">
+		      </div>
+		   </div>
+		
+		
+		<div class="row">
+			<div class="col-25">
+				<label for="country">Status: </label>
+				</div>
+				<div class="col-75">
+					<select id="festi_status" name="gender">
+					<option value="0">opvraging interesse</option>
+					<option value="1">Aangekondigd</option>
+					<option value="2">Open met vrije inschrijving</option>
+					<option value="3">open met reservatie</option>
+					<option value="4">festival bezig</option>
+					<option value="5">eindafrekeningen</option>
+					<option value="6">afgesloten</option>
+					<option value="7">geannuleerd</option>
+				</select>
+			</div>
+		</div>
+		
+		<div id='control_add_user'>
+			<input type="submit" id="add_festival_start" name="add" value="Festival toevoegen" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;">
+			<input type="submit" id="add_festival_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
+			
+		</div>
+
+	</div>
+	
+	
+	<footer>
+		<div id = "spacer"></div>
+		<div id ="footer">
+			<div id="bottom">
+				<p>Alleen administators hebben toegang tot deze pagina. Indien u deze toegang niet zou mogen hebben, geleven dit dan te melden! </p>
+			</div>
+		</div>	
+	</footer>
+
+</body>
+</html>

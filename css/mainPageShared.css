@@ -1,9 +1,12 @@
 html{
 	max-width: 93rem;
 	margin: auto;
-	background-color: #e1e3e8;
-	height: 102%
+	height: 102%;
+	
+
+
 }
+
 #title_box {
 	position: fixed;
 	top:0;
@@ -11,10 +14,10 @@ html{
 	height: 7rem;
 	width: 100rem;
 	margin: 0 auto;
-	background-color: white;
+
 	text-decoration: none;
 	text-align: center;
-	background-color: #e1e3e8;
+
 }
 #title_box h1{
 	margin-bottom: 5px;
@@ -70,7 +73,6 @@ nav a:hover {
 
 }
 #spacer {
-	background-color: #e1e3e8;
 	position: fixed;
 	top: 94%;
 	text-align: center;

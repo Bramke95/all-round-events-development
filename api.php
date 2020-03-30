@@ -6,7 +6,6 @@
 		// Following things can happend with the token check
 		// => The token is completely invalid and the api is returned with an error
 		// => The token gives full access and the functions returns true
-		// => The token give ony read access and the function returns false
     	$statement = $db->prepare('SELECT HASH FROM mydb.users inner join mydb.hashess on mydb.hashess.users_Id_Users = mydb.users.Id_Users where Id_Users = ?');
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
@@ -21,7 +20,28 @@
 		}
 		return true; 
 		
+	}
+	function admin_check($id, $token_user, $db) {
+		//
+		// does the same action as token_check but it also checks if the user is the admin, use this function for actions that need admin rights
+		// => The token is completely invalid and the api is returned with an error
+		// 
 
+    	$statement = $db->prepare('SELECT HASH,Type FROM mydb.users inner join mydb.hashess on mydb.hashess.users_Id_Users = mydb.users.Id_Users where Id_Users = ?');
+		$statement->execute(array($id));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		$token_db = $res["HASH"];
+		$admin = $res["Type"];
+		// check if the token excists 
+		if ($token_db != $token_user || $admin != "1"){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "No admin rights"
+			)));
+		}
+		return true; 
+		
 	}
 	// include DB configuration
 	require_once 'config.php';
@@ -113,7 +133,7 @@
 
 			$user_hash = bin2hex(mcrypt_create_iv(44,MCRYPT_DEV_URANDOM));
 			$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
-			$statement->execute(array($user_hash, 1,$res["ID_Users"]));
+			$statement->execute(array($user_hash, 0,$res["ID_Users"]));
 
 			exit(json_encode(array(
 				'status' => 200,
@@ -152,7 +172,7 @@
 				'error_message' => "Not all fields where available, need: email, pass"
 			)));
 		}
-		// checking if the email is known to us, if not the login process is stoped. Due to safety reasons it is not told to the fronted
+		// checking if the email is known to us, if not the login process is stoped. Due to safety reasons it is not told to the frontend
 		$statement = $db->prepare('SELECT email FROM users WHERE email = ?');
 		$statement->execute(array($email));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
@@ -165,12 +185,13 @@
 			)));
 		}
 		// getting the correct password and salt from the DB
-		$statement = $db->prepare('SELECT salt,pass,Id_Users FROM users WHERE email = ?');
+		$statement = $db->prepare('SELECT salt,pass,Id_Users,is_admin FROM users WHERE email = ?');
 		$statement->execute(array($email));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		$salt = $res["salt"];
 		$correct_pass = $res["pass"];
 		$ID = $res["Id_Users"];
+		$is_admin = $res["is_admin"];
 		// checking password
 		if (password_verify($pass . $salt, $correct_pass)) {
 			// login was succesfull, check if the user already got a previous token
@@ -183,7 +204,7 @@
 			if (!$res){
 				$user_hash = bin2hex(mcrypt_create_iv(44,MCRYPT_DEV_URANDOM));
 				$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
-				$statement->execute(array($user_hash, 1,$ID));
+				$statement->execute(array($user_hash, $is_admin,$ID));
 			}
 			// a previous token excists, this token is deleted and a new one is made. 
 			else {
@@ -191,7 +212,7 @@
 				$statement->execute(array($ID));
 				$user_hash = bin2hex(mcrypt_create_iv(44, MCRYPT_DEV_URANDOM));
 				$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
-				$statement->execute(array($user_hash, 1, $ID));
+				$statement->execute(array($user_hash, $is_admin, $ID));
 			}
 			 	exit(json_encode(array(
 					'status' => 200,
@@ -204,14 +225,14 @@
 		 else {
 		 	exit(json_encode(array(
 				'status' => 409,
-				'error_type' => 5,
-				'error_message' => "login failed"
+				'error_type' => 6,
+				'error_message' => "Login failed due to bad credentials"
 			)));
 		 }
 	}
 	//
 	// Logout, this is pritty useless but provides a safety feature for the end user. The token he used is now 
-	// invalided so no one can use it to acces his date
+	// invalided so no one can use it to access his data
 	//
 	elseif ($action == "logout") {
 		// get the contenct from the api body
@@ -774,10 +795,8 @@
 					exit(json_encode(array(
 						'status' => 200,
 						'error_type' => 0,
-						'error_message' => "OK"
+						'error_message' => "OK, image uploaded"
 					)));
-
-	        		// TODO adding image name to DB
 	    	} else {
 	        	echo "Sorry, there was an error uploading your file.";
 	    	}
@@ -815,11 +834,13 @@
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 4,
-			'error_message' => "No languages found"
+			'error_message' => "No pictures found"
 		)));
 
 	}
-
+	// delete a picture from a used
+	//
+	//
 	elseif ($action == "delete_picture"){	
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
@@ -866,6 +887,9 @@
 		)));
 		
 	}
+	// maka another picture the profile
+	//
+	//
 	elseif ($action == "make_profile"){
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
@@ -901,6 +925,10 @@
 			)));
 		}
 	}
+	
+	// obsolte function, this loads basic information for all the profiles, should not be used
+	//
+	//
 	elseif ($action == "home_page"){
 		$statement = $db->prepare('SELECT * FROM users_data inner join users on users_data.users_Id_Users = users.Id_Users inner join images on users.Id_Users = images.users_Id_Users where is_primary = 1 limit 12;');
 		$statement->execute(array());
@@ -915,7 +943,134 @@
 			'error_message' => "No profiles found!"
 		)));
 	}
+	
+	// returns ok if the user is admin, alse not, this can be used to check if certain functionallity needs to be visable or not
+	//
+	//
+	elseif ($action == "is_admin"){
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid and it is admin
+		admin_check($ID, $HASH, $db);
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'error_message' => "person is admin"
+		)));
+	}
+	
+	// add an evenement to the database, 
+	//
+	//
+	elseif ($action == "is_admin"){
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid and it is admin
+		admin_check($ID, $HASH, $db);
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'error_message' => "person is admin"
+		)));
+	}
+	
+	
+	//
+	// This action adds a festival/evenement to the database, This only adds the pure evenement in the database, not the shifts/days
+	// This action can only be performed by an administrator
+	//
+	elseif ($action == "add_festival") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$date = $xml["date"];
+			$status = $xml["status"];
+			$name = $xml["name"];
+			$details = $xml["festival_discription"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		admin_check($ID, $HASH, $db);
+		// entering the complaint in the DB
+		$statement = $db->prepare('INSERT INTO festivals (date, details, status, name) VALUES (?,?,?,?)');
+		$statement->execute(array($date, $details, $status, $name));
 		
+		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+		)));
+	}
+	//
+	// get a list of all the festivals 
+	//
+	elseif ($action == "get_festivals") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$date = $xml["all"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		
+		
+	}
+	
+	
 	else {
 		exit(json_encode(array(
 			'status' => 404,
@@ -923,6 +1078,3 @@
 			'error_message' => "not a valid action"
 		)));
 	}
-
-
-
