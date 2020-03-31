@@ -1048,7 +1048,8 @@
 		try {
 			$ID = $xml["id"];
 			$HASH = $xml["hash"];
-			$date = $xml["all"];
+			$type = $xml["select"];
+			$festi_id = $xml["festi_id"];
 
 		} catch (Exception $e) {
 			exit(json_encode(array(
@@ -1057,9 +1058,20 @@
 				'error_message' => "Not all fields where available, need: ID, HASH"
 			)));
 		}
+		$query = '';
+		if ($type == "select"){
+			$query ='SELECT * FROM festivals WHERE idfestival = ? ;';
+		}
+		else if ("active"){
+			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7;';
+		}
+		else {
+			$query ='SELECT * FROM festivals;';
+		}
+		
 		token_check($ID, $HASH, $db);
 		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
-		$statement->execute(array($ID));
+		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 
 		if ($res){

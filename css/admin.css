@@ -33,7 +33,21 @@ input[type=submit] {
 	top: 25%;
 	left: 32%;
 	box-shadow: 5px 10px 20px 0px;
-	
+}
+
+#change_fesitvail_dialog{
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: absolute;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;
 }
 #top_user_space {
 	height: 40px;
@@ -98,4 +112,8 @@ label {
 
 #change_festi_name {
 	font-size = 5px;
+}
+
+#change_fesitvail_dialog {
+	display: none;
 }
