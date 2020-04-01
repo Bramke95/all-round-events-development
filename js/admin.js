@@ -1,13 +1,12 @@
-	
 // global variables that are needed to use the api 
 var USER_ID = "";
 var TOKEN = "";
 var LOGGED_IN = false;
+var open_id = -1;
 var url = "../../api.php?action="
 const select_type = '<select style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="2">Open met vrije inschrijving</option><option value="3">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
 const change_button = "<input type='submit' id='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
-	
-	
+		
 $( document ).ready(function() {
 	check_if_admin(autofill_festivals);
 	
@@ -18,8 +17,7 @@ $( document ).ready(function() {
 		$("#add_festival_abort").click(function(){
 			$("#add_fesitvail").fadeOut( "slow" );
 		});
-		$("#add_festival_start").click(function(){
-			
+		$("#add_festival_start").click(function(event){
 			let festiname = $("#festi_name").val();
 			let festival_discription = $("#festi_discription").val();
 			let status = $("#festi_status").val();
@@ -27,7 +25,7 @@ $( document ).ready(function() {
 			var date_object = new Date(date);
 			var input_date = formatDate(date_object)
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-			api("add_festival",{"id" : coockie.ID, "hash" : coockie.TOKEN, name: festiname, festival_discription: festival_discription, status: status, date: input_date }, festival_processing);
+			api("add_festival",{"id" : coockie.ID, "hash" : coockie.TOKEN, name: festiname, festival_discription: festival_discription, status: status, date: input_date}, festival_processing);
 			
 		});
 	});
@@ -127,19 +125,19 @@ function id_to_status(id){
 	}
 }
 
+// callback for getting the festi date for 1 festival
 function put_change_date(data){
 	$("#festi_name_change").val(data[0].name);
 	$("#festi_discription_change").html(data[0].details);
 	$("#festi_date_change").val(data[0].date.substring(0,10));
-	$("#change_festival_start").click(function(){
-		
+	$("#change_festival_start").click(function(event){
 			let festiname = $("#festi_name_change").val();
 			let festival_discription = $("#festi_discription_change").val();
 			let date = $("#festi_date_change").val();
 			var date_object = new Date(date);
 			var input_date = formatDate(date_object)
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-			api("change_festival_data", {"id" : coockie.ID, "hash" : coockie.TOKEN,festiname:festiname, festival_discription: festival_discription, date: input_date}, changed_festival)
+			api("change_festival_data", {"id" : coockie.ID, "hash" : coockie.TOKEN,festiname:festiname, festival_discription: festival_discription, date: input_date, idfestival: parseInt(open_id)}, changed_festival)
 		
 	});
 }
@@ -150,9 +148,6 @@ function changed_festival(){
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active"}, festival_processing);
 	$("#change_fesitvail_dialog").fadeOut(500);
 }
-
-
-
 
 // callback for the get_festivals
 function festival_processing(data){
@@ -165,6 +160,7 @@ function festival_processing(data){
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 		// change festival
 		$(".change_festival").click(function(event){
+			open_id = event.target.attributes.id.value;
 			$("#change_fesitvail_dialog").show();
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "select", "festi_id": event.target.attributes.id.value}, put_change_date);

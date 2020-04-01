@@ -1078,10 +1078,41 @@
 			$json = json_encode($res);
 			exit($json);
 		}
-		
-		
 	}
 	
+	//
+	// This action changes the date of a festival/evenement. IMPORTAND, it does not change the status, this is another api (Because changing the status has a lot of other results)
+	// This action can only be performed by an administrator
+	//
+	elseif ($action == "change_festival_data") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$date = $xml["date"];
+			$name = $xml["festiname"];
+			$idfestival = $xml["idfestival"];
+			$details = $xml["festival_discription"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		admin_check($ID, $HASH, $db);
+		// changing the festival data
+		$statement = $db->prepare('UPDATE festivals SET date=?, details=?, name=? where idfestival=?;');
+		$statement->execute(array($date, $details, $name,$idfestival));
+	
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+		)));
+	}
 	
 	else {
 		exit(json_encode(array(
