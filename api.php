@@ -6,7 +6,7 @@
 		// Following things can happend with the token check
 		// => The token is completely invalid and the api is returned with an error
 		// => The token gives full access and the functions returns true
-    	$statement = $db->prepare('SELECT HASH FROM mydb.users inner join mydb.hashess on mydb.hashess.users_Id_Users = mydb.users.Id_Users where Id_Users = ?');
+    	$statement = $db->prepare('SELECT HASH FROM users inner join hashess on hashess.users_Id_Users = users.Id_Users where Id_Users = ?');
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		$token_db = $res["HASH"];
@@ -27,7 +27,7 @@
 		// => The token is completely invalid and the api is returned with an error
 		// 
 
-    	$statement = $db->prepare('SELECT HASH,Type FROM mydb.users inner join mydb.hashess on mydb.hashess.users_Id_Users = mydb.users.Id_Users where Id_Users = ?');
+    	$statement = $db->prepare('SELECT HASH,Type FROM users inner join hashess on hashess.users_Id_Users = users.Id_Users where Id_Users = ?');
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		$token_db = $res["HASH"];
@@ -112,7 +112,7 @@
 			)));
 		}
 		// the password stuff, check the password, create a salt and hash the stuff together
-		$salt = bin2hex(mcrypt_create_iv(22, MCRYPT_DEV_URANDOM));
+		$salt = bin2hex(openssl_random_pseudo_bytes(40));
 		if (strlen($xml["pass"]) < 5){
 			exit(json_encode(array(
 				'status' => 409,
@@ -131,7 +131,7 @@
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if ($res){
 
-			$user_hash = bin2hex(mcrypt_create_iv(44,MCRYPT_DEV_URANDOM));
+			$user_hash = bin2hex(openssl_random_pseudo_bytes(40));
 			$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
 			$statement->execute(array($user_hash, 0,$res["ID_Users"]));
 
@@ -195,14 +195,14 @@
 		// checking password
 		if (password_verify($pass . $salt, $correct_pass)) {
 			// login was succesfull, check if the user already got a previous token
-			$statement = $db->prepare('SELECT HASH FROM mydb.users inner join mydb.hashess on mydb.hashess.users_Id_Users = mydb.users.Id_Users where email = ?');
+			$statement = $db->prepare('SELECT HASH FROM users inner join hashess on  hashess.users_Id_Users =  users.Id_Users where email = ?');
 			$statement->execute(array($email));
 			$res = $statement->fetch(PDO::FETCH_ASSOC);
 			$user_hash = "FAIL";
 			// no previous token excists so we make a new one
 			// MAKE A TOKEN INVALID AFTER 24 HOURE IDLE TIME
 			if (!$res){
-				$user_hash = bin2hex(mcrypt_create_iv(44,MCRYPT_DEV_URANDOM));
+				$user_hash = bin2hex(openssl_random_pseudo_bytes(40));
 				$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
 				$statement->execute(array($user_hash, $is_admin,$ID));
 			}
@@ -210,7 +210,7 @@
 			else {
 				$statement = $db->prepare('DELETE FROM hashess where users_Id_Users = ?');
 				$statement->execute(array($ID));
-				$user_hash = bin2hex(mcrypt_create_iv(44, MCRYPT_DEV_URANDOM));
+				$user_hash = bin2hex(openssl_random_pseudo_bytes(40));
 				$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
 				$statement->execute(array($user_hash, $is_admin, $ID));
 			}
