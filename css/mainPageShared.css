@@ -65,8 +65,6 @@ nav a:hover {
 	text-decoration: none;
 	text-align: center;
 	border-radius: 15px 15px 2px 2px;
-	
-
 }
 #spacer {
 	position: fixed;
@@ -78,4 +76,55 @@ nav a:hover {
 }
 #bottom p {
 	margin-bottom: 5px;
+	text-shadow: 1px 1px blanchedalmond;
+}
+@media screen and (max-width: 95rem) {
+	html{
+		height: 132%;
+	}
+	#title_box {
+		position: relative;
+		height: 0rem;
+		width: 95%;
+		margin: 0 auto;
+		text-decoration: none;
+		text-align: none;	
+	}
+	nav ul {
+		position: relative;
+		top: 70px;
+		text-align: center;
+		height: 10rem;
+		width: 90%;
+		margin: 0 auto;
+		background-color: transparent;
+		text-decoration: none;
+		text-align: center;
+		border-radius: 7px 7px 7px 7px;
+
+	}
+	nav li {
+		display: inline-block;
+		margin-right: 2rem;
+		text-decoration: none;
+		margin-top: 4px;
+		padding: 2px;
+		background-color: gray;
+		width: 90%;
+		border-radius: 10px;
+	}
+	#bottom {
+		position: relative;
+		text-align: center;
+		height: 3.5rem;
+		width: 95%;
+		margin: 0 auto;
+		background-color: transparent;
+		text-decoration: none;
+		text-align: center;
+		border-radius: 15px 15px 2px 2px;
+	}
+	#spacer{
+		display: none;
+	}
 }

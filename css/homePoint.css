@@ -39,7 +39,27 @@ footer {
 	float: left;
 	position: relative;
 	background-color: #f1f1f1;
+	height: auto;
 }
 .info_block p, h2 {
 	padding: 10px;
+}
+
+@media screen and (max-width: 95rem) {
+	#main_wrapper {
+		position: relative;
+		width: 95%;
+		padding: 10px;
+		margin-top: 100px;
+		height: auto;
+
+	}
+	#background {
+		position: fixed;
+		width: 94%;
+		border-radius: 10px;
+		background-color: gray;
+		opacity : 0.7;
+		z-index: -5;
+	}	
 }

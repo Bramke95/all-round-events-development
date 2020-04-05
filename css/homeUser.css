@@ -9,7 +9,7 @@ body {
 #main_wrapper{
 	width: 94rem;
 	margin-top: 100px;
-	height: 212%;
+	height: 100%;
 }
 #front_picture {
 	float: left;
@@ -19,7 +19,7 @@ body {
 
 }
 #front_picture img {
-	max-width : 29.5rem;
+	width : 29.5rem;
 	max-height : 448px;
 
 }
