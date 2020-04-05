@@ -2,6 +2,10 @@
   margin-top: 110px;
 }
 
+#title_box {
+	background-color: #e5e5e5;
+}
+
 /* Style inputs, select elements and textareas */
 input[type=text], select, textarea{
   width: 100%;
@@ -22,7 +26,7 @@ input[type=date]{
 
 /* Style the label to display next to the inputs */
 label {
-  padding: 12px 12px 12px 0;
+  padding: 12px 12px 12px 0;;
   display: inline-block;
 }
 

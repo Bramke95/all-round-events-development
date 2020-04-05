@@ -200,7 +200,6 @@
 			$res = $statement->fetch(PDO::FETCH_ASSOC);
 			$user_hash = "FAIL";
 			// no previous token excists so we make a new one
-			// MAKE A TOKEN INVALID AFTER 24 HOURE IDLE TIME
 			if (!$res){
 				$user_hash = bin2hex(openssl_random_pseudo_bytes(40));
 				$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
@@ -730,14 +729,27 @@
 	// The image is stored on the local file system. Only the name and location 
 	//
 	elseif ($action == "upload_picture"){
-		$ID = json_encode(json_decode($_POST["auth"])->ID);
-		$TOKEN =json_encode(json_decode($_POST["auth"])->TOKEN);
+		$xml_dump = json_encode(json_decode($_POST["auth"]));
+		$xml = json_decode($xml_dump, true);
 		$is_primary = 0; 
+		try {
+			$ID = $xml["ID"];
+			$HASH = $xml["TOKEN"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the user is and token is valid 
 		token_check($ID, $HASH, $db);
+		
 
 		// TODO : check if the max amount of results is not higher than 5
 		$ID = str_replace('"', "", $ID);
-		$statement = $db->prepare('SELECT COUNT(*) FROM images WHERE users_Id_Users = ?;');
+		$statement = $db->prepare('SELECT COUNT(*) FROM Images WHERE users_Id_Users = ?;');
 		$statement->execute(array((int)$ID));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		$count = $res["COUNT(*)"];
@@ -751,7 +763,7 @@
 		if ($count == 0){
 			$is_primary = 1;
 		}	
-		$random_hash = bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
+		$random_hash = bin2hex(openssl_random_pseudo_bytes(32));
 		$target_dir = "upload/";
 		$target_file = $target_dir . basename($_FILES["img"]["name"]);
 		$uploadOk = 1;
@@ -769,6 +781,7 @@
 		}
 
 		// Check file size
+		//throw new Exception($_FILES);
 		if ($_FILES["fileToUpload"]["size"] > 250000) {
 	    	echo "Sorry, your file is too large.";
 	    	$uploadOk = 0;
@@ -790,7 +803,7 @@
 		} else {
 	    	if (move_uploaded_file($_FILES["img"]["tmp_name"], $target_file)) {
 	    			$ID = str_replace('"', "", $ID);
-	        		$statement = $db->prepare('INSERT INTO images (picture_name, is_primary, users_Id_Users) VALUES (?,?,?)');
+	        		$statement = $db->prepare('INSERT INTO Images (picture_name, is_primary, users_Id_Users) VALUES (?,?,?)');
 					$statement->execute(array($target_file,(int)$is_primary, (int)$ID)); 
 					exit(json_encode(array(
 						'status' => 200,
@@ -862,21 +875,21 @@
 		if (file_exists($picture)) {
 			unlink($picture);
 		}
-		$statement = $db->prepare('select is_primary from images WHERE users_Id_Users = ? and picture_name = ?');
+		$statement = $db->prepare('select is_primary from Images WHERE users_Id_Users = ? and picture_name = ?');
 		$statement->execute(array($ID, $picture));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if ($res) {
 			if ($res["is_primary"] == 1){
-				$statement = $db->prepare('select picture_name from images WHERE users_Id_Users = ? AND is_primary !=1 LIMIT 1');
+				$statement = $db->prepare('select picture_name from Images WHERE users_Id_Users = ? AND is_primary !=1 LIMIT 1');
 				$statement->execute(array($ID));
 				$res = $statement->fetch(PDO::FETCH_ASSOC);
 				$name = $res["picture_name"];	
-				$statement = $db->prepare('UPDATE images set is_primary=1 where users_Id_Users=? and picture_name=?');
+				$statement = $db->prepare('UPDATE Images set is_primary=1 where users_Id_Users=? and picture_name=?');
 				$statement->execute(array((int)$ID, $name)); 		
 			}
 		}
 		
-		$statement = $db->prepare('DELETE FROM images WHERE users_Id_Users = ? and picture_name = ?');
+		$statement = $db->prepare('DELETE FROM Images WHERE users_Id_Users = ? and picture_name = ?');
 		$statement->execute(array($ID, $picture));
 
 		
@@ -908,9 +921,9 @@
 		// check if the user is and token is valid 
 		token_check($ID, $HASH, $db);
 		if (file_exists($picture)) {
-			$statement = $db->prepare('UPDATE images set is_primary=0 where users_Id_Users=?');
+			$statement = $db->prepare('UPDATE Images set is_primary=0 where users_Id_Users=?');
 			$statement->execute(array((int)$ID)); 
-			$statement = $db->prepare('UPDATE images set is_primary=1 where users_Id_Users=? and picture_name=?');
+			$statement = $db->prepare('UPDATE Images set is_primary=1 where users_Id_Users=? and picture_name=?');
 			$statement->execute(array((int)$ID, $picture)); 
 			exit(json_encode(array(
 				'status' => 200,
