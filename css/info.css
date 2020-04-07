@@ -1,9 +1,11 @@
 html {
 	background: url("/img/background.jpg");
 }
+
 #info_space {
   margin-top: 110px;
 }
+
 .accordion {
   background-color: #eee;
   color: #444;
@@ -21,7 +23,6 @@ html {
   background-color: #9ec0f7;
 }
 
-/* Style the accordion panel. Note: hidden by default */
 .panel {
   padding: 0 18px;
   background-color: #e1e3e8;

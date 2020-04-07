@@ -1,8 +1,10 @@
 /*
- * your website
+ * This is the javascript for the login page: main functions:
+	-> checking the imput before sending it to the server
+	-> doing the actual api calls to the server
+	-> login the user in with an token and ID an making an coockie for it
  *
  * @author : Bram Verachten
- * @date : 15/05/2019
  * 
  */
 ;(function() { 
@@ -23,6 +25,8 @@
 	  }
 	  document.cookie = name + "=" + (value || "") + expires + "; path=/";
 	}
+	
+	// funtion that makes all the api calls
 	function api(action, body, callback){
 		$.ajax({
 		    type: 'POST',
@@ -36,14 +40,19 @@
             } 
 		});
 	};
+	
+	// valdiates and email address with an regex
 	function validateEmail(email) {
     	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     	return re.test(String(email).toLowerCase());
 	};
-	// logging in + callback
+	
+	// logging in the user with email and password
 	function login(username, pass){
 		api("login", {"email" : username, "pass" : pass}, loging_callback)
 	};
+	
+	// callback for logging in, or the user is logged in or on error message is displayed
 	function loging_callback(res){
 		if (res == "ERROR"){
 			$("#error").html("<p><strong>De server is niet bereikbaar, bent u nog verbonden met het Internet?</strong></p>");
@@ -66,6 +75,7 @@
 		}
 	};
 
+// starting function for this page, mainly for putting event handlers to the login, cancel button. Some checks are performed on the content in the input boxes
 	$( document ).ready(function() {
     	$("#BUT_reg").click(function() {
 			var email = $("#email_textfield").val()

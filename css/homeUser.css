@@ -1,7 +1,5 @@
 body {
-  padding: 4em;
   background: #e5e5e5;
-  font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
 }
 #title_box {
 	background-color: #e5e5e5;
@@ -15,12 +13,11 @@ body {
 	float: left;
 	width: 30rem;
 	margin-top: 15px;
-	height: 448px;
+	height: 380px;
 
 }
 #front_picture img {
 	width : 29.5rem;
-	max-height : 448px;
 
 }
 #main_info {
@@ -29,7 +26,7 @@ body {
 	margin-right: 1rem;
 	background-color: white;
 	margin-top: 15px;
-	height: 28rem;
+	height: auto;
 
 }
 #main_info {
@@ -63,9 +60,6 @@ body {
 	text-decoration: underline;
 }
 
-#study h1{
-	text-decoration: underline;
-}
 #schools{
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   border-collapse: collapse;
@@ -136,4 +130,83 @@ body {
   text-align: left;
   background-color: gray;
   color: white;
+}
+
+
+
+@media screen and (max-width: 95rem) {
+	
+	body {
+		padding: 0px;
+		width: 100%;
+	}
+	
+	html {
+		width: 100%;
+	}
+	
+	#main_wrapper {
+		width : 100%;
+		height: auto;
+	}
+	
+	#front_picture {
+		width: 100%;
+		height: auto;
+		margin-bottom: 10px;
+	}
+	
+	#front_picture img {
+		width: 96%;
+	}
+	
+	#main_info {
+		width: 100%;
+	}
+	
+	#vl {
+		border-left: 0px solid;
+	}
+	
+	footer {
+		border-top: 2px solid;
+		margin-top: 10px;
+	}
+	
+	table {
+		margin-right: 96%;
+	}
+	
+	#study {
+		overflow-x: auto;
+		width: 100%;
+		height: auto;
+	}
+	
+	#langu {
+		overflow-x: auto;
+		width: 100%;
+		height: auto;
+	}
+	
+	#ex_work {
+		overflow-x: auto;
+		width: 100%;
+		height: auto;
+	}
+	
+	#Who_am_I {
+	width: auto;
+	height: auto;
+	float: left;
+	}
+	#vl {
+		display: none;
+	}
+	
+	#main_wrapper{
+	width: 94rem;
+	margin-top: 10px;
+	height: 100%;
+}
 }

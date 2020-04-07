@@ -1,68 +1,78 @@
+<!-- 
+Owner: All-roundevents
+ 
+This is the register page where people can submit an email and password to register on this website, also an activation 
+code is needed to make sure not everybody can make an account. 
+
+Creator: Bram Verachten 
+-->
 
 <body>
-	<head>
-		<title>All-round Events</title>
-		<link rel="shortcut icon" href="favicon.ico" />
-		<meta charset="utf-8" />
-		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
-		<link href="../../css/register.css" rel="stylesheet" />
-		<link href="../../css/mainPageShared.css" rel="stylesheet" />
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		<script src="../../js/register.js"></script>
-	</head>
 
-	<header>
-		<div id="title_box">
-			<h1><strong>All-round Events</strong></h1>
-		</div>
-		<div id="top_menu">
-			<nav>
-				<ul>
-					<li><a href="home.html">Home</a></li>
-					<li><a href="login.html">Login</a></li>
-					<li><a style='text-decoration: underline' href="register.html">Registreren</a></li>
-					<li><a href="festivals.html">Festivals</a></li>
-					<li><a href="info.html">Info</a></li>
-					<li><a href="contact.html">Contact</a></li>
-				</ul>
-			</nav>
-		</div>
-	</header>
-		<div id="login_space">
-			<h2>Vul onderstaande gegevens in om uw acount aan te maken : </h2>
-				<div id="form">
-				  <div class="container">
-				  	<div id="error"></div>
-				    <label for="uname"><b>Email adres:</b></label>
-				    <input type="text" placeholder="email adres" name="uname" required id="email_textfield">
+    <head>
+        <title>All-round Events</title>
+        <link rel="shortcut icon" href="favicon.ico" />
+        <meta charset="utf-8" />
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <link href="../../css/register.css" rel="stylesheet" />
+        <link href="../../css/mainPageShared.css" rel="stylesheet" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="../../js/register.js"></script>
+    </head>
 
-				    <label for="psw"><b>paswoord:</b></label>
-				    <input type="password" placeholder="wachtwoord" name="psw" required id="pass_textfield">
+    <header>
+        <div id="title_box">
+            <h1><strong>All-round Events</strong></h1>
+        </div>
+        <div id="top_menu">
+            <nav>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a style='text-decoration: underline' href="register.html">Registreren</a></li>
+                    <li><a href="festivals.html">Festivals</a></li>
+                    <li><a href="info.html">Info</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div id="login_space">
+        <h2>Vul onderstaande gegevens in om uw acount aan te maken : </h2>
+        <div id="form">
+            <div class="container">
+                <div id="error"></div>
+                <label for="uname"><b>Email adres:</b></label>
+                <input type="text" placeholder="email adres" name="uname" required id="email_textfield">
 
-				    <label for="uverf_code"><b>Toegangscode:</b></label>
-				    <input type="text" placeholder="Toegangscode" name="verf_code" required id="token_textfield">
+                <label for="psw"><b>paswoord:</b></label>
+                <input type="password" placeholder="wachtwoord" name="psw" required id="pass_textfield">
 
-				    <button type="submit" id="BUT_reg">Registeren</button>
-				    <label>
-				      <input type="checkbox" checked="checked" name="remember"> Remember me
-				    </label>
-				  </div>
-				  <div class="container" style="background-color:#f1f1f1">
-				    <button type="button" class="cancelbtn" id="cancel">Cancel</button>
-				    <span class="psw">Al een account? Dan kan je <a href="login.html">inloggen.</a></span>
-				  </div>
-				</div>
-		<div id="activation_code">
-			<h3>Geen toegangscode?</h3>
-			<p>Vraag aan je vriend of kennis die werkt bij all-rounds om deze toegangscode, ken je niemand die werkt bij all-rounds? Vul dan het contact formulier in en vertel ons waarom jij deel moet uitmaken van ons team! </p>
-		</div>
-	<footer>
-		<div id ="footer">
-			<div id="bottom">
-				<p>All round events is een onafhankelijke VZW met besperkte aansprakelijkheid, alle rechten voorbehouden.</p>
-			</div>
-		</div>	
-	</footer>
+                <label for="uverf_code"><b>Toegangscode:</b></label>
+                <input type="text" placeholder="Toegangscode" name="verf_code" required id="token_textfield">
+
+                <button type="submit" id="BUT_reg">Registeren</button>
+                <label>
+                    <input type="checkbox" checked="checked" name="remember"> Remember me
+                </label>
+            </div>
+            <div class="container" style="background-color:#f1f1f1">
+                <button type="button" class="cancelbtn" id="cancel">Cancel</button>
+                <span class="psw">Al een account? Dan kan je <a href="login.html">inloggen.</a></span>
+            </div>
+        </div>
+        <div id="activation_code">
+            <h3>Geen toegangscode?</h3>
+            <p>Vraag aan je vriend of kennis die werkt bij all-rounds om deze toegangscode, ken je niemand die werkt bij all-rounds? Vul dan het contact formulier in en vertel ons waarom jij deel moet uitmaken van ons team! </p>
+        </div>
+        <footer>
+            <div id="footer">
+                <div id="bottom">
+                    <p>All round events is een onafhankelijke VZW met besperkte aansprakelijkheid, alle rechten voorbehouden.</p>
+                </div>
+            </div>
+        </footer>
 
 </body>
+
 </html>

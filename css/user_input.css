@@ -82,7 +82,7 @@ input[type=submit] {
 body {
   padding: 4em;
   background: #e5e5e5;
-  font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
+
 }
 label {
   display: block;
@@ -216,4 +216,49 @@ div.show-image input.delete {
     width: 100%;
     margin-top: 0;
   }
+}
+
+@media screen and (max-width: 95rem) {
+	
+	body {
+		padding: 0px;
+		width: 100%;
+	}
+	
+	html {
+		width: 100%;
+	}
+	
+	#main_wrapper {
+		width : 100%;
+		height: auto;
+	}
+	
+	div.show-image input {
+		display: block;
+	}
+	div.show-image {
+		margin: 0;
+		position: relative;
+		float: none;
+	}
+	
+	div.show {
+		position: relative;
+		margin: 0 auto;
+	}
+	
+	#picture_placeholder {
+		width: 100%;
+		height: auto;
+	}
+	#educations {
+		overflow-x: auto;
+	}
+	#language {
+		overflow-x: auto;
+	}
+	#expierence {
+		overflow-x: auto;
+	}
 }

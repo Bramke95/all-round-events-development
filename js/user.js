@@ -77,21 +77,37 @@
 		for(var i = 0; i < res.length; i++) {
 			$("#schools").prepend('<tr><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td><td>'+ res[i].school +'</td><td>'+ res[i].education +'</td><td>'+ res[i].percentage +'</td></tr>');
 		}
-		$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th></tr>');
+		if (res.length != undefined){
+			$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th></tr>');
+		}
+		else {
+			$("#study").hide();
+		}
+		
 	}
 	function get_language_callback(res){
 		$("#language").html("");
 		for(var i = 0; i < res.length; i++) {
 			$("#language").prepend('<tr><td>'+ res[i].language +'</td><td>'+ res[i].speaking +'</td><td>'+ res[i].writing +'</td><td>'+ res[i].reading +'</td></tr>');
 		}
-		$("#language").prepend('<tr><th>Taal</th><th>Lezen</th><th>schrijven</th><th>Sprken</th></tr>');
+		if (res.length != undefined){
+			$("#language").prepend('<tr><th>Taal</th><th>Lezen</th><th>schrijven</th><th>Spreken</th></tr>');
+		}
+		else {
+			$("#langu").hide();
+		}
 	}
 	function get_expierence_callback(res){
 		$("#work").html("");
 		for(var i = 0; i < res.length; i++) {
 			$("#work").prepend('<tr><td>'+ res[i].compamy +'</td><td>'+ res[i].jobtitle +'</td><td>'+ res[i].from_date +'</td><td>'+ res[i].to_date +'</td></tr>');
 		}
-		$("#work").prepend('<tr><th>Bedrijf</th><th>job titel</th><th>Van</th><th>Tot</th></tr>');
+		if (res.length != undefined){
+			$("#work").prepend('<tr><th>Bedrijf</th><th>job titel</th><th>Van</th><th>Tot</th></tr>');
+		}
+		else {
+			$("#ex_work").hide();
+		}
 
 	}
 	function get_pictures_callback(res){

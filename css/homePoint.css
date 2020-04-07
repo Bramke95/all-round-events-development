@@ -1,11 +1,13 @@
 html {
 	background: url("/img/background.jpg");
 }
+
 #user_space {
 	float: right;
 	text-align: center;
 	width: 90rem; 
 }
+
 #background {
 	position: fixed;
 	width: 92.5rem;
@@ -14,12 +16,12 @@ html {
 	opacity : 0.7;
 	z-index: -5;
 }
+
 #main_wrapper {
 	position: fixed;
 	width: 92.5rem;
 	margin-top: 100px;
 	height: 100%;
-
 }
 
 #picture_placeholder{
@@ -30,6 +32,7 @@ html {
 footer {
 
 }
+
 .info_block {
 
 	margin-left: 10px;
@@ -41,9 +44,11 @@ footer {
 	background-color: #f1f1f1;
 	height: auto;
 }
+
 .info_block p, h2 {
 	padding: 10px;
 }
+
 
 @media screen and (max-width: 95rem) {
 	#main_wrapper {
@@ -54,6 +59,7 @@ footer {
 		height: auto;
 
 	}
+	
 	#background {
 		position: fixed;
 		width: 94%;
@@ -61,5 +67,6 @@ footer {
 		background-color: gray;
 		opacity : 0.7;
 		z-index: -5;
-	}	
+	}
+	
 }

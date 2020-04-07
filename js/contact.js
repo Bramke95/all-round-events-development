@@ -1,8 +1,7 @@
 /*
- * yourcv : This is a script used for testing perpuses only, should be removed from the official release 
+ * This is 
  *
- * @author : Bram Verachten
- * @date : 15/05/2018
+ *
  * 
  */
 
@@ -27,6 +26,7 @@ function api(action, body, callback){
         } 
 	});
 };
+
 // function to validate email
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -34,10 +34,12 @@ function validateEmail(email) {
 };
 
 
-// creating basic accound + callback 
+// send an complaint to the server 
 function complaint(name, first_name, type, text){
 	api("insert_complaint", {"name" : name , "first_name" : first_name, "type": type,"text" : text}, complaint_callback);
 };
+
+// a complain is send, or something whent wrong and an error message is displayed or 
 function complaint_callback(res){
 	if (res == "ERROR"){
 			$("#error").html("<p><strong>Dat ging niet hellemaal goed, probeert u het later opnieuw! </strong></p>");
@@ -53,11 +55,10 @@ function complaint_callback(res){
 		}
 	}
 };
-// event handleres 
 ;(function() { 
-	// wait till DOM is loaded
+
+	// add event listeners to the page 
 	$(document).ready(function() {
-    	console.log("ready!");
 	    	$("#send").click(function() {
 				var name = $("#name").val();
 				var first_name = $("#first_name").val();

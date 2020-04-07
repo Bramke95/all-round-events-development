@@ -19,11 +19,13 @@ html{
 	margin-bottom: 5px;
 	color: red;
 }
+
 #title_box h1 {     
 	text-align: center;
 	color: red;
 
 }
+
 nav ul {
 	position: fixed;
 	top: 70px;
@@ -35,14 +37,15 @@ nav ul {
 	text-decoration: none;
 	text-align: center;
 	border-radius: 7px 7px 7px 7px;
-
 }
+
 nav li {
 	display: inline-block;
 	margin-right: 2rem;
 	text-decoration: none;
 	margin-top: 4px;
 }
+
 nav a {
 	margin-left: 4rem;
 	margin-right: 4rem;
@@ -51,9 +54,11 @@ nav a {
 	text-decoration: none;
 	font-size: 20px;
 }
+
 nav a:hover {
 	text-decoration:underline;
 }
+
 #bottom {
 	position: fixed;
 	top: 95%;
@@ -66,6 +71,7 @@ nav a:hover {
 	text-align: center;
 	border-radius: 15px 15px 2px 2px;
 }
+
 #spacer {
 	position: fixed;
 	top: 94%;
@@ -74,14 +80,18 @@ nav a:hover {
 	width: 95.4rem;
 	margin: 0 auto;
 }
+
 #bottom p {
 	margin-bottom: 5px;
 	text-shadow: 1px 1px blanchedalmond;
 }
+
+
 @media screen and (max-width: 95rem) {
 	html{
-		height: 132%;
+		height: auto;
 	}
+	
 	#title_box {
 		position: relative;
 		height: 0rem;
@@ -90,19 +100,23 @@ nav a:hover {
 		text-decoration: none;
 		text-align: none;	
 	}
+	
 	nav ul {
 		position: relative;
 		top: 70px;
 		text-align: center;
-		height: 10rem;
+		height: 15rem;
 		width: 90%;
-		margin: 0 auto;
 		background-color: transparent;
 		text-decoration: none;
-		text-align: center;
 		border-radius: 7px 7px 7px 7px;
+		left : -20px;
+	}
+	nav a {
+		font-size: 17.5px;
 
 	}
+	
 	nav li {
 		display: inline-block;
 		margin-right: 2rem;
@@ -112,7 +126,10 @@ nav a:hover {
 		background-color: gray;
 		width: 90%;
 		border-radius: 10px;
+		margin-left: 0;
+		margin-right: 0;
 	}
+	
 	#bottom {
 		position: relative;
 		text-align: center;
@@ -124,7 +141,9 @@ nav a:hover {
 		text-align: center;
 		border-radius: 15px 15px 2px 2px;
 	}
-	#spacer{
+	
+	#spacer {
 		display: none;
 	}
+	
 }
