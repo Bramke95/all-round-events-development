@@ -148,6 +148,7 @@ body {
 	#main_wrapper {
 		width : 100%;
 		height: auto;
+		margin-top: 10px;
 	}
 	
 	#front_picture {
@@ -204,9 +205,4 @@ body {
 		display: none;
 	}
 	
-	#main_wrapper{
-	width: 94rem;
-	margin-top: 10px;
-	height: 100%;
-}
 }
