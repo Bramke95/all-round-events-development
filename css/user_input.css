@@ -232,6 +232,7 @@ div.show-image input.delete {
 	#main_wrapper {
 		width : 100%;
 		height: auto;
+		margin-top: 10px;
 	}
 	
 	div.show-image input {
