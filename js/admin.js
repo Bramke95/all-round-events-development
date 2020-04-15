@@ -23,12 +23,37 @@ $( document ).ready(function() {
 			let status = $("#festi_status").val();
 			let date = $("#festi_date").val();
 			var date_object = new Date(date);
-			var input_date = formatDate(date_object)
+			var input_date = formatDate(date_object);
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("add_festival",{"id" : coockie.ID, "hash" : coockie.TOKEN, name: festiname, festival_discription: festival_discription, status: status, date: input_date}, festival_processing);
+
 			
 		});
 	});
+		$("#festivals_li").click(function(event){
+			clearAll()
+			$("#festival_list").fadeIn("fast");
+			$("#add_festit_init").fadeIn("fast");
+			autofill_festivals();
+			
+		});
+		
+		$("#shifts_li").click(function(event){
+			clearAll()
+			$("#add_shift_init").fadeIn("fast");
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active"}, festival_shift_processing);
+			
+			
+		});
+		
+		$("#users_li").click(function(event){
+			clearAll()
+		});
+		
+		$("#payouts_li").click(function(event){
+			clearAll()
+		});
 });
 
 // function that starts the page but only when it this is the admin 
@@ -130,6 +155,7 @@ function put_change_date(data){
 	$("#festi_name_change").val(data[0].name);
 	$("#festi_discription_change").html(data[0].details);
 	$("#festi_date_change").val(data[0].date.substring(0,10));
+	$("#change_festival_start").off();
 	$("#change_festival_start").click(function(event){
 			let festiname = $("#festi_name_change").val();
 			let festival_discription = $("#festi_discription_change").val();
@@ -149,6 +175,47 @@ function changed_festival(){
 	$("#change_fesitvail_dialog").fadeOut(500);
 }
 
+function festival_shift_processing(data){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing);
+	$("#add_fesitvail").fadeOut("slow");
+	$("#festival_list").html("");
+	$("festivals_li").css({"textDecoration":"underline"});
+	for (let x = 0; x < data.length; x++){
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>" +  "<input type='submit' id="+ data[x].idfestival +" class='change_shift2' name='change festival' value='shift toevoegen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+		$('#' + data[x].idfestival + " select").val(data[x].status);
+		// change festival
+		$(".change_shift2").click(function(event){
+			open_id = event.target.attributes.id.value;
+			$("#add_shift").show();
+			$("#add_shift_abort").click(function(event){
+				$("#add_shift").fadeOut(500);
+			});
+			$("#add_shift_start").off();
+			$("#add_shift_start").click(function(event){
+				
+				//TODO: correct selector for each value
+				let shiftname = $("#shift_name").val();
+				let shift_discription = $("#shift_details").val();
+				let people_needed = $("#people_needed").val();
+				let reserved = $("#people_needed_reserved").val();
+				let days = $("#days").val();
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("add_shift",{"id" : coockie.ID, "hash" : coockie.TOKEN, name: shiftname, discription: shift_discription, needed: people_needed, reserve: reserved, length: days, festi_id: open_id}, shift_processing);
+			});
+		});
+	}
+	$("#festival_list").fadeIn("fast");
+}
+
+//callback adding a shift 
+function shift_processing(data){
+	$("#add_shift").hide();
+	for (let x = 0; x < data.length; x++){
+		$("#" + data[x].festival_idfestival).append("<div id=" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>" +  "<input type='submit' id="+ data[x].idfestival +" class='change_shift' name='change festival' value='dag toevoegen' placeholder='' style='background-color: red ;  margin-left:10px;'></div></div>");
+	}
+}
+
 // callback for the get_festivals
 function festival_processing(data){
 	$( "#add_festival_start" ).off();
@@ -156,7 +223,7 @@ function festival_processing(data){
 	$("#festival_list").html("");
 	$("festivals_li").css({"textDecoration":"underline"});
 	for (let x = 0; x < data.length; x++){
-		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>"+ select_type +  "<input type='submit' id="+ data[x].idfestival +" class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi2' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>"+ select_type +  "<input type='submit' id="+ data[x].idfestival +" class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 		// change festival
 		$(".change_festival").click(function(event){
@@ -170,4 +237,15 @@ function festival_processing(data){
 		});
 	}
 }
+
+function clearAll(){
+	$("#add_fesitvail").fadeOut("fast");
+	$("#change_fesitvail_dialog").fadeOut("fast");
+	$("#festival_list").fadeOut("fast");
+	$("#add_festit_init").fadeOut("fast");
+	$("#add_shift_init").fadeOut("fast");	
+}
+
+
+
 

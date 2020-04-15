@@ -253,12 +253,15 @@ div.show-image input.delete {
 		width: 100%;
 		height: auto;
 	}
+	
 	#educations {
 		overflow-x: auto;
 	}
+	
 	#language {
 		overflow-x: auto;
 	}
+	
 	#expierence {
 		overflow-x: auto;
 	}

@@ -1035,8 +1035,8 @@
 		// this is an admin action, check if this is an admin
 		admin_check($ID, $HASH, $db);
 		// entering the complaint in the DB
-		$statement = $db->prepare('INSERT INTO festivals (date, details, status, name) VALUES (?,?,?,?)');
-		$statement->execute(array($date, $details, $status, $name));
+		$statement = $db->prepare('INSERT INTO festivals (date, details, status, name, full_shifts) VALUES (?,?,?,?,?)');
+		$statement->execute(array($date, $details, $status, $name, 0));
 		
 		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
 		$statement->execute(array($ID));
@@ -1125,6 +1125,80 @@
 			'status' => 200,
 			'error_type' => 0
 		)));
+	}
+	
+		//
+	// This action adds a shift to the festival, this is the middel of the logic (Festivals -> Shifts -> Days)
+	// This action can only be performed by an administrator
+	//
+	elseif ($action == "add_shift") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$name = $xml["name"];
+			$discription = $xml["discription"];
+			$needed = $xml["needed"];
+			$reserve = $xml["reserve"];
+			$length = $xml["length"];
+			$festi_id = $xml["festi_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		admin_check($ID, $HASH, $db);
+		// entering the complaint in the DB
+		$statement = $db->prepare('INSERT INTO shifts (name, datails, length, people_needed, spare_needed, festival_idfestival) VALUES (?,?,?,?,?,?)');
+		$statement->execute(array($name ,$discription,$length, $needed, $reserve,  $festi_id));
+		
+		$statement = $db->prepare('SELECT * FROM shifts ORDER BY idshifts ASC LIMIT 500;');
+		$statement->execute(array($festi_id));
+		$res = $statement->fetchAll();
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+		)));
+	}
+	
+	//
+	// get a list of all the shifts
+	//
+	elseif ($action == "get_shifts") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT * FROM shifts ORDER BY idshifts ASC LIMIT 500;');
+		$statement->execute();
+		$res = $statement->fetchAll();
+
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
 	}
 	
 	else {
