@@ -10,3 +10,4 @@ error codes!
 7 : This token has only reading rights, this action cannot be performed with this token
 8 : not a valid action 
 9 : max amount of pictures is 5 
+10 : shift cannot be deleted because people are added to shift 
