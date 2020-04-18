@@ -221,12 +221,14 @@ function shift_processing(data){
 			api("get_shift", {"id" : coockie.ID, "hash" : coockie.TOKEN, "idshifts": id}, fill_in_change_shift);
 			$("#change_shift").fadeIn(500);
 		});
-		$(".change_shift").click(function(event){}){
-			// todo delete shift 
-		}
-		$(".change_shift").click(function(event){}){
+		$(".delete_shift").click(function(event){
+			let id = event.target.attributes.id.value;
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("delete_shift", {"id" : coockie.ID, "hash" : coockie.TOKEN, "idshifts": id}, load_festivals_shifts);
+		});
+		$(".add_day_shift").click(function(event){
 			// todo add day 
-		}
+		});
 		
 		
 	}

@@ -1314,7 +1314,7 @@
 			)));
 			
 		}
-	});
+	}
 	
 	else {
 		exit(json_encode(array(
