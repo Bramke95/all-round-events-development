@@ -191,6 +191,12 @@ function festival_shift_processing(data){
 		// change festival
 		$(".change_shift2").click(function(event){
 			open_id = event.target.attributes.id.value;
+			// delete all fields
+			$("#shift_name").val("");
+			$("#shift_details").val("");
+			$("#people_needed").val("");
+			$("#people_needed_reserved").val("");
+			$("#days").val("");
 			$("#add_shift").show();
 			$("#add_shift_abort").click(function(event){
 				$("#add_shift").fadeOut(500);
@@ -212,9 +218,13 @@ function festival_shift_processing(data){
 
 //callback adding a shift 
 function shift_processing(data){
+	// add days
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_shift_days", {"id" : coockie.ID, "hash" : coockie.TOKEN}, load_shift_days_shifts);
+	
 	$("#add_shift").hide();
 	for (let x = 0; x < data.length; x++){
-		$("#" + data[x].festival_idfestival).append("<div id=" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ "<p style='width:10%'>Bezetting: "+ data[x].people_needed +"</p>" + "<p style='width:10%'>Reserve: "+ data[x].spare_needed +"</p>" + "<input type='submit' id="+ data[x].idshifts +" class='add_day_shift' name='change festival' value='dag toevoegen' placeholder='' style='background-color: rgb(76, 175, 80) ;  margin-left:10px;'>" + "<input type='submit' id="+ data[x].idshifts +" class='change_shift' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshifts + " class='delete_shift' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div></div>");
+		$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ "<p style='width:10%'>Bezetting: "+ data[x].people_needed +"</p>" + "<p style='width:10%'>Reserve: "+ data[x].spare_needed +"</p>" + "<input type='submit' id="+ data[x].idshifts +" class='add_day_shift' name='change festival' value='dag toevoegen' placeholder='' style='background-color: rgb(76, 175, 80) ;  margin-left:10px;'>" + "<input type='submit' id="+ data[x].idshifts +" class='change_shift' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshifts + " class='delete_shift' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div></div>");
 		$(".change_shift").click(function(event){
 			let id = event.target.attributes.id.value;
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -227,7 +237,32 @@ function shift_processing(data){
 			api("delete_shift", {"id" : coockie.ID, "hash" : coockie.TOKEN, "idshifts": id}, load_festivals_shifts);
 		});
 		$(".add_day_shift").click(function(event){
-			// todo add day 
+			$("#add_shift_day").fadeIn(500);
+			let id = event.target.attributes.id.value;
+			$("#add_shift_day_abort").click(function(event){
+				$("#add_shift_day").fadeOut(500);
+			});
+			$("#add_shift_day_start").off();
+			$("#add_shift_day_start").click(function(event){
+				// api add shift 
+				
+				let start = $("#shift_day_start").val();
+				let start_object = new Date(start);
+				let start_db = formatDate(start_object)
+				
+				let stop = $("#shift_day_stop").val();
+				let stop_object = new Date(stop);
+				let stop_db = formatDate(stop_object)
+				
+				
+				let money = $("#compensation").val();
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("add_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN, "idshifts": id, shifts_idshifts:id, start:start_db, stop:stop_db, money:money}, load_festivals_shifts);
+				$("#add_shift_day").fadeOut(500);
+				
+				
+			});
+			
 		});
 		
 		
@@ -284,6 +319,14 @@ function festival_processing(data){
 				$("#change_fesitvail_dialog").fadeOut(500);
 			});
 		});
+	}
+}
+
+function load_shift_days_shifts(data) {
+
+	for(let x=0; x < data.length; x++){
+		//TODO Counter should only count days with correct ID 
+		$("#shift"+ data[x].idshifts).append("<div id='"+data[x].idshifts+"' class='shift_day_line'><p style='width:20%'>Dag "+ (x + 1) +"<p><p style='width:20%'>"+ data[x].start_date +"<p><p style='width:20%'>"+ data[x].shift_end +"<p></div>");
 	}
 }
 

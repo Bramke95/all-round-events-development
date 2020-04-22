@@ -1127,7 +1127,7 @@
 		)));
 	}
 	
-		//
+	//
 	// This action adds a shift to the festival, this is the middel of the logic (Festivals -> Shifts -> Days)
 	// This action can only be performed by an administrator
 	//
@@ -1157,7 +1157,7 @@
 		$statement = $db->prepare('INSERT INTO shifts (name, datails, length, people_needed, spare_needed, festival_idfestival) VALUES (?,?,?,?,?,?)');
 		$statement->execute(array($name ,$discription,$length, $needed, $reserve,  $festi_id));
 		
-		$statement = $db->prepare('SELECT * FROM shifts ORDER BY idshifts ASC LIMIT 500;');
+		$statement = $db->prepare('SELECT shifts.name,shifts.details,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 
@@ -1173,7 +1173,7 @@
 	}
 	
 	//
-	// get a list of all the shifts
+	// get a list of all the shifts that are active
 	//
 	elseif ($action == "get_shifts") {
 		$xml_dump = file_get_contents('php://input');
@@ -1190,7 +1190,7 @@
 			)));
 		}
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT * FROM shifts ORDER BY idshifts ASC LIMIT 500;');
+		$statement = $db->prepare('SELECT shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
 		$statement->execute();
 		$res = $statement->fetchAll();
 
@@ -1313,6 +1313,75 @@
 				'error_type' => 0
 			)));
 			
+		}
+	}
+	
+	
+	
+	//
+	// This action adds a shift to the shift day, this is the logic (Festivals -> Shifts -> Days)
+	// This action can only be performed by an administrator
+	//
+	elseif ($action == "add_shift_day") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			
+			$start = $xml["start"];
+			$stop = $xml["stop"];
+			$length = $xml["length"];
+			$money = $xml["money"];
+			$shifts_idshifts = $xml["shifts_idshifts"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		admin_check($ID, $HASH, $db);
+		// entering the complaint in the DB
+		$statement = $db->prepare('INSERT INTO shift_days (cost, start_date, shift_end, length, shifts_idshifts) VALUES (?,?,?,?,?)');
+		$statement->execute(array($money ,$start, $stop, $length, $shifts_idshifts));
+		
+		
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+		)));
+	}
+	
+	elseif ($action == "get_shift_days") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT shifts.idshifts, shift_days.cost, shift_days.idshift_days, shift_days.shift_end, shift_days.start_date FROM shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 AND festivals.status != 7;');
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
 		}
 	}
 	
