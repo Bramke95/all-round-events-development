@@ -1385,6 +1385,116 @@
 		}
 	}
 	
+	elseif ($action == "get_shift_day") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_days_id = $xml["shift_day_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT * FROM shift_days WHERE idshift_days=? ');
+		$statement->execute(array($shift_days_id));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
+	
+		//
+	// This action changes the date of a festival/evenement shift day. IMPORTAND, it does not change the status, this is another api (Because changing the status has a lot of other results)
+	// This action can only be performed by an administrator
+	//
+	elseif ($action == "change_shift_day") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$start = $xml["start"];
+			$stop = $xml["stop"];
+			$money = $xml["money"];
+			$shift_days_id = $xml["shift_day_id"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		admin_check($ID, $HASH, $db);
+		// changing the festival data
+		$statement = $db->prepare('UPDATE shift_days SET cost=?, start_date=?, shift_end=? WHERE idshift_days=?;');
+		$statement->execute(array($money, $start, $stop,$shift_days_id));		
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+		)));
+	}
+	
+	//
+	// This action deletes a shift, this can only happen when no user are connected to the shift, these users need te be deleted before this action can take place
+	// This is an admin action, only an admin can perform this 
+	//
+	elseif ($action == "delete_shift_day") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_day_id = $xml["shift_day_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		admin_check($ID, $HASH, $db);
+		
+		$statement = $db->prepare('SELECT * FROM work_day where shift_days_idshift_days = ?');
+		$statement->execute(array($shift_day_id));
+		$res = $statement->fetchAll();
+
+
+		if ($res){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 10,
+				'error_message' => "one or more people are registered in this shift, you have to delete them first"
+			)));
+		}
+		else {
+			
+			$statement = $db->prepare('DELETE FROM shift_days WHERE idshift_days=?;');
+			$statement->execute(array($shift_day_id));
+			exit(json_encode(array(
+				'status' => 200,
+				'error_type' => 0
+			)));
+		}
+	}
+	
 	else {
 		exit(json_encode(array(
 			'status' => 404,

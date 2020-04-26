@@ -109,6 +109,22 @@ input[type=submit] {
 	display: none;
 }
 
+#change_shift_day {
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: absolute;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;
+	display: none;	
+}
+
 #top_user_space {
 	height: 40px;
 }
@@ -225,4 +241,8 @@ label {
 
 .shift_day_line{
 	display: flex;
+	margin: 5px;
+	background-color: darkturquoise;
+	border-radius: 6px;
+	padding: 3px;
 }

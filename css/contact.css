@@ -1,5 +1,7 @@
 html {
 	background: url("/img/background.jpg");
+	background-attachment: fixed;
+	background-position: center;
 }
 
 #contact_space {

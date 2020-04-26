@@ -95,11 +95,15 @@ function formatDate(date) {
     month = '' + (d.getMonth() + 1),
     day = '' + d.getDate(),
     year = d.getFullYear();
+	
+	houre = d.getHours();
+	minutes = d.getMinutes();
+	seconds = "00";
 
 	if (month.length < 2) month = '0' + month;
 	if (day.length < 2) day = '0' + day;
 
-    return [year, month, day].join('-');
+    return [year, month, day].join('-') + " " + [houre, minutes, seconds].join(':');
 }
 
 // function that makes api calles
@@ -311,7 +315,7 @@ function festival_processing(data){
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 		// change festival
 		$(".change_festival").click(function(event){
-			open_id = event.target.attributes.id.value;
+			
 			$("#change_fesitvail_dialog").show();
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "select", "festi_id": event.target.attributes.id.value}, put_change_date);
@@ -326,8 +330,55 @@ function load_shift_days_shifts(data) {
 
 	for(let x=0; x < data.length; x++){
 		//TODO Counter should only count days with correct ID 
-		$("#shift"+ data[x].idshifts).append("<div id='"+data[x].idshifts+"' class='shift_day_line'><p style='width:20%'>Dag "+ (x + 1) +"<p><p style='width:20%'>"+ data[x].start_date +"<p><p style='width:20%'>"+ data[x].shift_end +"<p></div>");
+		$("#shift"+ data[x].idshifts).append("<div id='shift_day"+data[x].idshifts+"' class='shift_day_line'><p style='width:10%'>Dag "+ ($("#shift_day" + data[x].idshifts).length +1) +"<p><p style='width:20%'>Start: "+ data[x].start_date +"<p><p style='width:20%'>Einde: "+ data[x].shift_end +"<p><p style='width:20%'>Dagvergoeding: "+ data[x].cost + "</p><input type='submit' id="+ data[x].idshift_days +" class='change_shift_day' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshift_days + " class='delete_shift_day' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+		
+		$(".change_shift_day").click(function(event){
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			open_id = event.target.attributes.id.value;
+			api("get_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN,  "shift_day_id": open_id}, full_in_changed_shift_day)
+			$("#change_shift_day").fadeIn(500);
+				
+			
+			//cancel
+			$("#change_shift_day_abort").click(function(){
+				$("#change_shift_day").fadeOut(500);
+			});
+			$("#change_shift_day_start").off();
+			$("#change_shift_day_start").click(function(){
+			// change
+				let start = $("#shift_day_start_change").val();
+				let start_object = new Date(start);
+				let start_db = formatDate(start_object)
+				
+				let stop = $("#shift_day_stop_change").val();
+				let stop_object = new Date(stop);
+				let stop_db = formatDate(stop_object)
+				
+				
+				let money = $("#compensation_change").val();
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("change_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN, "shift_day_id": open_id,  start:start_db, stop:stop_db, money:money}, load_festivals_shifts);
+				$("#change_shift_day").fadeOut(500);
+			});
+			
+		});
+		$(".delete_shift_day").off();
+		$(".delete_shift_day").click(function(event){
+			let id = event.target.attributes.id.value;
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("delete_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN, "shift_day_id": id}, load_festivals_shifts);
+			
+		});
+		
 	}
+}
+
+function full_in_changed_shift_day(data){
+	shift = data[0];
+	// Todo set in textfield
+	$("#shift_day_start_change").val(shift.start_date.replace(" ", "T"));
+	$("#shift_day_stop_change").val(shift.shift_end.replace(" ", "T"));
+	$("#compensation_change").val(shift.cost);
 }
 
 function clearAll(){
