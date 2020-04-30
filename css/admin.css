@@ -246,3 +246,134 @@ label {
 	border-radius: 6px;
 	padding: 3px;
 }
+@media screen and (max-width: 95rem) {
+	body {
+	  padding: 1em;
+	  background: #e5e5e5;
+	  font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
+	}
+	#top_menu {
+		height: 270px;
+	}
+	#add_festit_init {
+		width:100%;
+	}
+	.festi2 {
+		display:block;
+		border-radius: 11px;
+		padding: 4px;
+	}
+	.festi_status {
+		width: 100% !important;
+		margin-bottom : 3px;
+	}
+	.change_festival {
+		width: 100% !important;
+		margin: 1px !important;
+		float: none !important;
+	}
+	.shift_title {
+		display: block;
+	}
+	.shift_title p {
+		width: 90% !important;
+	}
+	.festi_date {
+		width: 90% !important;
+		text-align: center;
+	}
+	.add_day_shift {
+		float: none !important;
+		width: 100% !important;
+		margin: 2px !important;
+	}
+	.delete_shift {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.change_shift {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.shift_day_line p{
+		width: 95% !important;
+	}
+	.shift_day_line {
+		display: block;
+		box-shadow: 4px 7px 15px 0px;
+	}
+	.change_shift_day {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important
+	}
+	.delete_shift_day {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	#add_fesitvail {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+	}
+	#change_fesitvail_dialog {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+	}
+	#change_shift {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+	}
+	#add_shift {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+	}
+	#add_shift_day {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+	}
+	#change_shift_day {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+	}
+	#add_festit_init {
+		z-index: 5;
+	}
+	nav ul {
+		height : auto !important;
+	}
+	.shift_day_title {
+		font-weight: bold;
+		text-align: center;
+	}
+	.festi {
+		width: auto !important;
+	}
+	.col-25 {
+		width: 100%;
+	}
+	.col-75 {
+		width: 100%;
+	}
+
+}

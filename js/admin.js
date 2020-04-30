@@ -12,7 +12,8 @@ $( document ).ready(function() {
 	
 	// add event listner to the add festival button
 	$("#add_festit_init").click(function(){
-		$("#add_fesitvail").show();
+		$("#add_fesitvail").fadeIn(500);
+		window.scrollTo(0, 0);
 		$("#add_fesitvail").draggable();
 		$("#add_festival_abort").click(function(){
 			$("#add_fesitvail").fadeOut( "slow" );
@@ -201,7 +202,8 @@ function festival_shift_processing(data){
 			$("#people_needed").val("");
 			$("#people_needed_reserved").val("");
 			$("#days").val("");
-			$("#add_shift").show();
+			$("#add_shift").fadeIn(500);
+			window.scrollTo(0, 0);
 			$("#add_shift_abort").click(function(event){
 				$("#add_shift").fadeOut(500);
 			});
@@ -234,6 +236,7 @@ function shift_processing(data){
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("get_shift", {"id" : coockie.ID, "hash" : coockie.TOKEN, "idshifts": id}, fill_in_change_shift);
 			$("#change_shift").fadeIn(500);
+			window.scrollTo(0, 0);
 		});
 		$(".delete_shift").click(function(event){
 			let id = event.target.attributes.id.value;
@@ -242,6 +245,7 @@ function shift_processing(data){
 		});
 		$(".add_day_shift").click(function(event){
 			$("#add_shift_day").fadeIn(500);
+			window.scrollTo(0, 0);
 			let id = event.target.attributes.id.value;
 			$("#add_shift_day_abort").click(function(event){
 				$("#add_shift_day").fadeOut(500);
@@ -311,12 +315,12 @@ function festival_processing(data){
 	$("#festival_list").html("");
 	$("festivals_li").css({"textDecoration":"underline"});
 	for (let x = 0; x < data.length; x++){
-		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi2' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>"+ select_type +  "<input type='submit' id="+ data[x].idfestival +" class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi2' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>"+ select_type +  "<input type='submit' id="+ data[x].idfestival +" class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input></div>");
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 		// change festival
 		$(".change_festival").click(function(event){
-			
-			$("#change_fesitvail_dialog").show();
+			window.scrollTo(0, 0);
+			$("#change_fesitvail_dialog").fadeIn();
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "select", "festi_id": event.target.attributes.id.value}, put_change_date);
 			$("#change_festival_abort").click(function(event){
@@ -330,7 +334,7 @@ function load_shift_days_shifts(data) {
 
 	for(let x=0; x < data.length; x++){
 		//TODO Counter should only count days with correct ID 
-		$("#shift"+ data[x].idshifts).append("<div id='shift_day"+data[x].idshifts+"' class='shift_day_line'><p style='width:10%'>Dag "+ ($("#shift_day" + data[x].idshifts).length +1) +"<p><p style='width:20%'>Start: "+ data[x].start_date +"<p><p style='width:20%'>Einde: "+ data[x].shift_end +"<p><p style='width:20%'>Dagvergoeding: "+ data[x].cost + "</p><input type='submit' id="+ data[x].idshift_days +" class='change_shift_day' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshift_days + " class='delete_shift_day' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+		$("#shift"+ data[x].idshifts).append("<div id='shift_day"+data[x].idshifts+"' class='shift_day_line'><p class='shift_day_title' style='width:10%'>Dag "+ ($("#shift_day" + data[x].idshifts).length +1) +"<p><p style='width:20%'>Start: "+ data[x].start_date +"<p><p style='width:20%'>Einde: "+ data[x].shift_end +"<p><p style='width:20%'>Dagvergoeding: "+ data[x].cost + "</p><input type='submit' id="+ data[x].idshift_days +" class='change_shift_day' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshift_days + " class='delete_shift_day' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
 		
 		$(".change_shift_day").click(function(event){
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -354,13 +358,11 @@ function load_shift_days_shifts(data) {
 				let stop_object = new Date(stop);
 				let stop_db = formatDate(stop_object)
 				
-				
 				let money = $("#compensation_change").val();
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				api("change_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN, "shift_day_id": open_id,  start:start_db, stop:stop_db, money:money}, load_festivals_shifts);
 				$("#change_shift_day").fadeOut(500);
 			});
-			
 		});
 		$(".delete_shift_day").off();
 		$(".delete_shift_day").click(function(event){
