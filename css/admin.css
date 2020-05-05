@@ -368,6 +368,7 @@ label {
 	}
 	.festi {
 		width: auto !important;
+		min-width: 95% !important;
 	}
 	.col-25 {
 		width: 100%;

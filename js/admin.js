@@ -3,7 +3,7 @@ var USER_ID = "";
 var TOKEN = "";
 var LOGGED_IN = false;
 var open_id = -1;
-var url = "../../api.php?action="
+var url = "../../api.php?action=";
 const select_type = '<select style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="2">Open met vrije inschrijving</option><option value="3">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
 const change_button = "<input type='submit' id='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
 		
@@ -341,7 +341,7 @@ function load_shift_days_shifts(data) {
 			open_id = event.target.attributes.id.value;
 			api("get_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN,  "shift_day_id": open_id}, full_in_changed_shift_day)
 			$("#change_shift_day").fadeIn(500);
-				
+			window.scrollTo(0, 0);
 			
 			//cancel
 			$("#change_shift_day_abort").click(function(){

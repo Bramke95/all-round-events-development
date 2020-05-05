@@ -68,6 +68,9 @@ span.psw {
 #activation_code p {
 	margin-left: 10px;
 }
+h2 {
+	  text-shadow: 2px 2px blanchedalmond;
+}
 
 @media screen and (max-width: 300px) {
   span.psw {

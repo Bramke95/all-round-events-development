@@ -1,7 +1,5 @@
 html {
-	background: url("/img/background.jpg");
-	background-attachment: fixed;
-	background-position: center;
+    background: #e5e5e5;
 }
 #top_menu {
 	height: 100px;
