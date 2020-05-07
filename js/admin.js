@@ -172,7 +172,8 @@ function put_change_date(data){
 		var date_object = new Date(date);
 		var input_date = formatDate(date_object)
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-		api("change_festival_data", {"id" : coockie.ID, "hash" : coockie.TOKEN,festiname:festiname, festival_discription: festival_discription, date: input_date, idfestival: parseInt(open_id)}, festival_shift_processing)
+		api("change_festival_data", {"id" : coockie.ID, "hash" : coockie.TOKEN,festiname:festiname, festival_discription: festival_discription, date: input_date, idfestival: parseInt(open_id)}, autofill_festivals);
+		$("#change_fesitvail_dialog").fadeOut(500);
 		
 	});
 }
@@ -272,8 +273,6 @@ function shift_processing(data){
 			});
 			
 		});
-		
-		
 	}
 }
 
@@ -319,10 +318,11 @@ function festival_processing(data){
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 		// change festival
 		$(".change_festival").click(function(event){
+			open_id = event.target.attributes.id.value;
 			window.scrollTo(0, 0);
 			$("#change_fesitvail_dialog").fadeIn();
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "select", "festi_id": event.target.attributes.id.value}, put_change_date);
+			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "select", "festi_id": open_id}, put_change_date);
 			$("#change_festival_abort").click(function(event){
 				$("#change_fesitvail_dialog").fadeOut(500);
 			});
