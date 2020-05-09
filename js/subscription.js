@@ -7,10 +7,22 @@ var url = "../../api.php?action=";
 
 		
 $( document ).ready(function() {
+	add_optional_management();
 	load_festivals_shifts();
 });
 
+function add_optional_management(){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("is_admin",{"id" : coockie.ID, "hash" : coockie.TOKEN}, add_optional_management_callback)
+}
+function add_optional_management_callback(is_admin){
+	if(is_admin.status == 200){
+		$("#top_menu ul").append("<li><a href='admin.html'>Beheer</a></li>");
+	}
+}
+
 function load_festivals_shifts(){
+	
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active"}, festival_shift_processing);
 }
@@ -97,24 +109,69 @@ function id_to_status(id){
 }
 
 // get the stastus from the id 
-function id_to_status(shift_id, id, is_already_subscribed, is_full, reserve){
+function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full){
 	if(id == 0){
 		return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='geïnteresseerd' value='Geïnteresseerd' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 	}
 	else if (id == 1){
-		return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Gesloten' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+		if(is_already_subscribed){
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Ingeschreven(uitschrijven niet mogelijk)' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+		}
+		else {
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Inschrijven niet open' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+
+		}
 	}
 	else if (id == 2){
-		return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='inschrijven' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+		if(is_already_subscribed){
+			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+
+		}
+		else if (is_full){
+			return "<input type='submit' id=shift_button"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='volzet(inschrijven op reservelijst)' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
+
+		}
+		else if (is_completely_full){
+			return "<input type='submit' id=shift_button"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+
+		}
+		else {
+			 return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='inschrijven' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+
+		}
 	}
 	else if (id == 3){
-		return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+		if(is_already_subscribed){
+			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+		}
+		else if (is_completely_full){
+			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Volzet' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+		}
+		else {
+			return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+
+		}
+		
 	}
 	else if (id == 4){
-		return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Afgesloten' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+		if (is_already_subscribed){
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Ingeschreven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+
+		}
+		else {
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Afgesloten' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+
+		}
 	}
 	else if (id == 5){
-		return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='change festival' value='Evenement afgelopen' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+		if (is_already_subscribed){
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='change festival' value='afrekingen wordt gemaakt' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+
+		}
+		else {
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='change festival' value='Evenement afgelopen' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+
+		}
 	}
 	else if (id == 6){
 		return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='afgesloten' value='Afgeloten' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
@@ -128,6 +185,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, reserve){
 }
 
 function festival_shift_processing(data){
+	$("#festival_list").html("");
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing);
 	for (let x = 0; x < data.length; x++){
@@ -144,13 +202,27 @@ function shift_processing(data){
 		// add days
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 		api("get_shift_days", {"id" : coockie.ID, "hash" : coockie.TOKEN}, load_shift_days_shifts);
-		
+	
 		for (let x = 0; x < data.length; x++){
-			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, true, true) +"</div></div>");
+		// calculate if full or not 
+			let is_full = (data[x].people_needed <= data[x].subscribed);
+			let is_completely_full = ((data[x].people_needed + data[x].spare_needed) <= data[x].subscribed);
+			let is_subscrubed = false;
+			for (let y = 0; y < subscriptions.length; y++){
+				if (subscriptions[y].idshifts == data[x].idshifts){
+					is_subscrubed = true;
+					break;
+				}
+			}
+			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full) +"</div></div>");
+			$("#shift_button" + data[x].idshifts).off();
 			$("#shift_button" + data[x].idshifts).click(function(event){
 				open_id = event.target.attributes.id.value;
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-				api("user_subscribe",{"id" : coockie.ID, "hash" : coockie.TOKEN, "Id_Users": coockie.ID, "idshifts": open_id.replace(/\D/g,'')} );
+				api("user_subscribe",{"id" : coockie.ID, "hash" : coockie.TOKEN, "Id_Users": coockie.ID, "idshifts": open_id.replace(/\D/g,'')}, load_festivals_shifts);
+			});
+			$("#shift_button_unsub" + data[x].idshifts).click(function(event){
+				
 			});
 		}
 	})

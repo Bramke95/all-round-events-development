@@ -750,7 +750,6 @@
 		token_check($ID, $HASH, $db);
 		
 
-		// TODO : check if the max amount of results is not higher than 5
 		$ID = str_replace('"', "", $ID);
 		$statement = $db->prepare('SELECT COUNT(*) FROM Images WHERE users_Id_Users = ?;');
 		$statement->execute(array((int)$ID));
@@ -1180,7 +1179,6 @@
 	//
 	elseif ($action == "get_shifts") {
 		// Todo => add data for reserve, full or not
-		//select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -1197,8 +1195,17 @@
 		token_check($ID, $HASH, $db);
 		$statement = $db->prepare('SELECT festivals.status, shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
 		$statement->execute();
-		$res = $statement->fetchAll();
-
+		$counter = 0;
+		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;');
+			$statement2->execute(array($row["idshifts"]));
+			$res2 = $statement2->fetchAll();
+			//array_push($row, $res2[0]["count(distinct users_Id_Users)"]);
+			$row["subscribed"] = $res2[0]["count(distinct users_Id_Users)"];
+			$res[$counter] = $row;
+			$counter++;			
+			
+		}
 
 		if ($res){
 			$json = json_encode($res);
@@ -1512,7 +1519,7 @@
 			)));
 		}
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT * FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7');
+		$statement = $db->prepare('SELECT reservation_type, idshifts FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7');
 		$statement->execute(array($ID));
 		$res = $statement->fetchAll();
 		if ($res){
@@ -1526,7 +1533,7 @@
 	elseif ($action == "user_subscribe") {
 		// get the contenct from the api body
 		
-		//TODO: => Check if the festivals shift is full
+		//TODO: => Check if the festivals shift is full [just keep filling if not directly subscription]
 		//TODO: => send mail to notify the user is subscribed
 		//TODO: => implement reserve 
 		//TODO => check if user is allready subscibed, delete if neaseserry
@@ -1538,6 +1545,7 @@
 			$HASH = $xml["hash"];
 			$shift_id = $xml["idshifts"];
 			$Id_Users = $xml["Id_Users"];
+			//TODO: add type so the admin can add specifc type
 			
 		} catch (Exception $e) {
 			exit(json_encode(array(
