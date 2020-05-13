@@ -217,12 +217,14 @@ function shift_processing(data){
 			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full) +"</div></div>");
 			$("#shift_button" + data[x].idshifts).off();
 			$("#shift_button" + data[x].idshifts).click(function(event){
-				open_id = event.target.attributes.id.value;
+				var open_id = event.target.attributes.id.value;
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				api("user_subscribe",{"id" : coockie.ID, "hash" : coockie.TOKEN, "Id_Users": coockie.ID, "idshifts": open_id.replace(/\D/g,'')}, load_festivals_shifts);
 			});
 			$("#shift_button_unsub" + data[x].idshifts).click(function(event){
-				
+				var open_id = event.target.attributes.id.value;
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("user_unsubscribe",{"id" : coockie.ID, "hash" : coockie.TOKEN, "Id_Users": coockie.ID, "idshifts": open_id.replace(/\D/g,'')}, load_festivals_shifts);
 			});
 		}
 	})

@@ -1554,10 +1554,11 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		$statement = $db->prepare('SELECT festivals.status FROM festivals INNER JOIN shifts on festivals.idfestival = shifts.festival_idfestival WHERE shifts.idshifts = ?;');
+		$statement = $db->prepare('SELECT festivals.status, festivals.name FROM festivals INNER JOIN shifts on festivals.idfestival = shifts.festival_idfestival WHERE shifts.idshifts = ?;');
 		$statement->execute(array($shift_id));
 		$res = $statement->fetchAll();
 		$status = $res[0]["status"];
+		$festival_name = $res[0]["name"];
 		if (($status == 0 ||$status == 2 || $status == 3) && ($ID == $Id_Users )){
 			//the user can subscribe 
 			token_check($ID, $HASH, $db);
@@ -1567,6 +1568,7 @@
 			admin_check($ID, $HASH, $db);
 			$status = 3;
 		}
+
 		$statement = $db->prepare('select idshift_days from shift_days INNER JOIN shifts ON shifts.idshifts = shift_days.shifts_idshifts where shifts.idshifts = ?;');
 		$statement->execute(array($shift_id));
 		$res = $statement->fetchAll();
@@ -1575,6 +1577,31 @@
 			$statement = $db->prepare('INSERT INTO work_day (reservation_type, shift_days_idshift_days, users_Id_Users) VALUES (?,?,?);');
 			$statement->execute(array($status, $shift["idshift_days"], $Id_Users));
 		}
+		
+		// mail the user!
+		$statement = $db->prepare('SELECT email from users where Id_Users = ?');
+		$statement->execute(array($Id_Users));
+		$res = $statement->fetchAll();
+		$email = res[0]['email'];
+		
+		if ($status == 2){
+			$subject = 'Registreerd';
+			$message = 'Beste, \r\n Je bent gergeistreerd om te komen werken op ' . $festival_name . ' .';
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-round-events.be' . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message, $headers);
+		}
+		if ($status == 3){
+			$subject = 'Registreerd';
+			$message = 'Beste, \r\n Je bent insgeschreven om te komen werken op ' . $festival_name . ' .';
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-round-events.be' . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message, $headers);
+		}
+		
+		
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0,
@@ -1583,6 +1610,46 @@
 		
 		
 	}
+	
+	
+	elseif ($action == "user_unsubscribe") {
+		// get the contenct from the api body
+	
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_id = $xml["idshifts"];
+			$Id_Users = $xml["Id_Users"];
+			//TODO: add type so the admin can add specifc type
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		if ($ID == $Id_Users){
+			token_check($ID, $HASH, $db);
+		}
+		else {
+			admin_check($ID, $HASH, $db);
+		}
+		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
+		$statement->execute(array($Id_Users, $shift_id ));
+		$res = $statement->fetchAll();
+
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'error_message' => "None"
+		)));
+		
+		
+	}
+	
 	elseif ($action == "mail") {
 		return;
 		$to      = 'bramverachten@gmail.com';
@@ -1591,7 +1658,7 @@
 		$headers = 'From: info@all-round-events.be' . "\r\n" .
 		'Reply-To: info@all-round-events.be' . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-			mail($to, $subject, $message, $headers);
+		mail($to, $subject, $message, $headers);
 	}
 	
 	else {
