@@ -1606,11 +1606,8 @@
 			'status' => 200,
 			'error_type' => 0,
 			'error_message' => "None"
-		)));
-		
-		
+		)));	
 	}
-	
 	
 	elseif ($action == "user_unsubscribe") {
 		// get the contenct from the api body
