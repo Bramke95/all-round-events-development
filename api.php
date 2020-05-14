@@ -1587,16 +1587,16 @@
 		if ($status == 2){
 			$subject = 'Registreerd';
 			$message = 'Beste, \r\n Je bent gergeistreerd om te komen werken op ' . $festival_name . ' .';
-			$headers = 'From: info@all-round-events.be' . "\r\n" .
-			'Reply-To: info@all-round-events.be' . "\r\n" .
+			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
+			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message, $headers);
 		}
 		if ($status == 3){
 			$subject = 'Registreerd';
 			$message = 'Beste, \r\n Je bent insgeschreven om te komen werken op ' . $festival_name . ' .';
-			$headers = 'From: info@all-round-events.be' . "\r\n" .
-			'Reply-To: info@all-round-events.be' . "\r\n" .
+			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
+			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message, $headers);
 		}
