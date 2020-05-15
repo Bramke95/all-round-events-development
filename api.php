@@ -1534,8 +1534,7 @@
 		// get the contenct from the api body
 		
 		//TODO: => Check if the festivals shift is full [just keep filling if not directly subscription]
-		//TODO: => send mail to notify the user is subscribed
-		//TODO: => implement reserve 
+		//TODO: => implement reserve + mail
 		//TODO => check if user is allready subscibed, delete if neaseserry
 		
 		$xml_dump = file_get_contents('php://input');
@@ -1569,34 +1568,63 @@
 			$status = 3;
 		}
 
-		$statement = $db->prepare('select idshift_days from shift_days INNER JOIN shifts ON shifts.idshifts = shift_days.shifts_idshifts where shifts.idshifts = ?;');
+		$statement = $db->prepare('select idshift_days, start_date, shift_end, cost  from shift_days INNER JOIN shifts ON shifts.idshifts = shift_days.shifts_idshifts where shifts.idshifts = ?;');
 		$statement->execute(array($shift_id));
 		$res = $statement->fetchAll();
+		$shift_info = "";
 		
 		foreach ($res as &$shift) {
 			$statement = $db->prepare('INSERT INTO work_day (reservation_type, shift_days_idshift_days, users_Id_Users) VALUES (?,?,?);');
 			$statement->execute(array($status, $shift["idshift_days"], $Id_Users));
+			$shift_info .= "<p>Van " . $shift["start_date"] . " tot " .  $shift["shift_end"] . " voor " . $shift["cost"] . "euro </p>" ;
 		}
 		
 		// mail the user!
 		$statement = $db->prepare('SELECT email from users where Id_Users = ?');
 		$statement->execute(array($Id_Users));
 		$res = $statement->fetchAll();
-		$email = res[0]['email'];
+		$email = $res[0]['email'];
 		
 		if ($status == 2){
-			$subject = 'Registreerd';
-			$message = 'Beste, \r\n Je bent gergeistreerd om te komen werken op ' . $festival_name . ' .';
+			$subject = 'All-Round Events: Registratie voor ' . $festival_name;
+			$message = '<html>
+							<p>Beste,</p>
+							<p>Je bent geregisteerd om deel temen aan ' . $festival_name . '. </br></p>
+							<p> Je ben voor volgende shift geregisteerd:</p>
+							' . $shift_info .
+							"<p>We kijken uit naar een leuke en vlotte samenwerking!</p>
+							<p></p>
+							<p><strong>Opgelet!! Je bent nog niet ingeschreven, enkel geregisteerd! Je ontvangt een mail als je registratie wordt verwerkt. <strong></p>
+							<p></p>
+							<p>Met vriendelijke groeten</p>
+							<p><small>
+								All-round Events VZW
+								Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+						"</html>";
 			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
 			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message, $headers);
 		}
 		if ($status == 3){
-			$subject = 'Registreerd';
-			$message = 'Beste, \r\n Je bent insgeschreven om te komen werken op ' . $festival_name . ' .';
+			$subject = 'All-Round Events: Inschrijving bevestigd voor ' . $festival_name;
+			$message = '<html>
+							<p>Beste,</p>
+							<p>Je bent ingeschreven om te komen werken op ' . $festival_name . '. </br></p>
+							<p> Je wordt op volgende momenten verwacht.</p>
+							' . $shift_info .
+							"<p></p>
+							<p>Alvast enorm bedankt dat jij deel wilt uitmaken van ons team! </p>
+							<p></p>
+							<p>Met vriendelijke groeten</p>
+							<p><small>
+								All-round Events VZW
+								Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+						"</html>";
 			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
 			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message, $headers);
 		}
@@ -1611,7 +1639,7 @@
 	
 	elseif ($action == "user_unsubscribe") {
 		// get the contenct from the api body
-	
+		//Todo: Send mail with info! 
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -1630,6 +1658,7 @@
 		}
 		if ($ID == $Id_Users){
 			token_check($ID, $HASH, $db);
+			
 		}
 		else {
 			admin_check($ID, $HASH, $db);

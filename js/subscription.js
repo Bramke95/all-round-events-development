@@ -118,7 +118,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Ingeschreven(uitschrijven niet mogelijk)' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 		}
 		else {
-			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Inschrijven niet open' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Inschrijven niet mogelijk' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 
 		}
 	}
