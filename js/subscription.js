@@ -64,6 +64,7 @@ function api(action, body, callback){
 		data: JSON.stringify(body),
 		success: function(resp){
 			callback(JSON.parse(resp));
+			//TODO check if token mismach, revert to login
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
 			//window.location.href = "home.html";

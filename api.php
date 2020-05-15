@@ -1535,7 +1535,7 @@
 		
 		//TODO: => Check if the festivals shift is full [just keep filling if not directly subscription]
 		//TODO: => implement reserve + mail
-		//TODO => check if user is allready subscibed, delete if neaseserry
+		//TODO => check if user is allready subscibed, delete if neaseserry [do first because it is none blocking, just return ]
 		
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
@@ -1594,7 +1594,7 @@
 							' . $shift_info .
 							"<p>We kijken uit naar een leuke en vlotte samenwerking!</p>
 							<p></p>
-							<p><strong>Opgelet!! Je bent nog niet ingeschreven, enkel geregisteerd! Je ontvangt een mail als je registratie wordt verwerkt. <strong></p>
+							<p><strong>Opgelet!! Je bent nog niet ingeschreven, enkel geregisteerd! Je ontvangt een mail als je registratie wordt verwerkt. </strong></p>
 							<p></p>
 							<p>Met vriendelijke groeten</p>
 							<p><small>
