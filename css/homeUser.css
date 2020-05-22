@@ -200,9 +200,16 @@ body {
 	width: auto;
 	height: auto;
 	float: left;
+	width: 100%;
 	}
 	#vl {
 		display: none;
+	}
+	#main_info_placeholder {
+		max-width: 39%;
+	}
+	#main_data_placeholder {
+		max-width: 60%;
 	}
 	
 }

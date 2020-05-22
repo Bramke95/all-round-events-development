@@ -36,7 +36,7 @@ function getCookie(name) {
 		while (c.charAt(0) == ' ') c = c.substring(1, c.length);
 			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
 	}
-	return null;
+	window.location.href = "home.html";
 }
 
 // format date to the correct format for the input field 
@@ -128,14 +128,15 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 
 		}
-		else if (is_full){
-			return "<input type='submit' id=shift_button"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='volzet(inschrijven op reservelijst)' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
-
-		}
 		else if (is_completely_full){
 			return "<input type='submit' id=shift_button"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 
 		}
+		else if (is_full){
+			return "<input type='submit' id=shift_button"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='volzet(inschrijven op reservelijst)' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
+
+		}
+
 		else {
 			 return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='inschrijven' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 
@@ -186,6 +187,9 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 }
 
 function festival_shift_processing(data){
+	if (data.error_type == 4){
+		window.location.href = "login.html";
+	}
 	$("#festival_list").html("");
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing);
@@ -206,8 +210,8 @@ function shift_processing(data){
 	
 		for (let x = 0; x < data.length; x++){
 		// calculate if full or not 
-			let is_full = (data[x].people_needed <= data[x].subscribed);
-			let is_completely_full = ((data[x].people_needed + data[x].spare_needed) <= data[x].subscribed);
+			let is_full = (parseInt(data[x].people_needed) <= parseInt(data[x].subscribed));
+			let is_completely_full = ((parseInt(data[x].people_needed) + parseInt(data[x].spare_needed)) <= parseInt(data[x].subscribed));
 			let is_subscrubed = false;
 			for (let y = 0; y < subscriptions.length; y++){
 				if (subscriptions[y].idshifts == data[x].idshifts){
