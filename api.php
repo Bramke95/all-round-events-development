@@ -1203,6 +1203,13 @@
 			$statement2->execute(array($row["idshifts"]));
 			$res2 = $statement2->fetchAll();
 			$row["subscribed"] = $res2[0]["count(distinct users_Id_Users)"];
+			
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type = 3;');
+			$statement2->execute(array($row["idshifts"]));
+			$res2 = $statement2->fetchAll();
+			$row["subscribed_final"] = $res2[0]["count(distinct users_Id_Users)"];
+			
+			
 			$res[$counter] = $row;
 			$counter++;			
 			
@@ -1750,13 +1757,41 @@
 		
 		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
 		$statement->execute(array($Id_Users, $shift_id ));
-		$res = $statement->fetchAll();
 
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0,
 			'error_message' => "None"
 		)));
+	}
+	elseif ($action == "get_subscribers") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join images on (images.users_Id_Users = work_day.users_Id_Users and images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users order by idwork_day;');
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+		
+		
 	}
 	
 	else {

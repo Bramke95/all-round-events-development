@@ -54,6 +54,11 @@ $( document ).ready(function() {
 		$("#payouts_li").click(function(event){
 			clearAll()
 		});
+		$("#subscription_li").click(function(event){
+			clearAll()
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active"}, festival_shift_processing_ligth);
+		});
 });
 
 function load_festivals_shifts(){
@@ -223,6 +228,18 @@ function festival_shift_processing(data){
 	$("#festival_list").fadeIn("fast");
 }
 
+function festival_shift_processing_ligth(data){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing_short);
+	$("#add_fesitvail").fadeOut("slow");
+	$("#festival_list").html("");
+	for (let x = 0; x < data.length; x++){
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p></div>");
+		$('#' + data[x].idfestival + " select").val(data[x].status);
+		// change festival
+	}
+	$("#festival_list").fadeIn("fast");
+}
 //callback adding a shift 
 function shift_processing(data){
 	// add days
@@ -263,7 +280,6 @@ function shift_processing(data){
 				let stop_object = new Date(stop);
 				let stop_db = formatDate(stop_object)
 				
-				
 				let money = $("#compensation").val();
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				api("add_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN, "idshifts": id, shifts_idshifts:id, start:start_db, stop:stop_db, money:money}, load_festivals_shifts);
@@ -274,6 +290,47 @@ function shift_processing(data){
 			
 		});
 	}
+}
+
+//callback adding a shift 
+function shift_processing_short(data){
+	// add days
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_subscribers", {"id" : coockie.ID, "hash" : coockie.TOKEN}, subscribers_callback);
+	
+	$("#add_shift").hide();
+	//TODO Add following functionality: 
+	// mail all: THe option to mail all the people in the shift
+	// pdf creation 
+	
+	for (let x = 0; x < data.length; x++){
+		$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:15%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:40%'>"+ data[x].datails +"</p>"+ "<p style='width:20%'>benodigde bezetting: "+ data[x].people_needed +"</p>" + "<p style='width:20%'>gewenste reserve: "+ data[x].spare_needed +"</p> " + "<p style='width:20%'>ingeschreven: "+ data[x].subscribed_final +"</p><p style='width:20%'>geregistreerd: "+ data[x].subscribed +"</p></div></div>");	
+	}
+}
+
+function subscribers_callback(data){
+
+		for(let x=0; x < data.length; x++){
+		//TODO: implement functionality 
+			let user_status = "unknown";
+
+			if (data[x].reservation_type == 2){
+				user_status = "Geregistreerd";
+				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='user_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].idshift_days +" class='change_shift_day' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshift_days + " class='delete_shift_day' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></div>");
+			}
+			if (data[x].reservation_type == 3){
+				user_status = "Ingeschreven";
+				primary_list = primary_list + 
+				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='user_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].idshift_days +" class='change_shift_day' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+			}
+			if (data[x].reservation_type == 99){
+				user_status = "reservelijst";
+				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='user_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].idshift_days +" class='change_shift_day' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshift_days + " class='delete_shift_day' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+
+			}
+			
+
+		}
 }
 
 //

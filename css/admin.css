@@ -3,6 +3,9 @@ body {
   background: #e5e5e5;
   font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
 }
+img {
+	padding-right: 20px;
+}
 #title_box {
 	background-color: #e5e5e5;
 }
@@ -23,6 +26,9 @@ input[type=submit] {
   border-radius: 4px;
   cursor: pointer;
   float: right;
+}
+nav a {
+	margin-right: 1px !important;
 }
 
 #top_menu {
@@ -239,13 +245,22 @@ label {
 	display: none;
 }
 
-.shift_day_line{
+.shift_day_line {
 	display: flex;
 	margin: 5px;
 	background-color: darkturquoise;
 	border-radius: 6px;
 	padding: 3px;
 }
+.user_line {
+	display: flex;
+	margin: 5px;
+	background-color: darkturquoise;
+	border-radius: 6px;
+	padding: 3px;
+	height: 60px;
+}
+
 @media screen and (max-width: 95rem) {
 	body {
 	  padding: 1em;
