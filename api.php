@@ -1780,7 +1780,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join images on (images.users_Id_Users = work_day.users_Id_Users and images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users order by idwork_day;');
+		$statement = $db->prepare('select users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users,shifts_idshifts  order by idwork_day;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		if ($res){
