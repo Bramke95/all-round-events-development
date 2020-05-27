@@ -24,7 +24,7 @@ function add_optional_management_callback(is_admin){
 function load_festivals_shifts(){
 	
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active"}, festival_shift_processing);
+	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active" , "festi_id":"invalid"}, festival_shift_processing);
 }
 
 // function that gets the cookie for the user ID and the TOKEN that are used to do API calls 
@@ -125,6 +125,19 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 	}
 	else if (id == 2){
 		if(is_already_subscribed){
+			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+		}
+		else if (is_completely_full){
+			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+		}
+		else {
+			return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+
+		}
+		
+	}
+	else if (id == 3){
+		if(is_already_subscribed){
 			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 
 		}
@@ -142,19 +155,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 
 		}
 	}
-	else if (id == 3){
-		if(is_already_subscribed){
-			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
-		}
-		else if (is_completely_full){
-			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Volzet' placeholder='' style='background-color: green ;  margin-left:10px;'>";
-		}
-		else {
-			return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 
-		}
-		
-	}
 	else if (id == 4){
 		if (is_already_subscribed){
 			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Ingeschreven' placeholder='' style='background-color: green ;  margin-left:10px;'>";

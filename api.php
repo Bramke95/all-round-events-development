@@ -1548,12 +1548,12 @@
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		$people_subscribed = 0;
+		$overrule = false;
 		try {
 			$ID = $xml["id"];
 			$HASH = $xml["hash"];
 			$shift_id = $xml["idshifts"];
 			$Id_Users = $xml["Id_Users"];
-			//TODO: add type so the admin can add specifc type
 			
 		} catch (Exception $e) {
 			exit(json_encode(array(
@@ -1561,6 +1561,10 @@
 				'error_type' => 4,
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
+		}
+		if($Id_Users == "admin"){
+			$Id_Users = $ID;
+			$overrule = true;
 		}
 		
 		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
@@ -1571,7 +1575,7 @@
 		$res = $statement->fetchAll();
 		$status = $res[0]["status"];
 		$festival_name = $res[0]["name"];
-		if (($status   == 0 ||$status == 2 || $status == 3) && ($ID == $Id_Users )){
+		if (($status   == 0 ||$status == 2 || $status == 3) && ($ID == $Id_Users ) && !$overrule){
 			//the user can subscribe 
 			token_check($ID, $HASH, $db);
 			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;');
@@ -1780,8 +1784,37 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users,shifts_idshifts  order by idwork_day;');
+		$statement = $db->prepare('select work_day.users_Id_Users, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users,shifts_idshifts  order by idwork_day;');
 		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
+	
+	elseif ($action == "user_search") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$search = $xml["search"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select * from users_data where name like ? limit 10; ');
+		$statement->execute(array("%" . $search . "%"));
 		$res = $statement->fetchAll();
 		if ($res){
 			$json = json_encode($res);
