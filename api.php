@@ -45,11 +45,14 @@
 	}
 	// include DB configuration
 	require_once 'config.php';
+	
 
 	// connect to the database 
 
 	$db = new PDO('mysql:host=' . $host . ';dbname=' . $name . ';charset=utf8', $user, $pass);
 	$db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+	
+	// mailing stuff 
 
 	// gets the action that needs to be performed. 
 	$action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -747,7 +750,6 @@
 		token_check($ID, $HASH, $db);
 		
 
-		// TODO : check if the max amount of results is not higher than 5
 		$ID = str_replace('"', "", $ID);
 		$statement = $db->prepare('SELECT COUNT(*) FROM Images WHERE users_Id_Users = ?;');
 		$statement->execute(array((int)$ID));
@@ -1074,16 +1076,18 @@
 		$query = '';
 		if ($type == "select"){
 			$query ='SELECT * FROM festivals WHERE idfestival = ? ;';
+			token_check($ID, $HASH, $db);
 		}
 		else if ("active"){
 			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7;';
 		}
 		else {
 			$query ='SELECT * FROM festivals;';
+			token_check($ID, $HASH, $db);
 		}
 		
-		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
+		
+		$statement = $db->prepare($query);
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 
@@ -1176,6 +1180,7 @@
 	// get a list of all the shifts that are active
 	//
 	elseif ($action == "get_shifts") {
+		// Todo => add data for reserve, full or not
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -1190,10 +1195,25 @@
 			)));
 		}
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
+		$statement = $db->prepare('SELECT festivals.status, shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
 		$statement->execute();
-		$res = $statement->fetchAll();
-
+		$counter = 0;
+		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type = 2;;');
+			$statement2->execute(array($row["idshifts"]));
+			$res2 = $statement2->fetchAll();
+			$row["subscribed"] = $res2[0]["count(distinct users_Id_Users)"];
+			
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type = 3;');
+			$statement2->execute(array($row["idshifts"]));
+			$res2 = $statement2->fetchAll();
+			$row["subscribed_final"] = $res2[0]["count(distinct users_Id_Users)"];
+			
+			
+			$res[$counter] = $row;
+			$counter++;			
+			
+		}
 
 		if ($res){
 			$json = json_encode($res);
@@ -1315,9 +1335,6 @@
 			
 		}
 	}
-	
-	
-	
 	//
 	// This action adds a shift to the shift day, this is the logic (Festivals -> Shifts -> Days)
 	// This action can only be performed by an administrator
@@ -1373,7 +1390,7 @@
 		}
 		// this is an admin action, check if this is an admin
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT shifts.idshifts, shift_days.cost, shift_days.idshift_days, shift_days.shift_end, shift_days.start_date FROM shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 AND festivals.status != 7;');
+		$statement = $db->prepare('SELECT festivals.status, shifts.idshifts, shift_days.cost, shift_days.idshift_days, shift_days.shift_end, shift_days.start_date FROM shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 AND festivals.status != 7;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		if ($res){
@@ -1493,6 +1510,321 @@
 				'error_type' => 0
 			)));
 		}
+	}
+	elseif ($action == "shift_work_days") {
+		//TODO : Too much info, filter is needed
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT reservation_type, idshifts FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
+	elseif ($action == "user_subscribe") {
+		// get the contenct from the api body
+		
+		//TODO: => Check if the festivals shift is full [just keep filling if not directly subscription]
+		//TODO: => implement reserve + mail
+		//TODO => check if user is allready subscibed, delete if neaseserry [do first because it is none blocking, just return ]
+		
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		$people_subscribed = 0;
+		$overrule = false;
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_id = $xml["idshifts"];
+			$Id_Users = $xml["Id_Users"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		if($Id_Users == "admin"){
+			$Id_Users = $ID;
+			$overrule = true;
+		}
+		
+		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
+		$statement->execute(array($Id_Users, $shift_id ));
+		
+		$statement = $db->prepare('SELECT festivals.status, festivals.name FROM festivals INNER JOIN shifts on festivals.idfestival = shifts.festival_idfestival WHERE shifts.idshifts = ?;');
+		$statement->execute(array($shift_id));
+		$res = $statement->fetchAll();
+		$status = $res[0]["status"];
+		$festival_name = $res[0]["name"];
+		if (($status   == 0 ||$status == 2 || $status == 3) && ($ID == $Id_Users ) && !$overrule){
+			//the user can subscribe 
+			token_check($ID, $HASH, $db);
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;');
+			$statement2->execute(array($shift_id));
+			$res2 = $statement2->fetchAll();
+			$people_subscribed = $res2[0]["count(distinct users_Id_Users)"];
+		}
+		else {
+			// the user cannot subscribe because the festival is closed OR he is subscribing another user, the admin can however do anything he wants 
+			admin_check($ID, $HASH, $db);
+			$status = 3;
+		}
+
+		$statement = $db->prepare('select idshift_days, start_date, shift_end, cost, people_needed, spare_needed from shift_days INNER JOIN shifts ON shifts.idshifts = shift_days.shifts_idshifts where shifts.idshifts = ?;');
+		$statement->execute(array($shift_id));
+		$res = $statement->fetchAll();
+		$shift_info = "";
+		$people_needed = $res[0]["people_needed"];
+		$reserve_needed = $res[0]["spare_needed"];
+		
+		if ($people_needed + $reserve_needed <=  $people_subscribed){
+			exit(json_encode(array(
+				'status' => 400,
+				'error_type' => 11,
+				'error_message' => "This shift is full"
+			)));
+		}
+		if ($people_needed <= $people_subscribed){
+			$status = 99;
+		}
+		foreach ($res as &$shift) {
+			$statement = $db->prepare('INSERT INTO work_day (reservation_type, shift_days_idshift_days, users_Id_Users) VALUES (?,?,?);');
+			$statement->execute(array($status, $shift["idshift_days"], $Id_Users));
+			$shift_info .= "<p>Van " . $shift["start_date"] . " tot " .  $shift["shift_end"] . " voor " . $shift["cost"] . "euro </p>" ;
+		}
+		
+		// mail the user!
+		$statement = $db->prepare('SELECT email from users where Id_Users = ?');
+		$statement->execute(array($Id_Users));
+		$res = $statement->fetchAll();
+		$email = $res[0]['email'];
+		
+		if ($status == 2){
+			$subject = 'All-Round Events: Registratie voor ' . $festival_name;
+			$message = '<html>
+							<p>Beste,</p>
+							<p>Je bent geregisteerd om deel temen aan ' . $festival_name . '. </br></p>
+							<p> Je ben voor volgende shift geregisteerd:</p>
+							' . $shift_info .
+							"<p>We kijken uit naar een leuke en vlotte samenwerking!</p>
+							<p></p>
+							<p><strong>Opgelet!! Je bent nog niet ingeschreven, enkel geregisteerd! Je ontvangt een mail als je registratie wordt verwerkt. </strong></p>
+							<p></p>
+							<p>Met vriendelijke groeten</p>
+							<p><small>
+								All-round Events VZW
+								Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+						"</html>";
+			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
+			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message, $headers);
+		}
+		if ($status == 3){
+			$subject = 'All-Round Events: Inschrijving bevestigd voor ' . $festival_name;
+			$message = '<html>
+							<p>Beste,</p>
+							<p>Je bent ingeschreven om te komen werken op ' . $festival_name . '. </br></p>
+							<p> Je wordt op volgende momenten verwacht.</p>
+							' . $shift_info .
+							"<p></p>
+							<p>Alvast enorm bedankt dat jij deel wilt uitmaken van ons team! </p>
+							<p></p>
+							<p>Met vriendelijke groeten</p>
+							<p><small>
+								All-round Events VZW
+								Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+						"</html>";
+			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
+			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message, $headers);
+		}
+		
+		
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'error_message' => "None"
+		)));	
+	}
+	
+	elseif ($action == "user_unsubscribe") {
+		// get the contenct from the api body
+		//Todo: Send mail with info! 
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_id = $xml["idshifts"];
+			$Id_Users = $xml["Id_Users"];
+			//TODO: add type so the admin can add specifc type
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		
+		$statement = $db->prepare('SELECT festivals.status, festivals.name FROM festivals INNER JOIN shifts on festivals.idfestival = shifts.festival_idfestival WHERE shifts.idshifts = ?;');
+		$statement->execute(array($shift_id));
+		$res = $statement->fetchAll();
+		$status = $res[0]["status"];
+		$festival_name = $res[0]["name"];
+		
+		// mail the user!
+		$statement = $db->prepare('SELECT email from users where Id_Users = ?');
+		$statement->execute(array($Id_Users));
+		$res = $statement->fetchAll();
+		$email = $res[0]['email'];
+		
+		$statement = $db->prepare('select idshift_days, start_date, shift_end, cost  from shift_days INNER JOIN shifts ON shifts.idshifts = shift_days.shifts_idshifts where shifts.idshifts = ?;');
+		$statement->execute(array($shift_id));
+		$res = $statement->fetchAll();
+		$shift_info = "";
+	
+		foreach ($res as &$shift) {
+			$shift_info .= "<p>Van " . $shift["start_date"] . " tot " .  $shift["shift_end"] . " voor " . $shift["cost"] . "euro </p>" ;
+		}
+		
+		if ($ID == $Id_Users){
+				token_check($ID, $HASH, $db);
+				$subject = 'All-Round Events: Uitgeschreven voor ' . $festival_name;
+				$message = '<html>
+								<p>Beste,</p>
+								<p>Je hebt jezelf uitgeschreven voor festival ' . $festival_name . '. </br></p>
+								<p> Je bent uitgeschreven voor volgende dagen:</p>
+								' . $shift_info .
+								"<p></p>
+								<p>Alvast bedankt om ons te verwittigen en hopelijk tot een andere keer!  </p>
+								<p></p>
+								<p>Met vriendelijke groeten</p>
+								<p><small>
+									All-round Events VZW
+									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+							"</html>";
+				$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
+				'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+				"Content-type:text/html;charset=UTF-8" . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();
+				mail($email, $subject, $message, $headers);
+			
+			
+		}
+		else {
+			admin_check($ID, $HASH, $db);
+				$subject = 'All-Round Events: Update voor  ' . $festival_name;
+				$message = '<html>
+								<p>Beste,</p>
+								<p>Helaas zal je niet kunnen deelnamen aan  ' . $festival_name . '. </br></p>
+								<p> Je had jezelf opgegeven voor volgende dagen: :</p>
+								' . $shift_info .
+								"<p></p>
+								<p>Helaas waren we al met voldoende vrijwilligers voor dit evenement, kijk zeker uit naar onze evenementen!</p>
+								<p></p>
+								<p>Met vriendelijke groeten</p>
+								<p><small>
+									All-round Events VZW
+									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+							"</html>";
+				$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
+				'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+				"Content-type:text/html;charset=UTF-8" . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();
+				mail($email, $subject, $message, $headers);
+			
+		}
+		
+		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
+		$statement->execute(array($Id_Users, $shift_id ));
+
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'error_message' => "None"
+		)));
+	}
+	elseif ($action == "get_subscribers") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select work_day.users_Id_Users, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users,shifts_idshifts  order by idwork_day;');
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
+	
+	elseif ($action == "user_search") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$search = $xml["search"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select * from users_data inner join Images on (Images.users_Id_Users = users_data.users_Id_Users and Images.is_primary = 1) where name like ? limit 10; ');
+		$statement->execute(array("%" . $search . "%"));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+		
+		
 	}
 	
 	else {

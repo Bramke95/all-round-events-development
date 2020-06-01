@@ -14,16 +14,17 @@
 
 	<header>
 		<div id="title_box">
-			<h1><strong>All Round Events</strong></h1>
+			<h1><strong>Management</strong></h1>
 		</div>
 		<div id="top_menu">
 			<nav>
 				<ul>
 					<li><a id='festivals_li' href="#">Festivals</a></li>
 					<li><a id='shifts_li' href="#">Shiften</a></li>
+					<li><a id='subscription_li' href="#">inschrijvingen</a></li>
 					<li><a id='users_li' href="#">Leden</a></li>
 					<li><a id='payouts_li' href="#">Uitbetalingen</a></li>
-					<li><a href="user.html">Terug</a></li>
+					<li><a href="user.html">Beheerszone verlaten</a></li>
 				</ul>
 			</nav>
 		</div>
@@ -284,8 +285,7 @@
 	</div>
 	
 	<div id='change_shift_day'>
-	<h1>veranderd de dag: </h1>
-	
+		<h1>veranderd de dag: </h1>
 		<div class="row">
 			<div class="col-25">
 		        <label for="beginuur">beginuur:</label>
@@ -317,6 +317,35 @@
 		<div id='control_add_user'>
 			<input type="submit" id="change_shift_day_start" name="add" value="Vervanderen" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;">
 			<input type="submit" id="change_shift_day_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
+			
+		</div>
+	</div>
+	
+	<div id='add_user_manual'>
+		<h1>Voeg lid toe aan shift: </h1>
+		<div class="row">
+			<div class="col-25">
+		        <label for="beginuur">zoeken:</label>
+		      </div>
+		      <div class="col-75">
+		        <div class="dropdown">
+				  <div id="myDropdown" class="dropdown-content">
+					<input type="text" placeholder="zoeken.." id="user_search">
+					
+
+				  </div>
+				</div>
+		      </div>
+		</div>
+		
+		<div id='user_data'>
+		
+		</div>
+		
+
+		<div id='control_add_user'>
+			<input type="submit" id="manual_user_start" name="add" value="Inschrijven" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;">
+			<input type="submit" id="manual_user_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
 			
 		</div>
 	</div>

@@ -70,7 +70,7 @@
 				$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
 			}
 			else {
-				$$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
+				$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
 			}
 		}
 	};
