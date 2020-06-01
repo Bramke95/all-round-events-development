@@ -1813,7 +1813,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select * from users_data inner join images on (images.users_Id_Users = users_data.users_Id_Users and images.is_primary = 1) where name like ? limit 10; ');
+		$statement = $db->prepare('select * from users_data inner join Images on (Images.users_Id_Users = users_data.users_Id_Users and Images.is_primary = 1) where name like ? limit 10; ');
 		$statement->execute(array("%" . $search . "%"));
 		$res = $statement->fetchAll();
 		if ($res){

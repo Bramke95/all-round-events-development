@@ -15,7 +15,6 @@ $( document ).ready(function() {
 	// add event listner to the add festival button
 	$("#add_festit_init").click(function(){
 		$("#add_fesitvail").fadeIn(500);
-		window.scrollTo(0, 0);
 		$("#add_fesitvail").draggable();
 		$("#add_festival_abort").click(function(){
 			$("#add_fesitvail").fadeOut( "slow" );
@@ -217,7 +216,6 @@ function festival_shift_processing(data){
 			$("#people_needed_reserved").val("");
 			$("#days").val("");
 			$("#add_shift").fadeIn(500);
-			window.scrollTo(0, 0);
 			$("#add_shift_abort").click(function(event){
 				$("#add_shift").fadeOut(500);
 			});
@@ -261,7 +259,6 @@ function shift_processing(data){
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("get_shift", {"id" : coockie.ID, "hash" : coockie.TOKEN, "idshifts": id}, fill_in_change_shift);
 			$("#change_shift").fadeIn(500);
-			window.scrollTo(0, 0);
 		});
 		$(".delete_shift").click(function(event){
 			let id = event.target.attributes.id.value;
@@ -270,7 +267,6 @@ function shift_processing(data){
 		});
 		$(".add_day_shift").click(function(event){
 			$("#add_shift_day").fadeIn(500);
-			window.scrollTo(0, 0);
 			let id = event.target.attributes.id.value;
 			$("#add_shift_day_abort").click(function(event){
 				$("#add_shift_day").fadeOut(500);
@@ -320,7 +316,7 @@ function shift_processing_short(data){
 		$("#manual_user_abort").click(function(){
 			$("#add_user_manual").fadeOut(500);
 		});
-		$("#user_search").keypress(function(){
+		$("#user_search").keydown(function(){
 			let user_part = $("#user_search").val();
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("user_search", {"id" : coockie.ID, "hash" : coockie.TOKEN, "search": user_part}, add_user_search_result);
@@ -370,15 +366,15 @@ function subscribers_callback(data){
 
 			if (data[x].reservation_type == 2){
 				user_status = "Geregistreerd";
-				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='user_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></div>");
+				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='shift_day_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></div>");
 			}
 			if (data[x].reservation_type == 3){
 				user_status = "Ingeschreven";
-				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='user_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='shift_day_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
 			}
 			if (data[x].reservation_type == 99){
 				user_status = "reservelijst";
-				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='user_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='shift_day_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
 			}
 			$(".unsubscribe_user").off();
 			$(".unsubscribe_user").click(function(event){
@@ -443,7 +439,6 @@ function festival_processing(data){
 		// change festival
 		$(".change_festival").click(function(event){
 			open_id = event.target.attributes.id.value;
-			window.scrollTo(0, 0);
 			$("#change_fesitvail_dialog").fadeIn();
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "select", "festi_id": open_id}, put_change_date);
@@ -465,9 +460,7 @@ function load_shift_days_shifts(data) {
 			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 			open_id = event.target.attributes.id.value;
 			api("get_shift_day", {"id" : coockie.ID, "hash" : coockie.TOKEN,  "shift_day_id": open_id}, full_in_changed_shift_day)
-			$("#change_shift_day").fadeIn(500);
-			window.scrollTo(0, 0);
-			
+			$("#change_shift_day").fadeIn(500);		
 			//cancel
 			$("#change_shift_day_abort").click(function(){
 				$("#change_shift_day").fadeOut(500);

@@ -411,6 +411,9 @@ label {
 		width: 98%;
 		height: 100%;
 		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
 	}
 	#change_fesitvail_dialog {
 		top: 0px;
@@ -418,6 +421,9 @@ label {
 		width: 98%;
 		height: 100%;
 		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
 	}
 	#change_shift {
 		top: 0px;
@@ -425,6 +431,9 @@ label {
 		width: 98%;
 		height: 100%;
 		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
 	}
 	#add_shift {
 		top: 0px;
@@ -432,6 +441,9 @@ label {
 		width: 98%;
 		height: 100%;
 		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
 	}
 	#add_shift_day {
 		top: 0px;
@@ -439,6 +451,9 @@ label {
 		width: 98%;
 		height: 100%;
 		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
 	}
 	#change_shift_day {
 		top: 0px;
@@ -446,6 +461,24 @@ label {
 		width: 98%;
 		height: 100%;
 		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
+	}
+	#add_user_manual {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
+	}
+	#user_search {
+		width: 90%;
+		margin-left: 5%;
+		margin-right: 5%;
 	}
 	#add_festit_init {
 		z-index: 5;
@@ -466,6 +499,30 @@ label {
 	}
 	.col-75 {
 		width: 100%;
+	}
+	nav a {
+		margin: 0 !important;
+	}
+	.unsubscribe_user{
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.add_user_to_shift {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.subscribe_user {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.dropdown-content {
+		position: relative !important;
+	}
+	.dropdown {
+		display: block;
 	}
 
 }
