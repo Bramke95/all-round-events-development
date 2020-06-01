@@ -1199,7 +1199,7 @@
 		$statement->execute();
 		$counter = 0;
 		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;');
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type = 2;;');
 			$statement2->execute(array($row["idshifts"]));
 			$res2 = $statement2->fetchAll();
 			$row["subscribed"] = $res2[0]["count(distinct users_Id_Users)"];
@@ -1813,7 +1813,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select * from users_data where name like ? limit 10; ');
+		$statement = $db->prepare('select * from users_data inner join images on (images.users_Id_Users = users_data.users_Id_Users and images.is_primary = 1) where name like ? limit 10; ');
 		$statement->execute(array("%" . $search . "%"));
 		$res = $statement->fetchAll();
 		if ($res){
