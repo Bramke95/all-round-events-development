@@ -1826,6 +1826,171 @@
 		
 		
 	}
+	elseif ($action == "change_festival_status") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$festi = $xml["festival_id"];
+			$status = $xml["status"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare("select * from festivals where idfestival = ?;");
+		$statement->execute(array($festi));
+		$res = $statement->fetchAll();
+		$festival_name = $res[0]["name"];
+		$festi_id = $res[0]["idfestival"];
+		if ($res[0]["status"] == $status){
+			exit(json_encode(array(
+				'status' => 200,
+				'error_type' => -1,
+				'error_message' => "Updating was not needed"
+			)));
+		}
+		$statement = $db->prepare("update festivals set status = ? where idfestival=?");
+		$statement->execute(array($status,$festi));
+		
+		if($status == 0){
+			// a mail is send to all the users stating they want to work for this event
+			
+		}
+		if($status == 1){
+			// nothing should be hapening here
+			
+		}
+		if($status == 2){
+			// mail to everyone that the event is now open in register 
+			$statement = $db->prepare("SELECT email FROM users;");
+			$statement->execute(array());
+			$res = $statement->fetchAll();
+			foreach ($res as &$line) {
+				$email = $line["email"];
+				$subject = 'All-Round Events: Registratie open voor  ' . $festival_name;
+				$message = '<html>
+								<p>Beste,</p>
+								<p>Vanaf vandaag kan je jezelf registeren voor  ' . $festival_name . '. </br></p>
+
+								<p>Ga naar de website en registreer je voor je gewenste shift, je kan dit doen met de volgende link: </p>
+								<p>https://all-round-events.be/html/nl/inschrijven.html</p>
+								<p> </p>
+								<p>Opgelet, registeren betekent niet dat je ingeschreven bent. Je zal zo snel mogelijk een mail ontvangen met het resultaat van je registratie! </p>
+								<p>Veel succes en hopelijk tot snel</p>
+								<p><small>
+									All-round Events VZW
+									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+							</html>';
+				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				"Content-type:text/html;charset=UTF-8" . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();
+				mail($email, $subject, $message, $headers);
+				
+				
+			}
+		}
+		if($status == 3){
+			// mail to everyone that the event is now open in subscription mode
+
+			$statement = $db->prepare("SELECT email FROM users;");
+			$statement->execute(array());
+			$res = $statement->fetchAll();
+			foreach ($res as &$line) {
+				$email = $line["email"];
+				$subject = 'All-Round Events: Registratie open voor  ' . $festival_name;
+				$message = '<html>
+								<p>Beste,</p>
+								<p>Vanaf vandaag kan je jezelf inschrijven voor  ' . $festival_name . '. </br></p>
+
+								<p>Ga naar de website en schrijf je in voor je gewenste shift, je kan dit doen met de volgende link: </p>
+								<p>https://all-round-events.be/html/nl/inschrijven.html</p>
+								<p> </p>
+								<p>Veel succes en hopelijk tot snel</p>
+								<p><small>
+									All-round Events VZW
+									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+							</html>';
+				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				"Content-type:text/html;charset=UTF-8" . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();
+				mail($email, $subject, $message, $headers);
+				
+				
+			}
+		}
+		if($status == 4){
+			// nothing sould be happening
+		}
+		if($status == 5){
+			
+			// mail is send to all the user that payout will be hapening
+			$statement = $db->prepare("SELECT email FROM users inner join work_day on work_day.users_Id_Users = users.Id_Users inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? group by email;");
+			$statement->execute(array($festi_id));
+			$res = $statement->fetchAll();
+			foreach ($res as &$line) {
+				$email = $line["email"];
+				$subject = 'All-Round Events: Uitbetaling starten voor' . $festival_name . ' .';
+				$message = '<html>
+								<p>Beste,</p>
+								<p>De uitbetalingen voor ' . $festival_name . ' zullen plaatsvinden de komende dagen.  </br></p>
+								<p>Je zal een mail ontvangen van zodra de uitbetaling voor jou persoonlijk is gebeurt! We willen je nogmaals bedanken voor je medewerkingen en hopen je de volgende keer terug te zien! </p>
+								<p> </p>
+								<p>Met vriendelijke groeten</p>
+								<p><small>
+									All-round Events VZW
+									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+							</html>';
+				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				"Content-type:text/html;charset=UTF-8" . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();
+				mail($email, $subject, $message, $headers);
+				
+				
+			}
+		}
+		if($status == 6){
+			// nothing should be hapening
+		}
+		if($status == 7){
+			$statement = $db->prepare("SELECT email FROM users;");
+			$statement->execute(array());
+			$res = $statement->fetchAll();
+			foreach ($res as &$line) {
+				$email = $line["email"];
+				$subject = 'All-Round Events: ' . $festival_name . '  is gecanceld';
+				$message = '<html>
+								<p>Beste,</p>
+								<p>Jammer genoeg zal  ' . $festival_name . 'niet doorgaan dit jaar. Onze excuses voor het ongemak! </br></p>
+
+								<p>Kijk voor meer evenementen op:</p>
+								<p>https://all-round-events.be/html/nl/inschrijven.html</p>
+								<p> </p>
+								<p>Met vriendelijke groeten</p>
+								<p><small>
+									All-round Events VZW
+									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+							</html>';
+				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				"Content-type:text/html;charset=UTF-8" . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();
+				mail($email, $subject, $message, $headers);
+				
+				
+			}
+		}
+
+	}
+	
 	
 	else {
 		exit(json_encode(array(

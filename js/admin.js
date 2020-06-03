@@ -62,6 +62,10 @@ $( document ).ready(function() {
 		});
 });
 
+function get_select(id){
+	return '<select id="'+id+'" style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="2">Open met vrije inschrijving</option><option value="3">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
+}
+
 function festival_shift_subscribers(){
 	clearAll();
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -434,7 +438,7 @@ function festival_processing(data){
 	$("#festival_list").html("");
 	$("festivals_li").css({"textDecoration":"underline"});
 	for (let x = 0; x < data.length; x++){
-		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi2' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>"+ select_type +  "<input type='submit' id="+ data[x].idfestival +" class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input></div>");
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi2' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p>"+ get_select(data[x].idfestival) +  "<input type='submit' id="+ data[x].idfestival +" class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input></div>");
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 		// change festival
 		$(".change_festival").click(function(event){
@@ -445,6 +449,12 @@ function festival_processing(data){
 			$("#change_festival_abort").click(function(event){
 				$("#change_fesitvail_dialog").fadeOut(500);
 			});
+		});
+		$(".festi_status").change(function(event){
+			let festi = event.target.attributes.id.value;
+			let type = $(this).val()
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("change_festival_status", {"id" : coockie.ID, "hash" : coockie.TOKEN, "festival_id": festi, "status": type}, autofill_festivals);
 		});
 	}
 }
