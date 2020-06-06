@@ -67,7 +67,7 @@ function api(action, body, callback){
 			//TODO check if token mismach, revert to login
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
-			//window.location.href = "home.html";
+			window.location.href = "home.html";
 		} 
 	});
 };
@@ -162,13 +162,13 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 
 		}
 		else {
-			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Afgesloten' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='inschrijvingen afgesloten' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 
 		}
 	}
 	else if (id == 5){
 		if (is_already_subscribed){
-			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='change festival' value='afrekingen wordt gemaakt' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+			return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='change festival' value='eindafrekeningen' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 
 		}
 		else {
@@ -205,13 +205,17 @@ function festival_shift_processing(data){
 function shift_processing(data){
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("shift_work_days", {"id" : coockie.ID, "hash" : coockie.TOKEN}, function(subscriptions){
+		if (subscriptions.error_type == 8){
+			alert("Je kan jezelf niet inschrijven zonder profielfoto, voeg er een toe aub");
+			window.location.href = "user_input.html";
+		}
 		// add days
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 		api("get_shift_days", {"id" : coockie.ID, "hash" : coockie.TOKEN}, load_shift_days_shifts);
 	
 		for (let x = 0; x < data.length; x++){
 		// calculate if full or not 
-			let is_full = (parseInt(data[x].people_needed) <= parseInt(data[x].subscribed));
+			let is_full = (parseInt(data[x].people_needed) <= parseInt(data[x].subscribed_final));
 			let is_completely_full = ((parseInt(data[x].people_needed) + parseInt(data[x].spare_needed)) <= parseInt(data[x].subscribed));
 			let is_subscrubed = false;
 			for (let y = 0; y < subscriptions.length; y++){

@@ -4,7 +4,7 @@ var TOKEN = "";
 var LOGGED_IN = false;
 var open_id = -1;
 var url = "../../api.php?action=";
-const select_type = '<select style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="2">Open met vrije inschrijving</option><option value="3">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
+const select_type = '<select style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="2">open met reservatie</option><option value="3"> Open met vrije inschrijving</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
 const change_button = "<input type='submit' id='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
 var user_list = [];
 var selected_shift = 0;
@@ -311,7 +311,7 @@ function shift_processing_short(data){
 	// pdf creation 
 	
 	for (let x = 0; x < data.length; x++){
-		$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:15%' class='festi_date'><h2>"+ data[x].name + "</h2></div><input type='submit' id=useradd"+ data[x].idshifts +" class='add_user_to_shift' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'></input><p style='width:20%'>benodigde bezetting: "+ data[x].people_needed +"</p>" + "<p style='width:20%'>gewenste reserve: "+ data[x].spare_needed +"</p> " + "<p style='width:20%'>ingeschreven: "+ data[x].subscribed_final +"</p><p style='width:20%'>geregistreerd: "+ data[x].subscribed +"</p></div></div>");	
+		$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:15%' class='festi_date'><h2>"+ data[x].name + "</h2></div><input type='submit' id=useradd"+ data[x].idshifts +" class='add_user_to_shift' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'></input><p style='width:20%'>benodigde bezetting: "+ data[x].people_needed +"</p>" + "<p style='width:20%'>gewenste reserve: "+ data[x].spare_needed +"</p> " + "<p style='width:20%'>ingeschreven: "+ data[x].subscribed_final +"</p><p style='width:20%'>geregistreerd: "+ (data[x].subscribed - data[x].subscribed_final) +"</p></div></div>");	
 	}
 	$(".add_user_to_shift").click(function(){
 		let id = event.target.attributes.id.value;
@@ -378,7 +378,7 @@ function subscribers_callback(data){
 			}
 			if (data[x].reservation_type == 99){
 				user_status = "reservelijst";
-				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='shift_day_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+				$("#shift"+ data[x].shifts_idshifts).append("<div id='shift"+ data[x].shifts_idshifts + "' class='shift_day_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Status: "+ user_status +"<p><input type='submit' id="+ data[x].users_Id_Users +" shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></div>");
 			}
 			$(".unsubscribe_user").off();
 			$(".unsubscribe_user").click(function(event){

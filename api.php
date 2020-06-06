@@ -1199,7 +1199,7 @@
 		$statement->execute();
 		$counter = 0;
 		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type = 2;;');
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?');
 			$statement2->execute(array($row["idshifts"]));
 			$res2 = $statement2->fetchAll();
 			$row["subscribed"] = $res2[0]["count(distinct users_Id_Users)"];
@@ -1527,9 +1527,21 @@
 			)));
 		}
 		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('select * from Images where users_Id_Users =? and is_primary = 1');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+		if($res.length == 0){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 8,
+				'error_message' => "profile picture is needed"
+			)));
+		}
+		
 		$statement = $db->prepare('SELECT reservation_type, idshifts FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7');
 		$statement->execute(array($ID));
 		$res = $statement->fetchAll();
+		
 		if ($res){
 			$json = json_encode($res);
 			exit($json);
