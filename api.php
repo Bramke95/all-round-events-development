@@ -1808,6 +1808,34 @@
 		}
 	}
 	
+	elseif ($action == "get_workdays_subscribers") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 order by idwork_day;');
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
+	
 	elseif ($action == "user_search") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -2000,6 +2028,51 @@
 				
 			}
 		}
+
+	}
+	
+	elseif ($action == "user_present") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$user = $xml["user"];
+			$work_day = $xml["work_day"];
+			
+			$in = $xml["in"];
+			$out = $xml["out"];
+			$present = $xml["present"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		
+		if($in != 2){
+			$statement = $db->prepare('update work_day set work_day.in=? where idwork_day=? and users_Id_Users=?;');
+			$statement->execute(array($in, $work_day, $user));
+		}
+		if($out != 2){
+			$statement = $db->prepare('Update work_day set work_day.out=? where idwork_day=? and users_Id_Users=?;');
+			$statement->execute(array($out, $work_day, $user));
+		}
+		if($present != 2){
+			$statement = $db->prepare('Update work_day set work_day.present=? where idwork_day=? and users_Id_Users=?;');
+			$statement->execute(array($present, $work_day, $user));
+		}
+
+		
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => -1,
+			'error_message' => ""
+		)));
 
 	}
 	

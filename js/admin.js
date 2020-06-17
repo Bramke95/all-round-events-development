@@ -9,6 +9,9 @@ const change_button = "<input type='submit' id='change_festival' name='change fe
 var user_list = [];
 var selected_shift = 0;
 var selected_user = 0;
+var selected_festival_presense = 0;
+var selected_shift_presense = 0;
+selected_workday_presense = 0;
 $( document ).ready(function() {
 	check_if_admin(autofill_festivals);
 	
@@ -60,6 +63,12 @@ $( document ).ready(function() {
 			festival_shift_subscribers();
 
 		});
+		
+		$("#present_li").click(function(event){
+			clearAll();
+			festival_checkbox_listing();
+
+		});
 });
 
 function get_select(id){
@@ -70,6 +79,11 @@ function festival_shift_subscribers(){
 	clearAll();
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active", "festi_id":"invalid"}, festival_shift_processing_ligth);
+}
+function festival_checkbox_listing(){
+	clearAll();
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active", "festi_id":"invalid"}, festival_checkbox);
 }
 
 function load_festivals_shifts(){
@@ -200,6 +214,144 @@ function changed_festival(){
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active"}, festival_processing);
 	$("#change_fesitvail_dialog").fadeOut(500);
 }
+
+function festival_checkbox(data){
+	
+	$("#present_li").css({"textDecoration":"underline"});
+	let festi_html = "<select id='festivals'>";
+	festival_idfestival = data[0].idfestival;
+	for (let x = 0; x < data.length; x++){
+		
+		festi_html = festi_html + "<option class='select_festi_option' id="+ data[x].idfestival +">"+ data[x].name +"</option>";
+		
+	}
+	festi_html = festi_html + "</select><div id='shift_select_placeholder'></div>";
+	$("#festival_list").html(festi_html);
+	$("#festival_list").fadeIn("fast");
+	$("#festivals").change(function(event){
+		festival_idfestival = $(this).children(":selected").attr("id");
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing_checkbox);
+	})
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing_checkbox);
+}
+
+function shift_processing_checkbox(data){
+	let shift_html = "<select id='shifts'>";
+	selected_shift_presense = data[0].idshifts;
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_shift_days",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_day_processing_checkbox);
+	for (let x = 0; x < data.length; x++){
+		if (data[x].festival_idfestival == festival_idfestival){
+			shift_html = shift_html + "<option class='select_shift_option' id=shift"+ data[x].idshifts +">"+ data[x].name +"</option>";
+		}
+	}
+	shift_html = shift_html + "</select><div id='shift_day_select_placeholder'></div>";
+	$("#shift_select_placeholder").html(shift_html);
+	
+	$("#shifts").change(function(event){
+		let id = $(this).children(":selected").attr("id");
+		selected_shift_presense = id.replace(/[a-z]/gi, '');
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("get_shift_days",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_day_processing_checkbox);
+	})
+}
+
+function shift_day_processing_checkbox(data){
+	let shift_day_html = "<select id='shift_days'>";
+	selected_workday_presense = data[0].idshift_days;
+	for (let x = 0; x < data.length; x++){
+		if (data[x].idshifts == selected_shift_presense){
+			shift_day_html = shift_day_html + "<option class='select_shift_day_option' id=shiftday"+ data[x].idshifts +">Van "+ data[x].start_date +" tot " + data[x].shift_end + "</option>";
+		}
+	}
+	shift_day_html = shift_day_html + "</select><div id='list_select_placeholder'></div>";
+	$("#shift_day_select_placeholder").html(shift_day_html);
+	$("#shift_days").change(function(){
+		let id = $(this).children(":selected").attr("id");
+		selected_workday_presense = id.replace(/[a-z]/gi, '');
+		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		api("get_workdays_subscribers",{"id" : coockie.ID, "hash" : coockie.TOKEN}, get_subscribers_checkbox_callback);
+	})
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_workdays_subscribers",{"id" : coockie.ID, "hash" : coockie.TOKEN}, get_subscribers_checkbox_callback);
+}
+
+function get_subscribers_checkbox_callback(data){
+	let user_html = "";
+	for(let x=0; x < data.length; x++){
+		if (selected_workday_presense == data[x].shift_days_idshift_days){
+			let in_ = "";
+			let out = "";
+			let present = "";
+			if (data[x].in == 1){
+				in_ = "checked";
+			}
+			if (data[x].out == 1){
+				out = "checked";
+			}
+			if (data[x].present == 1){
+				present = "checked";
+			}
+			
+			user_html = user_html + "<div id='shift"+ data[x].shifts_idshifts + "' class='shift_day_line'><div width='15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: "+ data[x].name +"<p><p style='width:20%'>Tel: "+ data[x].telephone +"</p><label for='title'>In:</label><input work_day='"+ data[x].idwork_day +"' user='"+ data[x].users_Id_Users +"' type='checkbox' class='checkbox_in' name='in'" + in_ + "><label for='title'>Out:</label><input user='"+ data[x].users_Id_Users +"' work_day='"+ data[x].idwork_day +"' type='checkbox' class='checkbox_out' name='in'" + out + "><label for='title'>Aanwezig:</label><input user='"+ data[x].users_Id_Users +"' work_day='"+ data[x].idwork_day +"' type='checkbox' class='checkbox_present' name='in'" + present + "></div>";
+			
+			
+		}
+
+	}
+	$("#list_select_placeholder").html(user_html);
+	$(".checkbox_in").change(function(event){
+		let user = event.target.attributes.user.value;
+		let work_day = event.target.attributes.work_day.value;
+		let coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		let in_ = this.checked;
+		let in__ = 0;
+		if (in_) {
+			in__ = 1;
+		}
+		
+		api("user_present",{"id" : coockie.ID, "hash" : coockie.TOKEN, "user": parseInt(user), "work_day":parseInt(work_day), "in":in__, "out": 2, "present": 2}, function(){
+			api("get_workdays_subscribers",{"id" : coockie.ID, "hash" : coockie.TOKEN}, get_subscribers_checkbox_callback);
+		})
+		
+		
+		
+	})
+	$(".checkbox_out").change(function(event){
+		let user = event.target.attributes.user.value;
+		let work_day = event.target.attributes.work_day.value;
+		let coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		let out = this.checked;
+		let out_ = 0;
+		if (out) {
+			out_ = 1;
+		}
+		
+		api("user_present",{"id" : coockie.ID, "hash" : coockie.TOKEN, "user": parseInt(user), "work_day":parseInt(work_day), "in": 2, "out": out_, "present": 2}, function(){
+			api("get_workdays_subscribers",{"id" : coockie.ID, "hash" : coockie.TOKEN}, get_subscribers_checkbox_callback);
+		})
+		
+	})
+	$(".checkbox_present").change(function(event){
+		let user = event.target.attributes.user.value;
+		let work_day = event.target.attributes.work_day.value;
+		let coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+		let present = this.checked;
+		let present_ = 0;
+		if (present) {
+			present_ = 1;
+		}
+		
+		api("user_present",{"id" : coockie.ID, "hash" : coockie.TOKEN, "user": parseInt(user), "work_day":parseInt(work_day), "in": 2, "out": 2, "present": present_}, function(){
+			api("get_workdays_subscribers",{"id" : coockie.ID, "hash" : coockie.TOKEN}, get_subscribers_checkbox_callback);
+		})
+		
+	})
+	
+}
+
 
 function festival_shift_processing(data){
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -513,6 +665,8 @@ function full_in_changed_shift_day(data){
 
 function clearAll(){
 	$("#add_fesitvail").fadeOut("fast");
+	$("#add_fesitvail").html("");
+	
 	$("#change_fesitvail_dialog").fadeOut("fast");
 	$("#festival_list").fadeOut("fast");
 	$("#add_festit_init").fadeOut("fast");

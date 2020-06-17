@@ -220,6 +220,7 @@ input[type=text], select, textarea{
 }
 .change_shift2 {
 	width: 100%;
+	
 }
 
 input[type=number], select, textarea{
@@ -229,6 +230,13 @@ input[type=number], select, textarea{
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
+}
+input[type=checkbox]{
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  transform: scale(1.5);
+
 }
 
 input[type=date]{
@@ -242,6 +250,8 @@ input[type=date]{
 label {
   padding: 12px 12px 12px 0;
   display: inline-block;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 /* Style the container */
 .container {
@@ -335,6 +345,9 @@ label {
 #user_data img{
 	width: 30%;
 	float: right;
+}
+nav li {
+	margin-right: 1rem !important;
 }
 
 @media screen and (max-width: 95rem) {
