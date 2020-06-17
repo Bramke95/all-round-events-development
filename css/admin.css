@@ -236,7 +236,6 @@ input[type=checkbox]{
   margin-top: auto;
   margin-bottom: auto;
   transform: scale(1.5);
-
 }
 
 input[type=date]{
@@ -357,7 +356,7 @@ nav li {
 	  font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
 	}
 	#top_menu {
-		height: 270px;
+		height: 305px;
 	}
 	#add_festit_init {
 		width:100%;
@@ -536,6 +535,15 @@ nav li {
 	}
 	.dropdown {
 		display: block;
+	}
+	
+
+	input[type=checkbox]{
+	  margin-right: auto;
+	  margin-top: auto;
+	  margin-bottom: auto;
+	  transform: scale(2.5);
+	  width: 35px;
 	}
 
 }
