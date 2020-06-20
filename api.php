@@ -1530,7 +1530,7 @@
 		$statement = $db->prepare('select * from Images where users_Id_Users =? and is_primary = 1');
 		$statement->execute(array($ID));
 		$res = $statement->fetchAll();
-		if($res.length == 0){
+		if(count($res) == 0){
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 8,
