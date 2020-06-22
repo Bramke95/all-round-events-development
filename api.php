@@ -2076,6 +2076,33 @@
 
 	}
 	
+	elseif ($action == "payouts_list") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$festi_id = $xml["festi_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ?;');
+		$statement->execute(array($festi_id));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
 	
 	else {
 		exit(json_encode(array(

@@ -209,6 +209,9 @@ nav a {
 #control_add_user {
 	height: 40px;
 }
+.nok_payout{
+	display: flex;
+}
 
 input[type=text], select, textarea{
   width: 100%;
