@@ -41,11 +41,11 @@ function id_to_status(id){
 	else if (id == 1){
 		return "Aangekondigd";
 	}
-	else if (id == 2){
-		return "Inschrijven mogelijk, meld u aan. ";
-	}
 	else if (id == 3){
-		return "Registeren mogenlijk";
+		return "Inschrijven mogelijk.";
+	}
+	else if (id == 2){
+		return "Registeren mogenlijk.";
 	}
 	else if (id == 4){
 		return "Inschrijvingen afgesloten.";

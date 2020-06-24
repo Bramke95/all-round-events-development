@@ -1095,6 +1095,7 @@
 			$json = json_encode($res);
 			exit($json);
 		}
+		exit(json_encode (json_decode ("{}")));
 	}
 	
 	//
@@ -2102,6 +2103,61 @@
 		else {
 			exit(json_encode (json_decode ("{}")));
 		}
+	}
+	
+	elseif ($action == "pdf_listing") {
+		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
+		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
+		$shift_day = isset($_GET['shift_day']) ? $_GET['shift_day'] : '';
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select shifts.name, shift_days.start_date, shift_days.shift_end , work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where shift_days.idshift_days=? ');
+		$statement->execute(array($shift_day));
+		$res = $statement->fetchAll();
+		require('fpdf.php');
+		$w=array(30,55,20,20,20,20,20,20);
+		$pdf = new FPDF('P','mm','A4');
+		$pdf->SetTitle("Aanwezigheden");
+		$pdf->AddPage();
+		$pdf->SetFont('Arial','',14);
+		$pdf->Write(10, $res[0][0] . ":   Start: " . $res[0]["start_date"] . " Tot: " . $res[0]["shift_end"]);
+		$pdf->Ln();
+		$pdf->SetFont('Arial','',8);
+		$header = array('foto', 'Naam', 'in','out','aanwezig', '','');
+		for($i=0;$i<count($header);$i++){
+			$pdf->Cell($w[$i],7,$header[$i],1,0,'C');
+		}
+		$pdf->Ln();
+		foreach ($res as &$line) {
+			$image1 = $line["picture_name"];
+			$pdf->Cell($w[0],10,$pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 0, 9.9),1);
+			$pdf->Cell($w[1],10,$line["name"],1);
+			
+			$in = '';
+			$out = '';
+			$present = '';
+			if ($line["in"] == 1){
+				$in = '           X';
+			}
+			if ($line["out"] == 1){
+				$out = '           X';
+			}
+			if ($line["present"] == 1){
+				$present = '           X';
+			}
+			
+			$pdf->Cell($w[2],10,$in,1);
+			$pdf->Cell($w[3],10,$out,1);
+			$pdf->Cell($w[4],10,$present,1);
+			$pdf->Cell($w[5],10,"",1);
+			$pdf->Cell($w[6],10,"",1);
+			$pdf->Ln();
+		}
+		
+
+
+
+		$pdf->Output();
+		
 	}
 	
 	else {
