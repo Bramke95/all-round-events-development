@@ -112,7 +112,14 @@ function id_to_status(id){
 // get the stastus from the id 
 function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full){
 	if(id == 0){
-		return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='geïnteresseerd' value='Geïnteresseerd' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+		if(is_already_subscribed){
+			return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+
+		}
+		else {
+			return "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='geïnteresseerd' value='Geïnteresseerd' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+
+		}
 	}
 	else if (id == 1){
 		if(is_already_subscribed){

@@ -289,6 +289,13 @@ function payout_festivals(data) {
         festi_html = festi_html + "<option class='select_festi_option' id=" + data[x].idfestival + ">" + data[x].name + "</option>";
 
     }
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("payouts_list", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN,
+        "festi_id": festival_idfestival
+    }, payout_listing);
+	
     festi_html = festi_html + "</select><div id='payout_list'></div>";
     $("#festival_list").html(festi_html);
     $("#festival_list").fadeIn("fast");
