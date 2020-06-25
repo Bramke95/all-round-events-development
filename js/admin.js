@@ -456,7 +456,7 @@ function shift_day_processing_checkbox(data) {
 function get_subscribers_checkbox_callback(data) {
     let user_html = "<input type='submit' id='download_pdf' shift_day='"+selected_workday_presense+"' name='change festival' value='download pdf' placeholder='' style='background-color: green;width:100%;  margin-left:10px;  margin-top:10px;  margin-bottom:10px'>"
     for (let x = 0; x < data.length; x++) {
-        if (selected_workday_presense == data[x].shift_days_idshift_days) {
+        if (selected_workday_presense == data[x].shift_days_idshift_days && data[x].reservation_type == 3) {
             let in_ = "";
             let out = "";
             let present = "";
