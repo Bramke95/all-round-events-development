@@ -332,6 +332,15 @@
 			var marital_state = $("#marital_state").val();
 			insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state);
 		});
+		$("#submit_pass").click(function(event) {
+			let pass =  $("#pass_textfield").val();
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("change_pass",{"id" : coockie.ID, "hash" : coockie.TOKEN, "new_pass": pass}, function(){
+				alert("wachtwoord gewijzigd.");
+			})
+			
+		});
+		
 
         $("#form_img").submit(function(e){
             e.preventDefault();

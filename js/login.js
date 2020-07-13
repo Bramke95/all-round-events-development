@@ -90,6 +90,10 @@
 			}
 			login(email, pass)
 		});
+		
+		$("#reset_pass_start").click(function(){
+			window.location.href = "home.html";
+		});
 		$("cancel").click(function(){
 			window.location.href = "home.html";
 		});

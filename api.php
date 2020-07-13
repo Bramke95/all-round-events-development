@@ -120,8 +120,7 @@
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 2,
-				'error_message' => "password must have more than 5 characters ",
-				"test" => $xml["pass"]
+				'error_message' => "password must have more than 5 characters "
 			)));		}
 		$hashed_pass = password_hash($pass . $salt, PASSWORD_DEFAULT);
 
@@ -2210,6 +2209,41 @@
 			$pdf->Ln();
 		}
 		$pdf->Output();
+	}
+	if ($action == "change_pass"){
+		
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$new_pass = $xml["new_pass"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$salt = bin2hex(openssl_random_pseudo_bytes(40));
+		if (strlen($new_pass) < 5){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 2,
+				'error_message' => "password must have more than 5 characters "
+			)));		}
+		$hashed_pass = password_hash($new_pass . $salt, PASSWORD_DEFAULT);
+
+		// everything is ok, save 		
+		$statement = $db->prepare('UPDATE users set pass=?, salt=? where Id_Users=?');
+		$statement->execute(array($hashed_pass, $salt, $ID));
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+			
+		)));
+		
 	}
 	
 	else {
