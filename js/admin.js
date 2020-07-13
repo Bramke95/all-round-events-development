@@ -69,6 +69,7 @@ $(document).ready(function() {
         $("#users_li").css({
             "textDecoration": "underline"
         });
+		users_select_box();
     });
 
     $("#payouts_li").click(function(event) {
@@ -90,6 +91,74 @@ $(document).ready(function() {
     });
 });
 
+function users_select_box(){
+$("#festival_list").fadeOut("fast");
+$("#user_select").show()
+
+$("#user_search2").keydown(function() {
+	let user_part = $("#user_search").val();
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("user_search", {
+		"id": coockie.ID,
+		"hash": coockie.TOKEN,
+		"search": user_part
+		}, add_user_search_result2);
+	});		
+}
+
+function add_user_search_result2(data){
+	user_list = data;
+    $("#myDropdown2 a").remove();
+    for (let x = 0; x < data.length; x++) {
+        $("#myDropdown2").append("<a id='user" + data[x].users_Id_Users + "' class ='user_select_list' href='#';>" + data[x].name + "</a>");
+        $(".user_select_list").off();
+        $(".user_select_list").click(function(event) {
+            let id = event.target.attributes.id.value;
+            id = id.replace(/[a-z]/gi, '');
+            let user = user_list.find(function(user) {
+                return user.users_Id_Users == id;
+            })
+            selected_user = id;
+			$("#fname").val(user.name);
+			var date = new Date(user.date_of_birth);
+			var input_date = formatDate(date)
+			$("#dateofbirth").val(input_date);
+
+			$("#gender").val(user.Gender);
+			$("#address_1").val(user.adres_line_one);
+			$("#address_2").val(user.adres_line_two);
+			$("#tel").val(user.telephone);
+			$("#license").val(user.driver_license);
+			$("#country").val(user.nationality);
+			$("#text").val(user.text);
+			$("#marital_state").val(user.marital_state);
+			$("#user_info").show();
+			
+					// click to insert data
+			$("#submit").click(function() {
+				var user = $("#fname").val();
+				var date_of_birth = $("#dateofbirth").val();
+				var gender = $("#gender").val();
+				var address_1 = $("#address_1").val();
+				var address_2 = $("#address_2").val();
+				var telephone = $("#tel").val();
+				var driving_license = $("#license").val();
+				var country = $("#country").val();
+				var text = $("#text").val();
+				var marital_state = $("#marital_state").val();
+				insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state);
+			});
+			
+            
+        })
+    }
+    $(window).click(function() {
+        $("#myDropdown2 a").remove();
+
+    });
+}
+
+
 function get_select(id) {
     return '<select id="' + id + '" style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="3">Open met vrije inschrijving</option><option value="2">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
 }
@@ -108,6 +177,29 @@ function festival_shift_subscribers() {
     }, festival_shift_processing_ligth);
 }
 
+function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	body = {
+		"id" 	: coockie.ID,
+		"hash"  : coockie.TOKEN,
+		"user_id": selected_user,
+		"name"  : user,
+		"date_of_birth" : dateofbirth,
+		"Gender" : gender,
+		"adres_line_one" : address_1,
+		"adres_line_two" : address_2,
+		"driver_license" : driver_license,
+		"nationality" : country,
+		"telephone" : telephone,
+		"marital_state" : marital_state,
+		"text": text,
+	}
+	api("insert_main_admin", body, function(){
+		alert("opgeslagen");
+	})
+};
+	
+	
 function festival_checkbox_listing() {
     clearAll();
     $("#present_li").css({
@@ -1002,6 +1094,9 @@ function clearAll() {
     //$("#festival_list").fadeOut("fast");
     $("#add_festit_init").fadeOut("fast");
     $("#add_shift_init").fadeOut("fast");
+	
+	$("#user_info").fadeOut("fast");
+	$("#user_select").fadeOut("fast");
 
     $("#festivals_li").css({
         "textDecoration": "none"

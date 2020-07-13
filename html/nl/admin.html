@@ -322,6 +322,129 @@
 		</div>
 	</div>
 	
+	<div id="user_select">
+		<h2>Zoek een vrijwilliger:<h2>
+		<div class="search_bar">
+			<div class="dropdown2">
+				<div id="myDropdown2" class="dropdown-content2">
+					<input type="text" placeholder="zoeken.." id="user_search2">	
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="user_info">
+		<div class="container">
+			<div id="error"></div>
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">Volledige naam:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="fname" name="full_name" placeholder="Voornaam + achternaam">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="lname">Geboortedatum:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="date" name="dateofbirth" id="dateofbirth">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="country">Geslacht: </label>
+		      </div>
+		      <div class="col-75">
+		        <select id="gender" name="gender">
+		          <option value="0">Man</option>
+		          <option value="1">Vrouw</option>
+		          <option value="2">Anders</option>
+		        </select>
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">Adres:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="address_1" name="full_name" placeholder="straat + nr + postcode + gemeente">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">rekening nr: </label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="address_2" name="full_name" placeholder="Rekeningnr">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">Telefoonnummer: </label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" id="tel" name="full_name" placeholder="tel">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="fname">rijksregister nr: </label>
+		      </div>
+		      <div class="col-75">
+			  <input type="text" id="license" name="nr" placeholder="rijksregisternummer">
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="country">Nationaliteit: </label>
+		      </div>
+		      <div class="col-75">
+		        <select id="country" name="gender">
+		          <option value="Belg">Belg</option>
+		          <option value="Nederlander">Nederlander</option>
+		          <option value="Frankrijker">Frankrijker</option>
+		          <option value="ander">Andere</option>
+		        </select>
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="country">Burgelijke staat: </label>
+		      </div>
+		      <div class="col-75">
+		        <select id="marital_state" name="gender">
+		          <option value="0">ongehuwd</option>
+		          <option value="2">gehuwd</option>
+		          <option value="3">gescheiden</option>
+		          <option value="4">verweduwd</option>
+		        </select>
+		      </div>
+		    </div>
+
+		    <div class="row">
+		      <div class="col-25">
+		        <label for="subject">Jouw persoonlijke tekst : </label>
+		      </div>
+		      <div class="col-75">
+		        <textarea id="text" name="subject" placeholder="Schrijf jouw verhaal.." style="height:110px"></textarea>
+		      </div>
+		    </div>
+		    <div class="row">
+		      <input id="submit" type="submit" value="Opslaan">
+		    </div>
+		</div>
+	
+	
 	<div id='add_user_manual'>
 		<h1>Voeg lid toe aan shift: </h1>
 		<div class="row">

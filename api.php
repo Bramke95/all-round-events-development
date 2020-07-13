@@ -294,13 +294,7 @@
 			)));
 		}
 		// check if the api had a valid token that has read/write property
-		if (!token_check($ID, $HASH, $db)){
-			exit(json_encode(array(
-				'status' => 409,
-				'error_type' => 7,
-				'error_message' => "Token only has reading rights! "
-			)));
-		}
+		token_check($ID, $HASH, $db);
 		// See if the user is setting new date or overwriting it : 
 		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
 		$statement->execute(array($ID));
@@ -313,6 +307,58 @@
 		else {
 		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
 		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
+		}
+		// end the api
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+		)));
+	}
+		//
+	// This api inserts or updates the main data from for other users. Only the password, salt, Id and email cannot be changed. 
+	// This api works as an update, it will overwrite everything if the content is not the same.
+	// This action can only be performed by the admin
+	//
+	elseif ($action == "insert_main_admin") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$user_id = $xml["user_id"];
+			$name = $xml["name"];
+			$date_of_birth = $xml["date_of_birth"];
+			$gender = $xml["Gender"];
+			$address_line_one = $xml["adres_line_one"];
+			$adress_line_two = $xml["adres_line_two"];
+			$driver_license = $xml["driver_license"];
+			$nationality = $xml["nationality"];
+			$telephone = $xml["telephone"];
+			$marital_state = $xml["marital_state"];
+			$text = $xml["text"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// check if the api had a valid token that has read/write property
+		admin_check($ID, $HASH, $db);
+		// See if the user is setting new date or overwriting it : 
+		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		//  put everything in the database 
+		if(!$res){
+		$statement = $db->prepare('INSERT INTO users_data (name,date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+				$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
+		}
+		else {
+		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
+		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
 		}
 		// end the api
 		exit(json_encode(array(
@@ -1373,7 +1419,10 @@
 			'error_type' => 0
 		)));
 	}
-	
+	//
+	// returns a list of al the shift days available for only active festivals. 
+	//
+	//
 	elseif ($action == "get_shift_days") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -1386,7 +1435,7 @@
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
-				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+				'error_message' => "Not all fields where available, need: ID, HASH"
 			)));
 		}
 		// this is an admin action, check if this is an admin
@@ -1402,7 +1451,10 @@
 			exit(json_encode (json_decode ("{}")));
 		}
 	}
-	
+	//
+	// returns all information about one shift day
+	//
+	//
 	elseif ($action == "get_shift_day") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -1433,7 +1485,7 @@
 		}
 	}
 	
-		//
+	//
 	// This action changes the date of a festival/evenement shift day. IMPORTAND, it does not change the status, this is another api (Because changing the status has a lot of other results)
 	// This action can only be performed by an administrator
 	//
@@ -1512,8 +1564,11 @@
 			)));
 		}
 	}
+	//
+	// get all workdays for the user that is doing the api, this prevents leaking information from other users
+	//
+	//
 	elseif ($action == "shift_work_days") {
-		//TODO : Too much info, filter is needed
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
@@ -1551,13 +1606,15 @@
 			exit(json_encode (json_decode ("{}")));
 		}
 	}
+	
+	//
+	// subscribe user to an evenement. It :
+	// -> Checks the festival status and subscribes the user to it with the correct status
+	// -> checks if the shift is not full yet
+	// -> send mail 
+	//
 	elseif ($action == "user_subscribe") {
 		// get the contenct from the api body
-		
-		//TODO: => Check if the festivals shift is full [just keep filling if not directly subscription]
-		//TODO: => implement reserve + mail
-		//TODO => check if user is allready subscibed, delete if neaseserry [do first because it is none blocking, just return ]
-		
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		$people_subscribed = 0;
@@ -2152,12 +2209,7 @@
 			$pdf->Cell($w[6],10,"",1);
 			$pdf->Ln();
 		}
-		
-
-
-
 		$pdf->Output();
-		
 	}
 	
 	else {
