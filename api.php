@@ -2245,6 +2245,30 @@
 		)));
 		
 	}
+	if ($action == "reset_pass"){
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			email = $xml["email"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => ,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, email"
+			)));
+		}
+		$pass = bin2hex(openssl_random_pseudo_bytes(8));
+		$salt = bin2hex(openssl_random_pseudo_bytes(40));
+		$hashed_pass = password_hash($pass . $salt, PASSWORD_DEFAULT);.
+		$statement = $db->prepare('UPDATE users set pass=?, salt=?  inner join users_data on users_data.users_Id_Users = users.Id_Users  where email=?');
+		$statement->execute(array($hashed_pass, $salt, $ID));
+		exit(json_encode(array(
+			'status' => $pass,
+			'error_type' => 4,
+			'error_message' => "Not all fields where available, email"
+		)));
+		
+	}
 	
 	else {
 		exit(json_encode(array(

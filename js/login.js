@@ -92,7 +92,7 @@
 		});
 		
 		$("#reset_pass_start").click(function(){
-			window.location.href = "home.html";
+			$("#email_reset_pass").fadeIn(500);
 		});
 		$("cancel").click(function(){
 			window.location.href = "home.html";
