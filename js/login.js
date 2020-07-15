@@ -76,6 +76,10 @@
 	};
 	
 	function reset_pass_callback(data){
+		$("#email_reset_pass").html('<h1>Uw wachtwoord is verzonen naar het door u opgegeven email adres. <h1><input type="submit" id="reset_pass_abort" name="abort" value="Sluiten" placeholder="" style="background-color: red ;  margin-top:10px;">');
+		$("#reset_pass_abort").click(function(){
+			location.reload();
+		});
 		
 	}
 
