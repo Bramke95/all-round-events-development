@@ -17,17 +17,17 @@ input[type=text], select, textarea{
 }
 
 input[type=password], select, textarea{
-  width: 90%;
+  width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
-  margin: 5px;
+  margin: 0px;
 }
 
 input[type=date]{
-  width: 25%;
+  width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 4px;

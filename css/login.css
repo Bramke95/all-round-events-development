@@ -6,7 +6,6 @@ html {
 
 #activation_code {
 	width: 100%;
-	float : left;
 }
 
 #form {
@@ -72,6 +71,11 @@ span.psw {
 
 #activation_code {
 	background-color: #f1f1f1;
+	padding-top: 1px;
+	padding-bottom: 1px;
+}
+.psw {
+	float: right;
 }
 
 #activation_code h3{
@@ -102,6 +106,10 @@ h2 {
 	box-shadow: 5px 10px 20px 0px;
 }
 
+#reset_pass_start {
+	z-index: 5;
+}
+
 @media screen and (max-width: 300px) {
   span.psw {
     display: block;
@@ -111,6 +119,20 @@ h2 {
   .cancelbtn {
     width: 100%;
   }
-  
 }
+
+@media screen and (max-width: 95rem) {
+
+  	#email_reset_pass {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
+	}
+}
+	
 
