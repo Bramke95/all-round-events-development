@@ -74,6 +74,10 @@
 			}
 		}
 	};
+	
+	function reset_pass_callback(data){
+		
+	}
 
 // starting function for this page, mainly for putting event handlers to the login, cancel button. Some checks are performed on the content in the input boxes
 	$( document ).ready(function() {
@@ -93,6 +97,15 @@
 		
 		$("#reset_pass_start").click(function(){
 			$("#email_reset_pass").fadeIn(500);
+			$("#reset_pass_abort").click(function(){
+				$("#email_reset_pass").fadeOut(500);
+			});
+			$("#reset_pass").click(function(){
+				let email_field = $("#email_field").val();
+				api("reset_pass", {"email" : email_field}, reset_pass_callback)
+			});
+			
+			
 		});
 		$("cancel").click(function(){
 			window.location.href = "home.html";

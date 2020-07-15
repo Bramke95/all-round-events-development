@@ -13,6 +13,16 @@ html {
   border: 3px solid #f1f1f1;
 }
 
+input[type=submit] {
+  background-color: red;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
 input[type=text], input[type=password] {
   width: 100%;
   padding: 12px 20px;

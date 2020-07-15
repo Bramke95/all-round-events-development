@@ -2249,26 +2249,46 @@
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
-			email = $xml["email"];
+			$email = $xml["email"];
 		} catch (Exception $e) {
 			exit(json_encode(array(
-				'status' => ,
+				'status' => 404,
 				'error_type' => 4,
 				'error_message' => "Not all fields where available, email"
 			)));
 		}
 		$pass = bin2hex(openssl_random_pseudo_bytes(8));
 		$salt = bin2hex(openssl_random_pseudo_bytes(40));
-		$hashed_pass = password_hash($pass . $salt, PASSWORD_DEFAULT);.
-		$statement = $db->prepare('UPDATE users set pass=?, salt=?  inner join users_data on users_data.users_Id_Users = users.Id_Users  where email=?');
-		$statement->execute(array($hashed_pass, $salt, $ID));
+		$hashed_pass = password_hash($pass . $salt, PASSWORD_DEFAULT);
+		$statement = $db->prepare('UPDATE users inner join users_data on users_data.users_Id_Users = users.Id_Users set pass=?, salt=? where email=?');
+		$statement->execute(array($hashed_pass, $salt, $email));
+		# send email 
+		$subject = 'Wachtwoord reset';
+		$message = '<html>
+						<p>Beste,</p>
+						<p>Je hebt een wachtwoord reset aagevraagd, hieronder vind u uw nieuw wachtwoord. Indien u uw wachtwoord wilt wijzingen kunt u dit doen door in te loggen en naar uw profiel te gaan. </br></p>
+						<p>Uw email: '. $email .'</br></p>
+						<p>Uw wachtwoord: '. $pass .'</br></p>
+						<p> </p>
+						<p>Met vriendelijke groeten</p>
+						<p><small>
+							All-round Events VZW
+							Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+					</html>';
+		$headers = 'From: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-round-events.be' . "\r\n" .
+		"Content-type:text/html;charset=UTF-8" . "\r\n" .
+		'X-Mailer: PHP/' . phpversion();
+		mail($email, $subject, $message, $headers);
+	
 		exit(json_encode(array(
-			'status' => $pass,
-			'error_type' => 4,
-			'error_message' => "Not all fields where available, email"
+			'status' => "OK",
+			'error_type' => 0,
+			'error_message' => "NO"
 		)));
-		
 	}
+	
+	
 	
 	else {
 		exit(json_encode(array(
