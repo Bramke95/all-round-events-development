@@ -810,6 +810,14 @@ function shift_processing(data) {
     }
 }
 
+function reload_subscription(){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("get_subscribers", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, subscribers_callback);
+}
+
 //callback adding a shift 
 function shift_processing_short(data) {
     // add days
@@ -889,7 +897,7 @@ function user_lookup(user, user_id) {
 }
 
 function subscribers_callback(data) {
-
+	$(".shift_day_line").remove();
     for (let x = 0; x < data.length; x++) {
         let user_status = "unknown";
 
@@ -915,7 +923,7 @@ function subscribers_callback(data) {
                 "hash": coockie.TOKEN,
                 "idshifts": shift,
                 "Id_Users": user
-            }, festival_shift_subscribers);
+            }, reload_subscription);
         });
         $(".subscribe_user").off();
         $(".subscribe_user").click(function(event) {
@@ -930,7 +938,7 @@ function subscribers_callback(data) {
                 "hash": coockie.TOKEN,
                 "idshifts": shift,
                 "Id_Users": user
-            }, festival_shift_subscribers);
+            }, reload_subscription);
         });
 
 
