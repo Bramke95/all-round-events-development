@@ -6,6 +6,7 @@ html {
 
 #contact_space {
   margin-top: 110px;
+  overflow-x: auto;
 }
 
 input[type=text], select, textarea {
@@ -37,6 +38,7 @@ input[type=submit]:hover {
   border-radius: 5px;
   background-color: #f2f2f2;
   padding: 20px;
+  min-width: 495px;
 }
 
 #success {
@@ -50,4 +52,30 @@ input[type=submit]:hover {
 }
 #contact_space p {
 	text-shadow: 2px 2px blanchedalmond;
+	
+}
+
+#customers {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  
+  min-width: 250px;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #4CAF50;
+  color: white;
 }
