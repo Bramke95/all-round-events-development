@@ -13,7 +13,7 @@ function festival_processing(data){
 	$("#add_fesitvail").fadeOut("slow");
 	$("#festival_list").html("");
 	$("festivals_li").css({"textDecoration":"underline"});
-	if (data.length < 1 ){
+	if (data.length < 1 || data.length == undefined){
 		//no active festivals
 		$("#festival_list").append("<div id='No_festival' class='festi3' ><span>Op dit moment zijn er geen evenementen gepland, hou deze pagina en je mailbox goed in de gaten!</span></div>");
 	}

@@ -201,7 +201,7 @@ function festival_shift_processing(data){
 	$("#festival_list").html("");
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing);
-	if (data.length == 0){
+	if (data.length == undefined || data.length == 0){
 		$("#festival_list").append("<div id=0 class='festi' ><p style='text-align:center'>Geen festivals actief, kom op een later moment terug!</p></div>");
 	}
 	for (let x = 0; x < data.length; x++){
