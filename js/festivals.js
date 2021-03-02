@@ -2,7 +2,8 @@ var url = "../../api.php?action=";
 
 
 
-$( document ).ready(function() {
+$(document).ready(function() {
+	
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active", "festi_id":"invalid"}, festival_processing);
 });
@@ -73,7 +74,7 @@ function getCookie(name) {
 		while (c.charAt(0) == ' ') c = c.substring(1, c.length);
 			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
 	}
-	return null;
+	return '{"ID":"0","TOKEN":"0"}';
 }
 
 // format date to the correct format for the input field 
