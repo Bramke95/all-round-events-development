@@ -11,7 +11,9 @@ var selected_shift = 0;
 var selected_user = 0;
 var selected_festival_presense = 0;
 var selected_shift_presense = 0;
+var festival_payout = -1;
 selected_workday_presense = 0;
+
 $(document).ready(function() {
     check_if_admin(autofill_festivals);
 
@@ -403,30 +405,64 @@ function payout_festivals(data) {
     })
 }
 
+function re_load_payouts(){
+	      api("payouts_list", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "festi_id": festival_payout
+        }, payout_listing);
+}
 function payout_listing(data) {
     let users_Id_Users = 0;
     let cost = 0;
     let ok = true;
     let nok_html = "";
+	let festival_payout = data[0].idfestival;
 
     for (let x = 0; x < data.length + 1; x++) {
         if (x == data.length) {
             if (ok) {
-                $("#payout_list").append("<div style='background-color:green'  id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p></div>");
+                $("#payout_list").append("<div style='background-color:green'  id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users +" class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users + "  class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
 
             } else {
-                $("#payout_list").append("<div style='background-color:red' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p></div>");
+                $("#payout_list").append("<div style='background-color:red' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users +" class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users +" class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
                 $("#payout_list").append(nok_html);
 
             }
+			$(".payout_approved").click(function(event) {
+				let id = event.target.attributes.id.value;
+				let user_id = event.target.attributes.user.value;
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("apply_payout", {
+					"id": coockie.ID,
+					"hash": coockie.TOKEN,
+					"shift_id": id,
+					"payout_type": 1,
+					"user_id": user_id
+				}, payout_festival_list);
+				
+			});
+			$(".payout_denied").click(function(event) {
+				let id = event.target.attributes.id.value;
+				let user_id = event.target.attributes.user.value;
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("apply_payout", {
+					"id": coockie.ID,
+					"hash": coockie.TOKEN,
+					"shift_id": id,
+					"payout_type": 2,
+					"user_id": user_id
+				}, payout_festival_list);
+				
+			});
             break;
         }
         if (data[x].users_Id_Users != users_Id_Users && x != 0) {
             if (ok) {
-                $("#payout_list").append("<div style='background-color:green' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p></div>");
+                $("#payout_list").append("<div style='background-color:green' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
 
             } else {
-                $("#payout_list").append("<div style='background-color:red' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p></div>");
+                $("#payout_list").append("<div style='background-color:red' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
                 $("#payout_list").append(nok_html);
 
             }
@@ -434,6 +470,30 @@ function payout_listing(data) {
             ok = true;
             nok_html = "";
         }
+		$(".payout_approved").click(function(event) {
+            let id = event.target.attributes.id.value;
+			let user_id = event.target.attributes.user.value;
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("apply_payout", {
+				"id": coockie.ID,
+				"hash": coockie.TOKEN,
+				"shift_id": id,
+				"payout_type": 1,
+				"user_id": user_id
+			}, payout_festival_list);
+		}); 
+		$(".payout_denied").click(function(event) {
+			let id = event.target.attributes.id.value;
+			let user_id = event.target.attributes.user.value;
+			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+			api("apply_payout", {
+				"id": coockie.ID,
+				"hash": coockie.TOKEN,
+				"shift_id": id,
+				"payout_type": 2,
+				"user_id": user_id
+			}, payout_festival_list);
+		});
         users_Id_Users = data[x].users_Id_Users;
         cost = cost + parseFloat(data[x].cost);
         if (ok) {
