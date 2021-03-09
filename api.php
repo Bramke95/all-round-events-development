@@ -2149,7 +2149,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select festivals.idfestival, shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and work_day.reservation_type = 3;');
+		$statement = $db->prepare('select work_day.Payout, festivals.idfestival, shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and work_day.reservation_type = 3;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 		if ($res){
@@ -2174,6 +2174,7 @@
 			$HASH = $xml["hash"];
 			$shift_id = $xml["shift_id"];
 			$payout_type_id = $xml["payout_type"];
+			$user_id = $xml["user_id"];
 		} catch (Exception $e) {
 			exit(json_encode(array(
 				'status' => 409,
@@ -2182,16 +2183,10 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('');
-		$statement->execute(array($festi_id));
+		$statement = $db->prepare('update shifts inner join shift_days on shift_days.shifts_idshifts = shifts.idshifts  inner join work_day on work_day.shift_days_idshift_days=shift_days.idshift_days set work_day.Payout = ? where idshifts=? and work_day.users_Id_Users=?;');
+		$statement->execute(array($payout_type_id, $shift_id, $user_id));
 		$res = $statement->fetchAll();
-		if ($res){
-			$json = json_encode($res);
-			exit($json);
-		}
-		else {
-			exit(json_encode (json_decode ("{}")));
-		}
+		exit(json_encode (json_decode ("{}")));
 	}
 	
 	elseif ($action == "pdf_listing") {

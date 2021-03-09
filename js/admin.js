@@ -429,6 +429,7 @@ function payout_listing(data) {
                 $("#payout_list").append(nok_html);
 
             }
+            $(".payout_approved").off();
 			$(".payout_approved").click(function(event) {
 				let id = event.target.attributes.id.value;
 				let user_id = event.target.attributes.user.value;
@@ -442,6 +443,7 @@ function payout_listing(data) {
 				}, payout_festival_list);
 				
 			});
+            $(".payout_denied").off();
 			$(".payout_denied").click(function(event) {
 				let id = event.target.attributes.id.value;
 				let user_id = event.target.attributes.user.value;
@@ -459,10 +461,10 @@ function payout_listing(data) {
         }
         if (data[x].users_Id_Users != users_Id_Users && x != 0) {
             if (ok) {
-                $("#payout_list").append("<div style='background-color:green' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
+                $("#payout_list").append("<div style='background-color:green' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users +" class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users +" class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
 
             } else {
-                $("#payout_list").append("<div style='background-color:red' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
+                $("#payout_list").append("<div style='background-color:red' id='shift" + data[x - 1].idshifts + "' class='shift_day_line'><p style='width:33%'>naam:" + data[x - 1].name + "</p><p style='width:33%'>" + data[x - 1].adres_line_two + "</p><p style='width:33%'>bedrag:" + cost + "</p><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users +" class='payout_approved' name='payout' value='Betaald' placeholder='' style='background-color: Blue ;  margin-left:10px;'><input type='submit' id=" + data[x - 1].idshifts + " user=" + data[x - 1].users_Id_Users +" class='payout_denied' name='payout' value='Geweigerd' placeholder='' style='background-color: Blue ;  margin-left:10px;'></div>");
                 $("#payout_list").append(nok_html);
 
             }
@@ -470,6 +472,7 @@ function payout_listing(data) {
             ok = true;
             nok_html = "";
         }
+        $(".payout_approved").off();
 		$(".payout_approved").click(function(event) {
             let id = event.target.attributes.id.value;
 			let user_id = event.target.attributes.user.value;
@@ -482,6 +485,7 @@ function payout_listing(data) {
 				"user_id": user_id
 			}, payout_festival_list);
 		}); 
+        $(".payout_denied").off();
 		$(".payout_denied").click(function(event) {
 			let id = event.target.attributes.id.value;
 			let user_id = event.target.attributes.user.value;
@@ -496,6 +500,8 @@ function payout_listing(data) {
 		});
         users_Id_Users = data[x].users_Id_Users;
         cost = cost + parseFloat(data[x].cost);
+        if (data[x].Payout == 1){cost = " reeds betaald "}
+        if (data[x].Payout == 2){cost = " Betaling geweigerd "}
         if (ok) {
             ok = (data[x].present == 1 || (data[x].in == 1 && data[x].out == 1));
         }
