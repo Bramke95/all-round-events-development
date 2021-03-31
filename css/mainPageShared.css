@@ -6,10 +6,9 @@ body{
 }
 
 #title_box {
-	position: fixed;
 	top:0;
 	text-align: center;
-	height: 7rem;
+	height: 4rem;
 	width: 100rem;
 	margin: 0 auto;
 	text-decoration: none;
@@ -29,7 +28,6 @@ body{
 }
 
 nav ul {
-	position: fixed;
 	top: 70px;
 	text-align: center;
 	height: 2rem;

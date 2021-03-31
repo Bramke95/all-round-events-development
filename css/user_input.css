@@ -1,9 +1,15 @@
+html {
+  background: url("/img/background.jpg");
+  background-attachment: fixed;
+  background-position: center;
+}
+
 #main_wrapper {
-  margin-top: 110px;
+  margin-top: 40px;
 }
 
 #title_box {
-	background-color: #e5e5e5;
+
 }
 
 /* Style inputs, select elements and textareas */
@@ -91,7 +97,6 @@ input[type=submit] {
 /* custom styles */
 body {
   padding: 4em;
-  background: #e5e5e5;
 
 }
 label {
@@ -193,6 +198,8 @@ input[type=file] {
 
 #picture_placeholder {
   height: 400px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
 }
 
 div.show-image {
@@ -222,6 +229,31 @@ div.show-image input.delete {
 	background-color: #f2f2f2;
 	padding: 10px;
 	border-radius: 5px;
+  margin-top: 10px;
+}
+#picture_holder {
+  background-color: #f2f2f2;
+  border-radius: 5px;
+}
+#form_img {
+  margin-left: 10px;
+  margin-bottom: 0px;
+}
+
+#educations {
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  margin: 5px;
+}
+#language {
+  background-color: #f2f2f2;  
+  border-radius: 5px;
+  margin: 5px;
+}
+#expierence {
+  background-color: #f2f2f2;  
+  border-radius: 5px;
+  margin: 5px;
 }
 
 

@@ -1,12 +1,15 @@
+html {
+  background: url("/img/background.jpg");
+  background-attachment: fixed;
+  background-position: center;
+}
 body {
-  background: #e5e5e5;
 }
 #title_box {
-	background-color: #e5e5e5;
 }
 #main_wrapper{
 	width: 94rem;
-	margin-top: 100px;
+	margin-top: 30px;
 	height: 110%;
 }
 #front_picture {
@@ -19,6 +22,7 @@ body {
 #front_picture img {
 	max-width : 29.5rem;
 	max-height : 100%;
+	border: 2px solid indianred;
 
 }
 #main_info {
@@ -28,6 +32,8 @@ body {
 	background-color: white;
 	margin-top: 15px;
 	height: auto;
+	border-radius: 5px;
+	border: 2px solid indianred;
 
 }
 #main_info {
