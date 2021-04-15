@@ -4,6 +4,6 @@
 $host = 'localhost:3306';
 $user = 'root';
 $pass = 'root';
-$name = 'mydb';
+$name = 'all_round_events_be_events';
 
 // EOF

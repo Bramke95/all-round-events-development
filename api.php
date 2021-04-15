@@ -109,7 +109,7 @@
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if ($res){
 			exit(json_encode(array(
-				'status' => 409,
+				'status' => 480,
 				'error_type' => 1,
 				'error_message' => "email is already in use"
 			)));
@@ -118,7 +118,7 @@
 		$salt = bin2hex(openssl_random_pseudo_bytes(40));
 		if (strlen($xml["pass"]) < 5){
 			exit(json_encode(array(
-				'status' => 409,
+				'status' => 481,
 				'error_type' => 2,
 				'error_message' => "password must have more than 5 characters "
 			)));		}
@@ -986,23 +986,6 @@
 		}
 	}
 	
-	// obsolte function, this loads basic information for all the profiles, should not be used
-	//
-	//
-	elseif ($action == "home_page"){
-		$statement = $db->prepare('SELECT * FROM users_data inner join users on users_data.users_Id_Users = users.Id_Users inner join images on users.Id_Users = images.users_Id_Users where is_primary = 1 limit 12;');
-		$statement->execute(array());
-		$res = $statement->fetchAll();
-		if (true){
-			$json = json_encode($res);
-			exit($json);
-		}
-		exit(json_encode(array(
-			'status' => 200,
-			'error_type' => 4,
-			'error_message' => "No profiles found!"
-		)));
-	}
 	
 	// returns ok if the user is admin, alse not, this can be used to check if certain functionallity needs to be visable or not
 	//
@@ -1635,6 +1618,7 @@
 			$Id_Users = $ID;
 			$overrule = true;
 		}
+		token_check($ID, $HASH, $db);
 		
 		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
 		$statement->execute(array($Id_Users, $shift_id ));
@@ -1688,6 +1672,10 @@
 		$email = $res[0]['email'];
 		
 		if ($status == 2){
+			$notification_text = 'Ja bent nu geregistreerd voor ' . $festival_name . '. Wacht je definitieve inschrijving af.';
+			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+			$statement->execute(array($notification_text, 0, $Id_Users));
+
 			$subject = 'All-Round Events: Registratie voor ' . $festival_name;
 			$message = '<html>
 							<p>Beste,</p>
@@ -1710,6 +1698,9 @@
 			mail($email, $subject, $message, $headers);
 		}
 		if ($status == 3){
+			$notification_text = 'Ja bent nu ingeschreven voor ' . $festival_name . '. Tot dan!';
+			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+			$statement->execute(array($notification_text, 0,  $Id_Users));
 			$subject = 'All-Round Events: Inschrijving bevestigd voor ' . $festival_name;
 			$message = '<html>
 							<p>Beste,</p>
@@ -1782,6 +1773,9 @@
 		
 		if ($ID == $Id_Users){
 				token_check($ID, $HASH, $db);
+				$notification_text = 'Ja bent nu uitgeschreven voor ' . $festival_name . ' in shift ' . $shift["name"] . ' . Hopelijk tot een volgende keer!';
+				$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+				$statement->execute(array($notification_text, 0, $Id_Users));
 				$subject = 'All-Round Events: Uitgeschreven voor ' . $festival_name;
 				$message = '<html>
 								<p>Beste,</p>
@@ -1806,6 +1800,9 @@
 		}
 		else {
 			admin_check($ID, $HASH, $db);
+				$notification_text = 'Je zal jammer genoeg niet kunnen deelnamen aan  ' . $festival_name . ' in shift ' . $shift_info . '. Er komen snel andere evenementen! Hou je app in de gaten!';
+				$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+				$statement->execute(array($notification_text, 0, $Id_Users));
 				$subject = 'All-Round Events: Update voor  ' . $festival_name;
 				$message = '<html>
 								<p>Beste,</p>
@@ -1956,15 +1953,21 @@
 		$statement->execute(array($status,$festi));
 		
 		if($status == 0){
-			// a mail is send to all the users stating they want to work for this event
+
 			
 		}
 		if($status == 1){
-			// nothing should be hapening here
-			
+			$notification_text = 'Jawel,  ' . $festival_name . ' komt er binnenkort aan! Hou de inschrijvingspagina goed in de gaten! ';
+			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+			$statement->execute(array($notification_text, 1,-1));
 		}
+
 		if($status == 2){
 			// mail to everyone that the event is now open in register 
+			$notification_text = 'Je kan je registeren voor ' . $festival_name . ', registreer je snel om erbij te kunnen zijn!';
+			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+			$statement->execute(array($notification_text, 1, -1));
+
 			$statement = $db->prepare("SELECT email FROM users;");
 			$statement->execute(array());
 			$res = $statement->fetchAll();
@@ -1995,6 +1998,9 @@
 		}
 		if($status == 3){
 			// mail to everyone that the event is now open in subscription mode
+			$notification_text = 'Je kan je inschrijven voor ' . $festival_name . ', registreer je snel om erbij te kunnen zijn!';
+			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+			$statement->execute(array($notification_text, 1, -1));
 
 			$statement = $db->prepare("SELECT email FROM users;");
 			$statement->execute(array());
@@ -2182,6 +2188,11 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
+		if($payout_type_id == 1){
+			$notification_text = 'Er is een betaling onderweg, houd je bankrekening in de gaten! ';
+			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
+			$statement->execute(array($notification_text, 0, $user_id));
+		}
 		admin_check($ID, $HASH, $db);
 		$statement = $db->prepare('update shifts inner join shift_days on shift_days.shifts_idshifts = shifts.idshifts  inner join work_day on work_day.shift_days_idshift_days=shift_days.idshift_days set work_day.Payout = ? where idshifts=? and work_day.users_Id_Users=?;');
 		$statement->execute(array($payout_type_id, $shift_id, $user_id));
@@ -2273,6 +2284,37 @@
 		)));
 		
 	}
+		if ($action == "get_news"){
+		
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+
+		// everything is ok, save 		
+		$statement = $db->prepare('SELECT * FROM notifications where global=1 or user_id=? limit 10;');
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0
+			
+		)));
+		
+	}
 	if ($action == "reset_pass"){
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
@@ -2312,11 +2354,9 @@
 		exit(json_encode(array(
 			'status' => "OK",
 			'error_type' => 0,
-			'error_message' => "NO"
+			'error_message' => "OK"
 		)));
 	}
-	
-	
 	
 	else {
 		exit(json_encode(array(
