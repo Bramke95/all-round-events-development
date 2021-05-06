@@ -166,6 +166,9 @@ body {
 	
 	#front_picture img {
 		width: 96%;
+		display: block;
+		position: relative;
+		margin: 0 auto;
 	}
 	
 	#main_info {
@@ -219,4 +222,9 @@ body {
 		max-width: 60%;
 	}
 	
+}
+@media screen and (max-width: 30rem) {
+	#main_info_placeholder {
+		display: none;
+	}
 }
