@@ -203,6 +203,7 @@ function add_user_search_result2(data){
 			$("#address_2").val(user.adres_line_two);
 			$("#tel").val(user.telephone);
 			$("#license").val(user.driver_license);
+            $("#size").val(user.size);
 			$("#country").val(user.nationality);
 			$("#text").val(user.text);
 			$("#marital_state").val(user.marital_state);
@@ -215,15 +216,14 @@ function add_user_search_result2(data){
 				var gender = $("#gender").val();
 				var address_1 = $("#address_1").val();
 				var address_2 = $("#address_2").val();
+                var size = $("#size").val();
 				var telephone = $("#tel").val();
 				var driving_license = $("#license").val();
 				var country = $("#country").val();
 				var text = $("#text").val();
 				var marital_state = $("#marital_state").val();
-				insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state);
+				insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size);
 			});
-			
-            
         })
     }
     $(window).click(function() {
@@ -251,7 +251,7 @@ function festival_shift_subscribers() {
     }, festival_shift_processing_ligth);
 }
 
-function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state){
+function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state, size){
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	body = {
 		"id" 	: coockie.ID,
@@ -262,6 +262,7 @@ function insert(user, dateofbirth, gender, address_1, address_2, telephone, driv
 		"Gender" : gender,
 		"adres_line_one" : address_1,
 		"adres_line_two" : address_2,
+        "size" : size,
 		"driver_license" : driver_license,
 		"nationality" : country,
 		"telephone" : telephone,
@@ -331,21 +332,17 @@ function getCookie(name) {
 }
 
 // format date to the correct format for the input field 
-function formatDate(date) {
-    var d = new Date(date),
+    function formatDate(date) {
+        var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
 
-    houre = d.getHours();
-    minutes = d.getMinutes();
-    seconds = "00";
-
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
 
-    return [year, month, day].join('-') + " " + [houre, minutes, seconds].join(':');
-}
+    return [year, month, day].join('-');
+    }
 
 // function that makes api calles
 function api(action, body, callback) {
@@ -578,7 +575,7 @@ function payout_listing(data) {
             ok = (data[x].present == 1 || (data[x].in == 1 && data[x].out == 1));
         }
         if (!(data[x].present == 1 || (data[x].in == 1 && data[x].out == 1))) {
-            nok_html = nok_html + "<div class='nok_payout'><p style='width:5%'> </p><p style='width:15%'>" + data[x][0] + " </p><p style='width:15%'>date: " + data[x].start_date + "</p><p style='width:15%'>Niet aanwezig<p></div>";
+            nok_html = nok_html + "<div class='nok_payout'><p style='width:5%'> </p><p style='width:15%'>€" + data[x].cost + " </p><p style='width:15%'>date: " + data[x].start_date + "</p><p style='width:15%'>Niet aanwezig<p></div>";
 
         }
     }
@@ -741,8 +738,6 @@ function get_subscribers_checkbox_callback(data) {
             }, get_subscribers_checkbox_callback);
         })
 
-
-
     })
     $(".checkbox_out").change(function(event) {
         let user = event.target.attributes.user.value;
@@ -873,8 +868,19 @@ function festival_shift_processing_ligth(data) {
 		$("#festival_list").show();
 	}
     for (let x = 0; x < data.length; x++) {
-        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p></div>");
+        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><input type='submit' id=" + data[x].idfestival + " class='shirts' name='shirts' value='T-shirts' placeholder='' style='background-color: rgb(76, 175, 80);  margin-left:10px;float:none;'><p style='width:60%'>" + data[x].details + "</p></div>");
         $('#' + data[x].idfestival + " select").val(data[x].status);
+        $(".shirts").off();
+        $(".shirts").click(function(event) {
+        let id = event.target.attributes.id.value;
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        api("tshirts", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "festi_id": id
+        }, function(){});
+        });
+
         // change festival
     }
     $("#festival_list").fadeIn("fast");

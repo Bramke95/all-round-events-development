@@ -152,6 +152,7 @@
 			$("#address_1").text(res.adres_line_one);
 			$("#address_2").text(res.adres_line_two);
 			$("#age").text(calculateAge(input_date));
+			$("#size").text(res.size);
 			$("#license").text(res.driver_license);
 			$("#nationality").text(res.nationality);
 			$("#email").text(res.email);

@@ -277,6 +277,7 @@
 			$name = $xml["name"];
 			$date_of_birth = $xml["date_of_birth"];
 			$gender = $xml["Gender"];
+			$size = $xml["size"];
 			$address_line_one = $xml["adres_line_one"];
 			$adress_line_two = $xml["adres_line_two"];
 			$driver_license = $xml["driver_license"];
@@ -300,12 +301,12 @@
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		//  put everything in the database 
 		if(!$res){
-		$statement = $db->prepare('INSERT INTO users_data (name,date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-				$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
+		$statement = $db->prepare('INSERT INTO users_data (name,size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+				$statement->execute(array($name,$size,  $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
 		}
 		else {
-		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
-		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
+		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
+		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
 		}
 		// end the api
 		exit(json_encode(array(
@@ -329,6 +330,7 @@
 			$name = $xml["name"];
 			$date_of_birth = $xml["date_of_birth"];
 			$gender = $xml["Gender"];
+			$size = $xml["size"];
 			$address_line_one = $xml["adres_line_one"];
 			$adress_line_two = $xml["adres_line_two"];
 			$driver_license = $xml["driver_license"];
@@ -352,12 +354,12 @@
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		//  put everything in the database 
 		if(!$res){
-		$statement = $db->prepare('INSERT INTO users_data (name,date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-				$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
+		$statement = $db->prepare('INSERT INTO users_data (name, size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+				$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
 		}
 		else {
-		$statement = $db->prepare('UPDATE users_data set name=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
-		$statement->execute(array($name, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
+		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
+		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
 		}
 		// end the api
 		exit(json_encode(array(
@@ -408,6 +410,7 @@
 			'adres_line_one' => $res['adres_line_one'],
 			'adres_line_two' => $res['adres_line_two'],
 			'driver_license' => $res['driver_license'],
+			'size' => $res['size'],
 			'nationality' => $res['nationality'],
 			'telephone' => $res['telephone'],
 			'marital_state' => $res['marital_state'],
@@ -2438,6 +2441,36 @@
 			$statement->execute(array($message, 0, $id_pusher));
 		}
 	}
+		elseif ($action == "tshirts") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$festival_id = $xml["festi_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select DISTINCT COUNT(size) as size, users_data.size from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and work_day.reservation_type = 3 GROUP BY users_data.size;');
+		$statement->execute(array($festival_id));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+
 	
 	else {
 		exit(json_encode(array(
@@ -2446,6 +2479,10 @@
 			'error_message' => "not a valid action"
 		)));
 	}
+
+
+
+
 
 
 	
