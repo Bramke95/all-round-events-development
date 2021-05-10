@@ -374,6 +374,10 @@ nav li {
   display: block;
 }
 
+#messenger {
+	display: none;
+}
+
 @media screen and (max-width: 95rem) {
 	body {
 	  padding: 1em;

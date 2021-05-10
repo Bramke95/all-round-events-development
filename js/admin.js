@@ -45,7 +45,7 @@ $(document).ready(function() {
         });
     });
     $("#festivals_li").click(function(event) {
-        clearAll()
+        clearAll();
         $("#festivals_li").css({
             "textDecoration": "underline"
         });
@@ -56,7 +56,7 @@ $(document).ready(function() {
     });
 
     $("#shifts_li").click(function(event) {
-        clearAll()
+        clearAll();
         $("#shifts_li").css({
             "textDecoration": "underline"
         });
@@ -89,21 +89,93 @@ $(document).ready(function() {
 
     $("#present_li").click(function(event) {
         festival_checkbox_listing();
+    });
 
+    $("#messemgers_li").click(function(event) {
+        clearAll();
+        messenger_listing();
+        $("#messenger").fadeIn("fast");
+        $("#send_messenger").off();
+        $("#send_messenger").click(function(event) {
+            let festid_id = $("#festivals_mes").children(":selected").attr("id");
+            let shift_id = $("#shift_mes").children(":selected").attr("id");
+
+            let text = $("#text_text_messenger").val();
+            let subject = $("#text_subject_messenger").val();
+
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            api("message", {
+                "id": coockie.ID,
+                "hash": coockie.TOKEN,
+                "festi_id": festid_id,
+                "shift_id": shift_id,
+                "text": text,
+                "subject": subject
+            }, callback_messenger);
+        });
     });
 });
 
-function users_select_box(){
-$("#festival_list").fadeOut("fast");
-$("#user_select").show()
+    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("get_festivals", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN,
+        "select": "active",
+        "festi_id": "invalid"
+    }, festival_checkbox);
 
-$("#user_search2").keydown(function() {
-	let user_part = $("#user_search").val();
-	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-	api("user_search", {
-		"id": coockie.ID,
-		"hash": coockie.TOKEN,
-		"search": user_part
+function callback_messenger(data){
+    alert("Verzonden")
+}
+
+function messenger_listing() {
+    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("get_festivals", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN,
+        "select": "active",
+        "festi_id": "invalid"
+    }, festival_messenger_boxing);
+        api("get_shifts", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, shift_messenger_boxing);
+};
+
+function festival_messenger_boxing(data){
+    let festi_html = "<select id='festivals_mes'>";
+    festi_html = festi_html + "<option class='select_festi_option_messenger' id='-1'>Geen</option>";
+    for (let x = 0; x < data.length; x++) {
+        festi_html = festi_html + "<option class='select_festi_option_messenger' id=" + data[x].idfestival + ">" + data[x].name + "</option>";
+    }
+    festi_html = festi_html + "</select><div id='shift_select_placeholder_messenger'></div>";
+    $("#festival_messenger").html(festi_html);
+    $("#festival_messenger").fadeIn("fast");
+
+};
+
+function shift_messenger_boxing(data){
+    let festi_html = "<select id='shift_mes'>";
+    festi_html = festi_html + "<option class='select_festi_option' id='-1'>Geen</option>";
+    for (let x = 0; x < data.length; x++) {
+        festi_html = festi_html + "<option class='select_festi_option' id=" + data[x].idshifts + ">" + data[x].name + "</option>";
+    }
+    festi_html = festi_html + "</select><div id='shift_select_placeholder'></div>";
+    $("#shift_messenger").html(festi_html);
+    $("#shift_messenger").fadeIn("fast");
+};
+
+function users_select_box(){
+    $("#festival_list").fadeOut("fast");
+    $("#user_select").show()
+
+    $("#user_search2").keydown(function() {
+    	let user_part = $("#user_search").val();
+    	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    	api("user_search", {
+    		"id": coockie.ID,
+    		"hash": coockie.TOKEN,
+    		"search": user_part
 		}, add_user_search_result2);
 	});		
 }
@@ -1149,7 +1221,6 @@ function load_shift_days_shifts(data) {
             }, load_festivals_shifts);
 
         });
-
     }
 }
 
@@ -1163,12 +1234,11 @@ function full_in_changed_shift_day(data) {
 
 function clearAll() {
     $("#add_fesitvail").fadeOut("fast");
-
+    $("#festival_list").fadeOut("fast");
     $("#change_fesitvail_dialog").fadeOut("fast");
-    //$("#festival_list").fadeOut("fast");
     $("#add_festit_init").fadeOut("fast");
     $("#add_shift_init").fadeOut("fast");
-	
+	$("#messenger").fadeOut("fast");
 	$("#user_info").fadeOut("fast");
 	$("#user_select").fadeOut("fast");
 

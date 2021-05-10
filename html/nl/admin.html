@@ -24,6 +24,7 @@
 					<li><a id='subscription_li' href="#">inschrijvingen</a></li>
 					<li><a id='present_li' href="#">aanwezigheden</a></li>
 					<li><a id='users_li' href="#">Leden</a></li>
+					<li><a id='messemgers_li' href="#">Berichten</a></li>
 					<li><a id='payouts_li' href="#">Uitbetalingen</a></li>
 					<li><a href="user.html">Beheerszone verlaten</a></li>
 				</ul>
@@ -456,8 +457,6 @@
 		        <div class="dropdown">
 				  <div id="myDropdown" class="dropdown-content">
 					<input type="text" placeholder="zoeken.." id="user_search">
-					
-
 				  </div>
 				</div>
 		      </div>
@@ -473,6 +472,24 @@
 			<input type="submit" id="manual_user_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
 			
 		</div>
+	</div>
+
+	<div id="messenger">
+
+		<label for="subject">Shifts: </label>
+		<div id="shift_messenger">
+		</div>
+
+		<label for="subject">Festivals:</label>
+		<div id="festival_messenger">
+		</div>
+
+		<label for="subject">Ondewerp:</label>
+		<textarea id="text_subject_messenger" name="subject" placeholder="" style="height:35px"></textarea>
+
+		<label for="subject">Tekst:</label>
+		<textarea id="text_text_messenger" name="subject" placeholder="" style="height:200px"></textarea>
+		<input type="submit" id="send_messenger" name="send" value="Verstuur" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;"
 	</div>
 	
 	

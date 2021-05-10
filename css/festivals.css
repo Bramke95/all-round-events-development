@@ -57,6 +57,8 @@ html {
 	.festi2 {
 		width: auto;
 		display: block;
+		width: 80%;
+		margin: 0 auto;
 	}
 	.festi2 p {
 		width: auto !important;

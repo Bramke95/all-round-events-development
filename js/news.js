@@ -6,6 +6,7 @@ $(document).ready(function() {
 	
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_news", {"id" : coockie.ID, "hash" : coockie.TOKEN}, festival_processing);
+	add_optional_management();
 });
 
 // callback for the get_festivals
@@ -68,3 +69,13 @@ function api(action, body, callback){
 		} 
 	});
 };
+
+function add_optional_management(){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("is_admin",{"id" : coockie.ID, "hash" : coockie.TOKEN}, add_optional_management_callback)
+}
+function add_optional_management_callback(is_admin){
+	if(is_admin.status == 200){
+		$("#top_menu ul").append("<li><a href='admin.html'>Beheer</a></li>");
+	}
+}

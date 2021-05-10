@@ -2284,8 +2284,8 @@
 		)));
 		
 	}
-		if ($action == "get_news"){
-		
+
+	if ($action == "get_news"){
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -2357,6 +2357,87 @@
 			'error_message' => "OK"
 		)));
 	}
+
+
+	if ($action == "message"){
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$subject = $xml["subject"];
+			$text = $xml["text"];
+			$festi_id = $xml["festi_id"];
+			$shift_id = $xml["shift_id"];
+			$user_id = $xml["user_id"];
+
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 404,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, email"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		// select all the id's and email from one shift
+		$statement = $db->prepare("SELECT email ,users.Id_Users from work_day inner JOIN users on work_day.users_Id_Users = users.Id_Users inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;");
+		$statement->execute(array($shift_id));
+		$res = $statement->fetchAll();
+		foreach ($res as &$line) {
+			$email = $line["email"];
+			$id_pusher = $line["id_Users"];
+			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
+			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p></html>";
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message_mail, $headers);
+
+			$notification_text = $text;
+			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
+			$statement->execute(array($message, 0, $id_pusher));
+		}
+		 
+		$statement = $db->prepare("select email from users where users.Id_Users = ?");
+		$statement->execute(array($user_id));
+		$res = $statement->fetchAll();
+		foreach ($res as &$line) {
+			$email = $line["email"];
+			$id_pusher = $line["id_Users"];
+			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
+			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p></html>";
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message_mail, $headers);
+
+			$notification_text = $text;
+			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
+			$statement->execute(array($message, 0, $user_id));
+		}
+
+		$statement = $db->prepare("SELECT email ,users.Id_Users from work_day inner JOIN users on work_day.users_Id_Users = users.Id_Users inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner JOIN shifts on shifts.idshifts = shift_days.shifts_idshifts where shifts.festival_idfestival = ?;");
+		$statement->execute(array($festi_id));
+		$res = $statement->fetchAll();
+		foreach ($res as &$line) {
+			$email = $line["email"];
+			$id_pusher = $line["Id_Users"];
+			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
+			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p></html>";
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message_mail, $headers);
+
+			$notification_text = $text;
+			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
+			$statement->execute(array($message, 0, $id_pusher));
+		}
+	}
 	
 	else {
 		exit(json_encode(array(
@@ -2365,3 +2446,6 @@
 			'error_message' => "not a valid action"
 		)));
 	}
+
+
+	
