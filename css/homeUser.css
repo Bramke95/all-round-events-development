@@ -112,6 +112,8 @@ body {
 
 #language tr:nth-child(even){background-color: #f2f2f2;}
 
+#language tr:nth-child(odd){background-color: #F2F2E8;}
+
 #language tr:hover {background-color: #ddd;}
 
 #language th {

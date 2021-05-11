@@ -13,6 +13,7 @@ var selected_festival_presense = 0;
 var selected_shift_presense = 0;
 var festival_payout = -1;
 selected_workday_presense = 0;
+festi_days = 1;
 
 $(document).ready(function() {
     check_if_admin(autofill_festivals);
@@ -210,6 +211,7 @@ function add_user_search_result2(data){
 			$("#user_info").show();
 			
 					// click to insert data
+            $("#submit").off();
 			$("#submit").click(function() {
 				var user = $("#fname").val();
 				var date_of_birth = $("#dateofbirth").val();
@@ -878,13 +880,29 @@ function festival_shift_processing_ligth(data) {
             "id": coockie.ID,
             "hash": coockie.TOKEN,
             "festi_id": id
-        }, function(){});
+        }, show_shirts_dialog);
         });
 
         // change festival
     }
     $("#festival_list").fadeIn("fast");
 }
+function show_shirts_dialog(data){
+    $("#shirt_list").show();
+    $("#shirt_close").click(function(event){
+        $("#shirt_list").fadeOut(200); 
+    });
+    let shirt_html = ""
+    if(data.length < 1 || data.length == undefined) {
+        shirt_html = shirt_html + "<p>Niemand ingeschreven</p>";
+    }
+    for(x = 0; x < data.length; x++){
+        shirt_html = shirt_html + "<p>" + data[x].size + ": "+ data[x][0]+" Stuks</p>";
+    }
+    $("#size_holder").html(shirt_html);
+
+}
+
 //callback adding a shift 
 function shift_processing(data) {
     // add days

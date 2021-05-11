@@ -2304,7 +2304,7 @@
 		token_check($ID, $HASH, $db);
 
 		// everything is ok, save 		
-		$statement = $db->prepare('SELECT * FROM notifications where global=1 or user_id=? limit 10;');
+		$statement = $db->prepare('SELECT * FROM notifications where global=1 or user_id=? order by notifications.id DESC limit 10');
 		$statement->execute(array($ID));
 		$res = $statement->fetchAll();
 		if ($res){

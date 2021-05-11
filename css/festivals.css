@@ -3,6 +3,11 @@ html {
 	background-attachment: fixed;
 	background-position: center;
 }
+
+#festival_list {
+	height: 110%;
+}
+
 #top_menu {
 	height: 30px;
 }

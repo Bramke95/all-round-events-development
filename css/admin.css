@@ -109,6 +109,23 @@ nav a {
 	left: 32%;
 	box-shadow: 5px 10px 20px 0px;
 }
+#shirt_list {
+	display: none;
+}
+#shirt_list {
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: fixed;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;
+}
 
 #change_fesitvail_dialog{
 	z-index: 5;
@@ -385,7 +402,7 @@ nav li {
 	  font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
 	}
 	#top_menu {
-		height: 305px;
+		height: 340px;
 	}
 	#add_festit_init {
 		width:100%;
@@ -447,6 +464,16 @@ nav li {
 		margin: 2px !important;
 	}
 	#add_fesitvail {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
+	}
+	#shirt_list {
 		top: 0px;
 		left: 0px;
 		width: 98%;

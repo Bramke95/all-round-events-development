@@ -7,6 +7,10 @@ body {
 #title_box {
 
 }
+
+#festival_list {
+	height: 110%;
+}
 .change_shift2{
   background-color: red;
   color: white;
