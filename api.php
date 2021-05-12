@@ -1226,8 +1226,9 @@
 				'error_message' => "Not all fields where available, need: ID, HASH"
 			)));
 		}
+
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT festivals.status, shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
+		$statement = $db->prepare('SELECT festivals.status, festivals.name AS "festiname", shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
 		$statement->execute();
 		$counter = 0;
 		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
@@ -1240,7 +1241,6 @@
 			$statement2->execute(array($row["idshifts"]));
 			$res2 = $statement2->fetchAll();
 			$row["subscribed_final"] = $res2[0]["count(distinct users_Id_Users)"];
-			
 			
 			$res[$counter] = $row;
 			$counter++;			
@@ -2440,6 +2440,8 @@
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message, 0, $id_pusher));
 		}
+
+	exit(json_encode (json_decode ("{}")));
 	}
 		elseif ($action == "tshirts") {
 		// get the contenct from the api body

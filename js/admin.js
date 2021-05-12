@@ -126,7 +126,7 @@ $(document).ready(function() {
     }, festival_checkbox);
 
 function callback_messenger(data){
-    alert("Verzonden")
+    alert("Bericht Verzonen")
 }
 
 function messenger_listing() {
@@ -159,7 +159,7 @@ function shift_messenger_boxing(data){
     let festi_html = "<select id='shift_mes'>";
     festi_html = festi_html + "<option class='select_festi_option' id='-1'>Geen</option>";
     for (let x = 0; x < data.length; x++) {
-        festi_html = festi_html + "<option class='select_festi_option' id=" + data[x].idshifts + ">" + data[x].name + "</option>";
+        festi_html = festi_html + "<option class='select_festi_option' id=" + data[x].idshifts + ">" + data[x].festiname + " "+  data[x].name + "</option>";
     }
     festi_html = festi_html + "</select><div id='shift_select_placeholder'></div>";
     $("#shift_messenger").html(festi_html);
