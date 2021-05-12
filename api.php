@@ -6,9 +6,31 @@
 		// Following things can happend with the token check
 		// => The token is completely invalid and the api is returned with an error
 		// => The token gives full access and the functions returns true
+
+		if(is_null($id)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
+			)));
+		}
+		if(is_integer($id)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
+			)));
+		}
     	$statement = $db->prepare('SELECT HASH FROM users inner join hashess on hashess.users_Id_Users = users.Id_Users where Id_Users = ?');
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		if(!$res){
+				exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
+			)));
+		}
 		$token_db = $res["HASH"];
 		// check if the token excists 
 		if ($token_db != $token_user){
@@ -26,10 +48,30 @@
 		// does the same action as token_check but it also checks if the user is the admin, use this function for actions that need admin rights
 		// => The token is completely invalid and the api is returned with an error
 		// 
-
+		if(is_null($id)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
+			)));
+		}
+		if(is_integer($id)){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
+			)));
+		}
     	$statement = $db->prepare('SELECT HASH,Type FROM users inner join hashess on hashess.users_Id_Users = users.Id_Users where Id_Users = ?');
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		if(!$res){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "the request was made with an invalid token or a ID/Token mismatch"
+			)));
+		}
 		$token_db = $res["HASH"];
 		$admin = $res["Type"];
 		// check if the token excists 
