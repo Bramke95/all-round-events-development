@@ -1707,7 +1707,7 @@
 		foreach ($res as &$shift) {
 			$statement = $db->prepare('INSERT INTO work_day (reservation_type, shift_days_idshift_days, users_Id_Users) VALUES (?,?,?);');
 			$statement->execute(array($status, $shift["idshift_days"], $Id_Users));
-			$shift_info .= "<p>Van " . $shift["start_date"] . " tot " .  $shift["shift_end"] . " voor " . $shift["cost"] . "euro </p>" ;
+			$shift_info .= "<p>Van " . $shift["start_date"] . " tot " .  $shift["shift_end"] . " voor " . $shift["cost"] . " euro </p>" ;
 		}
 		
 		// mail the user!
@@ -1724,7 +1724,7 @@
 			$subject = 'All-Round Events: Registratie voor ' . $festival_name;
 			$message = '<html>
 							<p>Beste,</p>
-							<p>Je bent geregisteerd om deel temen aan ' . $festival_name . '. </br></p>
+							<p>Je bent geregisteerd om deel te nemen aan ' . $festival_name . '. </br></p>
 							<p> Je ben voor volgende shift geregisteerd:</p>
 							' . $shift_info .
 							"<p>We kijken uit naar een leuke en vlotte samenwerking!</p>
@@ -1733,8 +1733,10 @@
 							<p></p>
 							<p>Met vriendelijke groeten</p>
 							<p><small>
-								All-round Events VZW
-								Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+								All-round Events vzw </br>
+								Maatschappelijke zetel: </br>
+								Grote Baan 11B2 </br>
+								1673 Pepingen</small></p>" .
 						"</html>";
 			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
 			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .

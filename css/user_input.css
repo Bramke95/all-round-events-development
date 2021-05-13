@@ -4,10 +4,6 @@ html {
   background-position: center;
 }
 
-#main_wrapper {
-  margin-top: 40px;
-}
-
 #title_box {
 
 }
@@ -47,13 +43,14 @@ label {
 }
 
 input[type=submit] {
-  background-color: red;
+  background-color: green;
   color: white;
   padding: 12px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   float: right;
+  
 }
 
 /* Style the container */
