@@ -52,7 +52,7 @@ footer {
 }
 
 
-@media screen and (max-width: 95rem) {
+@media screen and (max-width: 70rem) {
 	#main_wrapper {
 		position: relative;
 		width: 95%;

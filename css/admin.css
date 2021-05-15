@@ -395,7 +395,7 @@ nav li {
 	display: none;
 }
 
-@media screen and (max-width: 95rem) {
+@media screen and (max-width: 70rem) {
 	body {
 	  padding: 1em;
 	  background: #e5e5e5;

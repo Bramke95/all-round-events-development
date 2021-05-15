@@ -146,18 +146,18 @@
 			else if (res.marital_state == 2){marital_state_name = "gescheiden";}
 			else {marital_state_name = "verweduwd";}
 
-			$("#name").text(res.name);
-			$("#date").text(input_date);
-			$("#gender").text(gender_name);
-			$("#address_1").text(res.adres_line_one);
-			$("#address_2").text(res.adres_line_two);
+			$("#name").text(res.name || "-");
+			$("#date").text(input_date || "-");
+			$("#gender").text(gender_name || "-");
+			$("#address_1").text(res.adres_line_one || "-");
+			$("#address_2").text(res.adres_line_two || "-");
 			$("#age").text(calculateAge(input_date));
-			$("#size").text(res.size);
-			$("#license").text(res.driver_license);
-			$("#nationality").text(res.nationality);
-			$("#email").text(res.email);
-			$("#tel").text(res.telephone);
-			$("#marital_state").text(marital_state_name);
+			$("#size").text(res.size || "-");
+			$("#license").text(res.driver_license || "-");
+			$("#nationality").text(res.nationality || "-");
+			$("#email").text(res.email || "-");
+			$("#tel").text(res.telephone || "-");
+			$("#marital_state").text(marital_state_name || "-");
 
 			$("#text").text(res.text);
 			

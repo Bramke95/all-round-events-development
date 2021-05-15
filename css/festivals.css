@@ -52,7 +52,7 @@ html {
 	margin: auto;
 	color: red;
 }
-@media screen and (max-width: 95rem) {
+@media screen and (max-width: 70rem) {
 	#top_menu {
 		height: 270px;
 	}

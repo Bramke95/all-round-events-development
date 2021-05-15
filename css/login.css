@@ -124,7 +124,7 @@ h2 {
   }
 }
 
-@media screen and (max-width: 95rem) {
+@media screen and (max-width: 70rem) {
 
   	#email_reset_pass {
 		top: 0px;

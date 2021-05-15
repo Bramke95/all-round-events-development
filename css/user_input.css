@@ -262,7 +262,7 @@ div.show-image input.delete {
   }
 }
 
-@media screen and (max-width: 95rem) {
+@media screen and (max-width: 70rem) {
 	
 	body {
 		padding: 0px;

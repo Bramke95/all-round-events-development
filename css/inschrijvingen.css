@@ -257,7 +257,7 @@ label {
 	border-radius: 6px;
 	padding: 3px;
 }
-@media screen and (max-width: 95rem) {
+@media screen and (max-width: 70rem) {
 	body {
 	  padding: 1em;
 
