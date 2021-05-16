@@ -8,26 +8,28 @@ body {
 #title_box {
 }
 #main_wrapper{
-	width: 94rem;
+	width: 95%;
 	margin-top: 30px;
 	height: 110%;
+	margin: 0 auto;
 }
 #front_picture {
 	float: left;
-	width: 30rem;
+	width: 30%;
 	margin-top: 15px;
 	height: 380px;
+	margin-right: 10px;
 
 }
 #front_picture img {
-	max-width : 29.5rem;
+	max-width : 100%;
 	max-height : 100%;
 	border: 2px solid indianred;
 
 }
 #main_info {
 	float: left;
-	width: 62.5rem;
+	width: 65%;
 	margin-right: 1rem;
 	background-color: white;
 	margin-top: 15px;
@@ -155,7 +157,7 @@ body {
 	}
 	
 	#main_wrapper {
-		width : 100%;
+		width : 98%;
 		height: auto;
 		margin-top: 10px;
 	}
@@ -213,6 +215,7 @@ body {
 	height: auto;
 	float: left;
 	width: 100%;
+	margin: 7px;
 	}
 	#vl {
 		display: none;

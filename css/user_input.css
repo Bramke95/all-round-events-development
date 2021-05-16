@@ -92,10 +92,6 @@ input[type=submit] {
 }
 
 /* custom styles */
-body {
-  padding: 4em;
-
-}
 label {
   display: block;
 }
@@ -186,11 +182,11 @@ img {
   border: 2px solid red;
   border-radius: 3px;
   padding: 5px;
-  width: 250px;
+  height: 95%
 }
 
 input[type=file] {
-  width: 310;
+  width: 100%;
 }
 
 #picture_placeholder {
@@ -231,6 +227,10 @@ div.show-image input.delete {
 #picture_holder {
   background-color: #f2f2f2;
   border-radius: 5px;
+  padding-bottom: 10px;
+}
+#picture_holder h2 {
+  margin: 10px;
 }
 #form_img {
   margin-left: 10px;
@@ -252,6 +252,12 @@ div.show-image input.delete {
   border-radius: 5px;
   margin: 5px;
 }
+
+  #main_wrapper {
+    width: 95%;
+    margin: 0 auto;
+    padding-bottom: 100px;
+  }
 
 
 /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
@@ -277,13 +283,16 @@ div.show-image input.delete {
 		width : 100%;
 		height: auto;
 		margin-top: 10px;
+    margin: 0 auto;
+    width: 95%;
+    height: 150%;
 	}
 	
 	div.show-image input {
 		display: block;
 	}
 	div.show-image {
-		margin: 0;
+		margin: 10px;
 		position: relative;
 		float: none;
 	}

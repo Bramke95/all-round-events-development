@@ -9,7 +9,10 @@ body {
 }
 
 #festival_list {
-	height: 135%;
+	padding-bottom: 200px;
+	margin: 0 auto;
+	width: 95%;
+
 }
 .change_shift2{
   background-color: red;

@@ -205,7 +205,7 @@ function festival_shift_processing(data){
 		$("#festival_list").append("<div id=0 class='festi' ><p style='text-align:center'>Geen festivals actief, kom op een later moment terug!</p></div>");
 	}
 	for (let x = 0; x < data.length; x++){
-		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p>"+ data[x].date +"</p><p style='width:60%'>"+ data[x].details +"</p></div>");
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p style='width:60%'>"+ data[x].details +"</p></div>");
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 	}
 	$("#festival_list").fadeIn("fast");

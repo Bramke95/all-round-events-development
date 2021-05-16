@@ -5,7 +5,9 @@ html {
 }
 
 #festival_list {
-	height: 110%;
+	width: 90%;
+	margin: 0 auto;
+	padding-bottom: 150px;
 }
 
 #top_menu {
@@ -31,7 +33,7 @@ html {
 	background-color: blanchedalmond;
 }
 .festi2 p {
-	margin-right: 15px;
+	margin-right: 32px;
 }
 .festi_date {
 	font-size: 18px;
@@ -63,7 +65,7 @@ html {
 		width: auto;
 		display: block;
 		width: 80%;
-		margin: 0 auto;
+		margin: 5 auto;
 	}
 	.festi2 p {
 		width: auto !important;

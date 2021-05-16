@@ -340,10 +340,15 @@ function getCookie(name) {
         day = '' + d.getDate(),
         year = d.getFullYear();
 
+        houre = d.getHours();
+        minutes = d.getMinutes();
+        seconds = "00";
+
+
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
 
-    return [year, month, day].join('-');
+    return [year, month, day].join('-') + " " + [houre, minutes, seconds].join(':');
     }
 
 // function that makes api calles
