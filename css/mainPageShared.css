@@ -67,9 +67,10 @@ nav a:hover {
 #bottom {
 	position: fixed;
 	top: 95%;
+	left: 0px;
 	text-align: center;
 	height: 3.5rem;
-	width: 86%;
+	width: 100%;
 	margin: 0 auto;
 	background-color: gray;
 	text-decoration: none;

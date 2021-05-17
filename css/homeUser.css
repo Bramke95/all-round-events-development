@@ -12,6 +12,7 @@ body {
 	margin-top: 30px;
 	height: 110%;
 	margin: 0 auto;
+	padding-bottom: 10px;
 }
 #front_picture {
 	float: left;
@@ -33,9 +34,9 @@ body {
 	margin-right: 1rem;
 	background-color: white;
 	margin-top: 15px;
-	height: auto;
 	border-radius: 5px;
 	border: 2px solid indianred;
+	margin-bottom: 150px;
 
 }
 #main_info {
@@ -157,8 +158,7 @@ body {
 	}
 	
 	#main_wrapper {
-		width : 98%;
-		height: auto;
+		width : 95%;
 		margin-top: 10px;
 	}
 	

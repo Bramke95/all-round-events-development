@@ -23,8 +23,8 @@ html {
 	position: relative;
 	width: 95%;
 	margin-top: 30px;
-	height: 100%;
 	margin: 5 auto;
+	padding-bottom: 150px;
 }
 
 #picture_placeholder{
@@ -42,7 +42,6 @@ footer {
 	margin-top: 10px;
 	border : solid 2px;
 	border-radius: 5px;
-	float: left;
 	position: relative;
 	background-color: #f1f1f1;
 	height: auto;
