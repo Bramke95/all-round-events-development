@@ -25,6 +25,19 @@ function load_festivals_shifts(){
 	
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active" , "festi_id":"invalid"}, festival_shift_processing);
+	api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, check_user_data)
+}
+function check_user_data(res){
+	if (res == "ERROR"){
+		alert("Communication to the server failed");
+	}
+	if (res.error_type == 4){
+		window.location.href = "login.html";
+	}
+	if (res.error_type == 8){
+		alert("Je kan jezelf niet inschrijven zonder je persoonlijke gegevens in te vullen!")
+		window.location.href = "user_input.html";
+	}
 }
 
 // function that gets the cookie for the user ID and the TOKEN that are used to do API calls 

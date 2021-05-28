@@ -66,9 +66,6 @@
 			window.location.href = "login.html";
 		}
 		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback)
-		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
-		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
-		api("get_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_expierence_callback)
 		api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)
 	}
 

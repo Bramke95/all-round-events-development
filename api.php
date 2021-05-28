@@ -1664,6 +1664,19 @@
 			$overrule = true;
 		}
 		token_check($ID, $HASH, $db);
+
+		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
+		$statement->execute(array($ID));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+
+		if (!$res){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 8,
+				'errpr_message' => "no info found, fill in user data",
+			)));
+		}
+
 		
 		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
 		$statement->execute(array($Id_Users, $shift_id ));
@@ -1739,7 +1752,7 @@
 								1673 Pepingen</small></p>" .
 						"</html>";
 			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
-			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message, $headers);
@@ -1763,7 +1776,7 @@
 								Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
 						"</html>";
 			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
-			'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message, $headers);
@@ -1838,7 +1851,7 @@
 									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
 							"</html>";
 				$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
-				'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				mail($email, $subject, $message, $headers);
@@ -1847,13 +1860,13 @@
 		}
 		else {
 			admin_check($ID, $HASH, $db);
-				$notification_text = 'Je zal jammer genoeg niet kunnen deelnamen aan  ' . $festival_name . ' in shift ' . $shift_info . '. Er komen snel andere evenementen! Hou je app in de gaten!';
+				$notification_text = 'Je zal jammer genoeg niet kunnen deelnemen aan  ' . $festival_name . ' in shift ' . $shift_info . '. Er komen snel andere evenementen! Hou je app in de gaten!';
 				$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
 				$statement->execute(array($notification_text, 0, $Id_Users));
 				$subject = 'All-Round Events: Update voor  ' . $festival_name;
 				$message = '<html>
 								<p>Beste,</p>
-								<p>Helaas zal je niet kunnen deelnamen aan  ' . $festival_name . '. </br></p>
+								<p>Helaas zal je niet kunnen deelnemen aan  ' . $festival_name . '. </br></p>
 								<p> Je had jezelf opgegeven voor volgende dagen: :</p>
 								' . $shift_info .
 								"<p></p>
@@ -1865,7 +1878,7 @@
 									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
 							"</html>";
 				$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
-				'Reply-To: inschrijvingen@all-round-events.be' . "\r\n" .
+				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				mail($email, $subject, $message, $headers);
@@ -2035,7 +2048,7 @@
 									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
-				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				mail($email, $subject, $message, $headers);
@@ -2068,7 +2081,7 @@
 									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
-				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				mail($email, $subject, $message, $headers);
@@ -2099,7 +2112,7 @@
 									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
-				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				mail($email, $subject, $message, $headers);
@@ -2116,7 +2129,7 @@
 			$res = $statement->fetchAll();
 			foreach ($res as &$line) {
 				$email = $line["email"];
-				$subject = 'All-Round Events: ' . $festival_name . '  is gecanceld';
+				$subject = 'All-Round Events: ' . $festival_name . ' gaat niet door.';
 				$message = '<html>
 								<p>Beste,</p>
 								<p>Jammer genoeg zal  ' . $festival_name . 'niet doorgaan dit jaar. Onze excuses voor het ongemak! </br></p>
@@ -2130,7 +2143,7 @@
 									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
-				'Reply-To: aankondigen@all-round-events.be' . "\r\n" .
+				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				mail($email, $subject, $message, $headers);
@@ -2393,7 +2406,7 @@
 							Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
 					</html>';
 		$headers = 'From: info@all-round-events.be' . "\r\n" .
-		'Reply-To: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-roundevents.be ' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
 		mail($email, $subject, $message, $headers);

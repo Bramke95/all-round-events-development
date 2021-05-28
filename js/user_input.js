@@ -333,6 +333,44 @@
 			var country = $("#country").val();
 			var text = $("#text").val();
 			var marital_state = $("#marital_state").val();
+			if(user.length < 1){
+				alert("Je hebt geen naam ingevuld.");
+				return;
+			}
+			if(date_of_birth.length < 1){
+				alert("Je geboortedatum is ongeldig.");
+				return;
+			}
+			if(gender == null){
+				alert("Je hebt geen geslacht opgegeven.");
+				return;
+			}
+			if(address_1.length < 1){
+				alert("Je hebt geen adres opgegeven");
+				return;
+			}
+			if(address_2.length < 1){
+				alert("Je hebt geen geldig rekeningnr opgegeven");
+				return;
+			}
+			if(telephone.length < 1){
+				alert("Je hebt geen geldig telefoon nr opgegeven.");
+				return;
+			}
+			if(driving_license.length < 1){
+				alert("Je hebt geen geldig rijksregister opgegeven.");
+				return;
+			}
+			if(size == null){
+				alert("Je hebt geldige T-shirt maat opgegeven.");
+				return;
+			}
+			if(country == null){
+				alert("Gelieve je nationalaiteit te controleren. ");
+				return;
+			}
+
+
 			insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size);
 		});
 		$("#submit_pass").click(function(event) {
