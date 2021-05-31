@@ -134,6 +134,8 @@
 			var input_date = formatDate(date);
 			var gender_name = "INVALID";
 			var marital_state_name = "INVALID";
+			var employment = "INVALID";
+
 			if (res.Gender == "0"){gender_name = "man";}
 			else if (res.Gender == "1"){gender_name = "vrouw";}
 			else {gender_name = "anders";}
@@ -142,6 +144,11 @@
 			else if (res.marital_state == 1){marital_state_name = "gehuwd";}
 			else if (res.marital_state == 2){marital_state_name = "gescheiden";}
 			else {marital_state_name = "verweduwd";}
+
+			if (res.employment == 0){employment = "Student";}
+			else if (res.employment == 1){employment = "Bediende";}
+			else if (res.employment == 2){employment = "Werkloos";}
+			else {employment = "andere";}
 
 			$("#name").text(res.name || "-");
 			$("#date").text(input_date || "-");
@@ -155,6 +162,7 @@
 			$("#email").text(res.email || "-");
 			$("#tel").text(res.telephone || "-");
 			$("#marital_state").text(marital_state_name || "-");
+			$("#employment").text(employment || "-");
 
 			$("#text").text(res.text);
 			

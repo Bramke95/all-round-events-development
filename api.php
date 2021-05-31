@@ -320,6 +320,7 @@
 			$date_of_birth = $xml["date_of_birth"];
 			$gender = $xml["Gender"];
 			$size = $xml["size"];
+			$employment = $xml["employment"];
 			$address_line_one = $xml["adres_line_one"];
 			$adress_line_two = $xml["adres_line_two"];
 			$driver_license = $xml["driver_license"];
@@ -343,12 +344,12 @@
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		//  put everything in the database 
 		if(!$res){
-		$statement = $db->prepare('INSERT INTO users_data (name,size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-				$statement->execute(array($name,$size,  $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
+		$statement = $db->prepare('INSERT INTO users_data (name,size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
+				$statement->execute(array($name,$size,  $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $ID)); 
 		}
 		else {
-		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
-		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $ID)); 
+		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, employment=? where users_Id_Users=?');
+		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $ID)); 
 		}
 		// end the api
 		exit(json_encode(array(
@@ -379,6 +380,7 @@
 			$nationality = $xml["nationality"];
 			$telephone = $xml["telephone"];
 			$marital_state = $xml["marital_state"];
+			$employment = $xml["employment"];
 			$text = $xml["text"];
 
 		} catch (Exception $e) {
@@ -397,11 +399,11 @@
 		//  put everything in the database 
 		if(!$res){
 		$statement = $db->prepare('INSERT INTO users_data (name, size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-				$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
+				$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $user_id)); 
 		}
 		else {
-		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=? where users_Id_Users=?');
-		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $user_id)); 
+		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, employment=? where users_Id_Users=?');
+		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $user_id)); 
 		}
 		// end the api
 		exit(json_encode(array(
@@ -452,6 +454,7 @@
 			'adres_line_one' => $res['adres_line_one'],
 			'adres_line_two' => $res['adres_line_two'],
 			'driver_license' => $res['driver_license'],
+			'employment' => $res['employment'],
 			'size' => $res['size'],
 			'nationality' => $res['nationality'],
 			'telephone' => $res['telephone'],
@@ -2258,6 +2261,44 @@
 		$statement->execute(array($payout_type_id, $shift_id, $user_id));
 		$res = $statement->fetchAll();
 		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "pdf_unemployment") {
+		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
+		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
+		$shift_day = isset($_GET['shift']) ? $_GET['shift'] : '';
+		token_check($ID, $HASH, $db);
+		require('fpdf.php');
+		$pdf = new FPDF('P','mm','A4');
+		$pdf->SetTitle("werkloosheidsatest");
+		$pdf->AddPage();
+		$pdf->SetFont('Arial','',14);
+		$pdf->SetXY(20, 10);
+		$pdf->Image("https://all-round-events.be/img/rva.jpeg", $pdf->GetX(), $pdf->GetY(), 0, 30);
+		$pdf->SetXY(60, 10);
+		$pdf->SetTextColor(190,190,190);
+		$pdf->Write(5, "Aangifte van vrijwilligerswerk voor een ");
+		$pdf->SetXY(70, 15);
+		$pdf->Write(5, "niet-commerciele organisatie");
+		$pdf->SetXY(85, 20);
+		$pdf->SetTextColor(0,0,0);
+		$pdf->SetFont('Arial','',7);
+		$pdf->Write(5, "Art. 45bis KB 25.11.1991");
+		$pdf->SetFont('Arial','',14);
+		$pdf->SetXY(60, 25);
+		$pdf->Write(5, "Deel I: in te vullen door de werkloze of de ");
+		$pdf->SetXY(70, 30);
+		$pdf->Write(5, "werkloze met bedrijfstoeslag");
+		$pdf->SetXY(160, 10);
+		$pdf->Rect(160, 10, 40, 30);
+		$pdf->SetFont('Arial','',10);
+		$pdf->SetXY(168, 13);
+		$pdf->SetTextColor(190,190,190);
+		$pdf->Write(5, "Datumstempel");
+		$pdf->SetXY(163, 16);
+		$pdf->Write(5, "uitbetalingsinstelling");
+		$pdf->SetTextColor(0,0,0);
+		$pdf->Line(10, 45, 200, 45);
+		$pdf->Output();
 	}
 	
 	elseif ($action == "pdf_listing") {

@@ -56,7 +56,7 @@
 	};
 
 	// makes a JSON out of the data en makes a api call to insert it in the DB
-	function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state, size){
+	function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state, size, employment){
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 		body = {
 			"id" 	: coockie.ID,
@@ -68,6 +68,7 @@
 			"adres_line_one" : address_1,
 			"adres_line_two" : address_2,
 			"driver_license" : driver_license,
+			"employment" : employment,
 			"nationality" : country,
 			"telephone" : telephone,
 			"marital_state" : marital_state,
@@ -128,6 +129,7 @@
 			$("#address_1").val(res.adres_line_one);
 			$("#address_2").val(res.adres_line_two);
 			$("#tel").val(res.telephone);
+			$("#employment").val(res.employment);
 			$("#size2").val(res.size);
 			$("#license").val(res.driver_license);
 			$("#country").val(res.nationality);
@@ -333,6 +335,9 @@
 			var country = $("#country").val();
 			var text = $("#text").val();
 			var marital_state = $("#marital_state").val();
+			var employment = $("#employment").val();
+
+			
 			if(user.length < 1){
 				alert("Je hebt geen naam ingevuld.");
 				return;
@@ -369,9 +374,13 @@
 				alert("Gelieve je nationalaiteit te controleren. ");
 				return;
 			}
+			if(employment == null){
+				alert("Gelieve je tewerkstelling te controleren. ");
+				return;
+			}
 
 
-			insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size);
+			insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size, employment);
 		});
 		$("#submit_pass").click(function(event) {
 			let pass =  $("#pass_textfield").val();
