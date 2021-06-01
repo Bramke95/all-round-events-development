@@ -2278,7 +2278,7 @@
 		$statement->execute(array($ID));
 		$user = $statement->fetch(PDO::FETCH_ASSOC);
 
-		$statement = $db->prepare('SELECT * FROM festivals inner join shifts on festivals.idfestival=shifts.festival_idfestival WHERE shifts.idshifts = ?;');
+		$statement = $db->prepare('SELECT festivals.name FROM festivals inner join shifts on festivals.idfestival=shifts.festival_idfestival WHERE shifts.idshifts = ?;');
 		$statement->execute(array($shift));
 		$festival = $statement->fetch(PDO::FETCH_ASSOC);
 		

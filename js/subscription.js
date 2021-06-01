@@ -257,8 +257,9 @@ function shift_processing(data){
 				if($(this).hasClass("blocked")){return}
 				if(unemployment){
 					if (!confirm("Aandacht! Omdat je werkloos bent, moet je voor elk evenement een toelating krijgen van de VDAB. U vindt dit document per dienst op deze pagina. Schrijf u dus alleen in als u dit document heeft ingevuld en bij de juiste instantie heeft ingeleverd. Anuleer als u uw inschrijving niet wilt vervoledigen! Klik OK als u de inschrijving wilt voltooien.")){
-						return;
+						
 					}
+					window.open("https://www.vdab.be/magezine/06-2017/vrijwilligerswerk");
 				}		
 
 				var open_id = event.target.attributes.id.value;
