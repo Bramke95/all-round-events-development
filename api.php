@@ -1733,7 +1733,7 @@
 		$email = $res[0]['email'];
 		
 		if ($status == 2){
-			$notification_text = 'Ja bent nu geregistreerd voor ' . $festival_name . '. Wacht je definitieve inschrijving af.';
+			$notification_text = 'Je bent nu geregistreerd voor ' . $festival_name . '. Wacht je definitieve inschrijving af.';
 			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
 			$statement->execute(array($notification_text, 0, $Id_Users));
 
@@ -2267,7 +2267,7 @@
 	elseif ($action == "pdf_unemployment") {
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
-		$shift_day = isset($_GET['shift']) ? $_GET['shift'] : '';
+		$shift = isset($_GET['shift']) ? $_GET['shift'] : '';
 		token_check($ID, $HASH, $db);
 
 		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
@@ -2277,6 +2277,18 @@
 		$statement = $db->prepare('SELECT * FROM users WHERE Id_Users = ?');
 		$statement->execute(array($ID));
 		$user = $statement->fetch(PDO::FETCH_ASSOC);
+
+		$statement = $db->prepare('SELECT * FROM festivals inner join shifts on festivals.idfestival=shifts.festival_idfestival WHERE shifts.idshifts = ?;');
+		$statement->execute(array($shift));
+		$festival = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT * FROM `shift_days` WHERE shift_days.shifts_idshifts = ? ORDER BY shift_days.start_date ASC  LIMIT 1;');
+		$statement->execute(array($shift));
+		$start_day = $statement->fetch(PDO::FETCH_ASSOC);
+
+		$statement = $db->prepare('SELECT * FROM `shift_days` WHERE shift_days.shifts_idshifts = ? ORDER BY shift_days.start_date DESC  LIMIT 1;');
+		$statement->execute(array($shift));
+		$end_day = $statement->fetch(PDO::FETCH_ASSOC);
 
 		require('fpdf.php');
 		$pdf = new FPDF('P','mm','A4');
@@ -2384,7 +2396,7 @@
 		$pdf->Cell(3, 3, 4, 1, 0); // checkbox
 		$pdf->SetFont('Arial','',10);
 		$pdf->SetXY(80, 150);
-		$pdf->Write(5, "tijdens de periode van 08/05/2020 tot 10/05/2020");
+		$pdf->Write(5, "tijdens de periode van " . $start_day["start_date"] . " tot " . $end_day["shift_end"]);
 		$pdf->SetXY(76, 156);
 		$pdf->SetFont('ZapfDingbats','', 10);
 		$pdf->Cell(3, 3, "", 1, 0);
@@ -2495,14 +2507,14 @@
 		$pdf->SetFont('Arial','',10);
 		$pdf->SetXY(95, 35);
 		$pdf->Write(5, "neen.");
-		$pdf->SetXY(91, 40);
+		$pdf->SetXY(91, 41);
 		$pdf->SetFont('ZapfDingbats','', 10);
 		$pdf->Cell(3, 3, 4, 1, 0);
 		$pdf->SetFont('Arial','',10);
 		$pdf->SetXY(95, 40);
 		$pdf->Write(5, "Ja.");
 		$pdf->SetXY(95, 45);
-		$pdf->Write(5, "Bedrag 30EUR per");
+		$pdf->Write(5, "Bedrag ". $start_day["cost"] ." Euro per");
 		$pdf->SetXY(128, 46);
 		$pdf->SetFont('ZapfDingbats','', 10);
 		$pdf->Cell(3, 3, "", 1, 0);
@@ -2596,6 +2608,8 @@
 		$pdf->SetFont('Arial','',10);
 		$pdf->SetXY(25, 15);
 		$pdf->Write(5, "Rijksregisternr. (INSZ)");
+		$pdf->SetXY(70, 15);
+		$pdf->Write(5, $user_data["driver_license"]);
 		$pdf->SetFont('Arial','B',14);
 		$pdf->SetXY(60, 30);
 		$pdf->Write(5, "Deel II : in te vullen door de organisatie");
@@ -2707,7 +2721,7 @@
 		$pdf->Write(5, "toegekend worden (artikel 13 van de");
 		$pdf->SetXY(25, 196);
 		$pdf->Write(5, "wet van 3.07.2005) ");
-		$pdf->SetXY(25, 1);
+		$pdf->SetXY(25, 200);
 		$pdf->Write(5, "Om cumuleerbaar te zijn met");
 		$pdf->SetXY(25, 205);
 		$pdf->Write(5, "werkloosheidsuitkeringen mag deze");
@@ -2755,7 +2769,7 @@
 		$pdf->Write(5, "voor de diensten:");
 		$pdf->SetXY(90, 219);
 		$pdf->SetFont('Arial','B',10);
-		$pdf->Write(5, "Vrijwilligersvergoeding 30 euro");
+		$pdf->Write(5, "Vrijwilligersvergoeding van ". $start_day["cost"] ." Euro");
 		$pdf->SetFont('Arial','',10);
 		$pdf->SetXY(90, 224);
 		$pdf->Write(5, "Dit vrijwilligerswerk wordt verricht:");
@@ -2773,14 +2787,39 @@
 		$pdf->Write(5, "op een ander adres, nanelijk: ");
 		$pdf->SetXY(95, 240);
 		$pdf->SetFont('Arial','B',10);
-		$pdf->Write(5, "Tomorrowland W1");
+		$pdf->Write(5, $festival["name"]);
 		$pdf->SetFont('Arial','',10);
 
 		$pdf->SetFont('Arial','',10);
 		$pdf->SetXY(25, 270);
 		$pdf->Write(5, "Versie 28.12.2016/833.20.042");
 		$pdf->SetXY(100, 270);
-		$pdf->Write(5, "2/4");
+		$pdf->Write(5, "3/4");
+		$pdf->SetXY(140, 270);
+		$pdf->Write(5, "FORMULIER C45B");
+
+		$pdf->AddPage();
+
+		$pdf->SetFont('Arial','',10);
+		$pdf->SetXY(25, 15);
+		$pdf->Write(5, "Rijksregisternr. (INSZ)");
+		$pdf->SetXY(70, 15);
+		$pdf->Write(5, $user_data["driver_license"]);
+		$pdf->Line(10, 30, 200, 30);
+		$pdf->SetXY(25, 40);
+		$pdf->SetFont('Arial','B',10);
+		$pdf->Write(5, "Handtekening");
+		$pdf->SetXY(85, 90);
+		$pdf->Write(5, "Datum: ". date("d-m-Y") ."    Handtekening verantwoordelijke     Stempel");
+		$pdf->SetXY(85, 100);
+		$pdf->Write(5, "Contactpersoon:     Bart Tops");
+		$pdf->SetXY(85, 110);
+		$pdf->Write(5, "Telefoon:     0471 01 34 07");
+		$pdf->SetFont('Arial','',10);
+		$pdf->SetXY(25, 270);
+		$pdf->Write(5, "Versie 28.12.2016/833.20.042");
+		$pdf->SetXY(100, 270);
+		$pdf->Write(5, "4/4");
 		$pdf->SetXY(140, 270);
 		$pdf->Write(5, "FORMULIER C45B");
 
