@@ -3066,7 +3066,7 @@
 
 	exit(json_encode (json_decode ("{}")));
 	}
-		elseif ($action == "tshirts") {
+	elseif ($action == "tshirts") {
 		// get the contenct from the api body
 		//
 		$xml_dump = file_get_contents('php://input');
@@ -3095,8 +3095,131 @@
 		}
 		exit(json_encode (json_decode ("{}")));
 	}
+	elseif ($action == "add_location") {
+		// get the contenct from the api body
+		//
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_id = $xml["shift_id"];
+			$location = $xml["location"];
+			$appointment_time = $xml["appointment_time"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('INSERT INTO locations (location, appointment_time, shift_id) VALUES (?,?,?);');
+		$statement->execute(array($location, $appointment_time, $shift_id));
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "change_location") {
+		// get the contenct from the api body
+		//
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_id = $xml["shift_id"];
+			$location = $xml["location"];
+			$appointment_time = $xml["appointment_time"];
+			$location_id = $xml["location_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('UPDATE locations SET location = ?, appointment_time = ?, shift_id = ? WHERE location_id = ?;');
+		$statement->execute(array($location, $appointment_time, $shift_id, $location_id));
+		exit(json_encode (json_decode ("{}")));
+	}
 
-	
+	elseif ($action == "delete_location") {
+		// get the contenct from the api body
+		//
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('DELETE FROM locations WHERE location_id=?;');
+		$statement->execute(array($location_id));
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "add_external_appointment") {
+		// get the contenct from the api body
+		//
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+			$location = $xml["location"];
+			$user_id = $xml["user_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+
+		if ($ID == $user_id){
+			token_check($ID, $HASH, $db);
+		}
+		else {
+			admin_check($ID, $HASH, $db);
+		}
+		// check if festival is open
+		$statement = $db->prepare('INSERT INTO external_appointment_id (location_id, user_id) VALUES (?,?);');
+		$statement->execute(array($location, $user_id));
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "change_external_appointment") {
+		// get the contenct from the api body
+		//
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id_old = $xml["old_location_id"];
+			$location = $xml["location"];
+			$user_id = $xml["user_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+
+		if ($ID == $user_id){
+			token_check($ID, $HASH, $db);
+		}
+		else {
+			admin_check($ID, $HASH, $db);
+		}
+		// check if festival is open
+		$statement = $db->prepare('update external_appointment_id set location_id = ? where location_id = ? and user_id=?;');
+		$statement->execute(array($location, $user_id));
+		exit(json_encode (json_decode ("{}")));
+	}
+
 	else {
 		exit(json_encode(array(
 			'status' => 404,
