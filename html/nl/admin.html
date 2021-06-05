@@ -60,7 +60,7 @@
 				<label for="fname">Evenement beschrijving: </label>
 			</div>
 			<div class="col-75">
-				<textarea id="festi_discription" name="subject" placeholder="Bescrijving.." style="resize: none; height:200px"></textarea>
+				<textarea id="festi_discription" name="subject" placeholder="Beschrijving.." style="resize: none; height:200px"></textarea>
 			</div>
 		</div>
 		
@@ -115,7 +115,7 @@
 				<label for="fname">Evenement beschrijving: </label>
 			</div>
 			<div class="col-75">
-				<textarea id="festi_discription_change" name="subject" placeholder="Bescrijving.." style="resize: none; height:200px"></textarea>
+				<textarea id="festi_discription_change" name="subject" placeholder="Beschrijving.." style="resize: none; height:200px"></textarea>
 			</div>
 		</div>
 		
@@ -154,7 +154,7 @@
 				<label for="fname">Shift beschrijving: </label>
 			</div>
 			<div class="col-75">
-				<input type="text" id="shift_details" name="festi_name" placeholder="Bescrijving">
+				<input type="text" id="shift_details" name="festi_name" placeholder="Beschrijving">
 			</div>
 		</div>
 		
@@ -194,7 +194,7 @@
 	</div>
 	
 	<div id='change_shift'>
-	<h1>Voeg een shift toe: </h1>
+	<h1>Verander een shift toe: </h1>
 		<div class="row">
 			<div class="col-25">
 				<label for="fname">Shift name naam: </label>
@@ -209,7 +209,7 @@
 				<label for="fname">Shift beschrijving: </label>
 			</div>
 			<div class="col-75">
-				<input type="text" id="shift_details_change" name="festi_name" placeholder="Bescrijving">
+				<input type="text" id="shift_details_change" name="festi_name" placeholder="Beschrijving">
 			</div>
 		</div>
 		
@@ -282,6 +282,35 @@
 		<div id='control_add_user'>
 			<input type="submit" id="add_shift_day_start" name="add" value="Dag toevoegen" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;">
 			<input type="submit" id="add_shift_day_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
+			
+		</div>
+	</div>
+
+	<div id='add_shift_external'>
+	<h1>Voeg een externe afspraak locatie: </h1>
+	
+		<div class="row">
+			<div class="col-25">
+		        <label for="beginuur">Uur/datum van afspraak:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="datetime-local" name="startuur" id="location_time">
+		      </div>
+		</div>
+		
+		<div class="row">
+			<div class="col-25">
+				<label for="fname">Locatie: </label>
+			</div>
+			<div class="col-75">
+				<input type="text" id="external_location_info" name="geld" placeholder="">
+			</div>
+		</div>
+		
+		
+		<div id='control_add_user'>
+			<input type="submit" id="add_shift_external_start" name="add" value="Externe afspraak toevoegen" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;">
+			<input type="submit" id="add_shift_external_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
 			
 		</div>
 	</div>
@@ -493,13 +522,15 @@
 
 	<div id="messenger">
 
+		<label for="subject">Festivals:</label>
+		<div id="festival_messenger">
+		</div>
+
 		<label for="subject">Shifts: </label>
 		<div id="shift_messenger">
 		</div>
 
-		<label for="subject">Festivals:</label>
-		<div id="festival_messenger">
-		</div>
+
 
 		<label for="subject">Ondewerp:</label>
 		<textarea id="text_subject_messenger" name="subject" placeholder="" style="height:35px"></textarea>

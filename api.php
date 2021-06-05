@@ -1238,7 +1238,7 @@
 		$statement = $db->prepare('INSERT INTO shifts (name, datails, length, people_needed, spare_needed, festival_idfestival) VALUES (?,?,?,?,?,?)');
 		$statement->execute(array($name ,$discription,$length, $needed, $reserve,  $festi_id));
 		
-		$statement = $db->prepare('SELECT shifts.name,shifts.details,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
+		$statement = $db->prepare('SELECT shifts.name,shifts.details,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6 or festivals.status != 7;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 
@@ -1273,7 +1273,7 @@
 		}
 
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT festivals.status, festivals.name AS "festiname", shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6;');
+		$statement = $db->prepare('SELECT festivals.status, festivals.name AS "festiname", shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6 and festivals.status != 7;');
 		$statement->execute();
 		$counter = 0;
 		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
@@ -1286,6 +1286,12 @@
 			$statement2->execute(array($row["idshifts"]));
 			$res2 = $statement2->fetchAll();
 			$row["subscribed_final"] = $res2[0]["count(distinct users_Id_Users)"];
+
+
+			$statement3 = $db->prepare('select * from shift_days where 	shifts_idshifts=?');
+			$statement3->execute(array($row["idshifts"]));
+			$res3 = $statement3->fetchAll();
+			$row["work_days"] = count($res3); 
 			
 			$res[$counter] = $row;
 			$counter++;			
@@ -1749,11 +1755,13 @@
 							<p></p>
 							<p>Met vriendelijke groeten</p>
 							<p><small>
-								All-round Events vzw </br>
-								Maatschappelijke zetel: </br>
-								Grote Baan 11B2 </br>
-								1673 Pepingen</small></p>" .
-						"</html>";
+								All Round Events VZW
+								Meester Van Der Borghtstraat 10
+								2580 Putte
+								BTW: BE 0886 674 723
+								IBAN: BE68 7310 4460 6534
+								RPR Mechelen" .
+						"</small></html>";
 			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
@@ -1775,8 +1783,12 @@
 							<p></p>
 							<p>Met vriendelijke groeten</p>
 							<p><small>
-								All-round Events VZW
-								Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+								All Round Events VZW
+								Meester Van Der Borghtstraat 10
+								2580 Putte
+								BTW: BE 0886 674 723
+								IBAN: BE68 7310 4460 6534
+								RPR Mechelen</small></p>" .
 						"</html>";
 			$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
@@ -1850,8 +1862,12 @@
 								<p></p>
 								<p>Met vriendelijke groeten</p>
 								<p><small>
-									All-round Events VZW
-									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+									All Round Events VZW
+									Meester Van Der Borghtstraat 10
+									2580 Putte
+									BTW: BE 0886 674 723
+									IBAN: BE68 7310 4460 6534
+									RPR Mechelen</small></p>" .
 							"</html>";
 				$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
@@ -1877,8 +1893,12 @@
 								<p></p>
 								<p>Met vriendelijke groeten</p>
 								<p><small>
-									All-round Events VZW
-									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" .
+									All Round Events VZW
+									Meester Van Der Borghtstraat 10
+									2580 Putte
+									BTW: BE 0886 674 723
+									IBAN: BE68 7310 4460 6534
+									RPR Mechelen</small></p>" .
 							"</html>";
 				$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
@@ -2047,8 +2067,12 @@
 								<p>Opgelet, registeren betekent niet dat je ingeschreven bent. Je zal zo snel mogelijk een mail ontvangen met het resultaat van je registratie! </p>
 								<p>Veel succes en hopelijk tot snel</p>
 								<p><small>
-									All-round Events VZW
-									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+									All Round Events VZW
+									Meester Van Der Borghtstraat 10
+									2580 Putte
+									BTW: BE 0886 674 723
+									IBAN: BE68 7310 4460 6534
+									RPR Mechelen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -2080,8 +2104,12 @@
 								<p> </p>
 								<p>Veel succes en hopelijk tot snel</p>
 								<p><small>
-									All-round Events VZW
-									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+									All Round Events VZW
+									Meester Van Der Borghtstraat 10
+									2580 Putte
+									BTW: BE 0886 674 723
+									IBAN: BE68 7310 4460 6534
+									RPR Mechelen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -2111,8 +2139,12 @@
 								<p> </p>
 								<p>Met vriendelijke groeten</p>
 								<p><small>
-									All-round Events VZW
-									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+									All Round Events VZW
+									Meester Van Der Borghtstraat 10
+									2580 Putte
+									BTW: BE 0886 674 723
+									IBAN: BE68 7310 4460 6534
+									RPR Mechelen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -2142,8 +2174,12 @@
 								<p> </p>
 								<p>Met vriendelijke groeten</p>
 								<p><small>
-									All-round Events VZW
-									Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+									All Round Events VZW
+									Meester Van Der Borghtstraat 10
+									2580 Putte
+									BTW: BE 0886 674 723
+									IBAN: BE68 7310 4460 6534
+									RPR Mechelen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -2218,7 +2254,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select work_day.Payout, festivals.idfestival, shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and work_day.reservation_type = 3;');
+		$statement = $db->prepare('select work_day.Payout, festivals.idfestival, shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and work_day.reservation_type = 3 ORDER BY work_day.users_Id_Users;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 		if ($res){
@@ -2843,7 +2879,7 @@
 		$pdf->Write(10, $res[0][0] . ":   Start: " . $res[0]["start_date"] . " Tot: " . $res[0]["shift_end"]);
 		$pdf->Ln();
 		$pdf->SetFont('Arial','',8);
-		$header = array('foto', 'Naam', 'in','out','aanwezig', '','');
+		$header = array('foto', 'Naam', 'nummer','in','out','aanwezig', '');
 		for($i=0;$i<count($header);$i++){
 			$pdf->Cell($w[$i],7,$header[$i],1,0,'C');
 		}
@@ -2865,11 +2901,10 @@
 			if ($line["present"] == 1){
 				$present = '           X';
 			}
-			
-			$pdf->Cell($w[2],10,$in,1);
-			$pdf->Cell($w[3],10,$out,1);
-			$pdf->Cell($w[4],10,$present,1);
-			$pdf->Cell($w[5],10,"",1);
+			$pdf->Cell($w[2],10,$line["telephone"],1);
+			$pdf->Cell($w[3],10,$in,1);
+			$pdf->Cell($w[4],10,$out,1);
+			$pdf->Cell($w[5],10,$present,1);
 			$pdf->Cell($w[6],10,"",1);
 			$pdf->Ln();
 		}
@@ -2968,8 +3003,12 @@
 						<p> </p>
 						<p>Met vriendelijke groeten</p>
 						<p><small>
-							All-round Events VZW
-							Maatschappelijke zetel: Grote Baan 11B2 1673 Pepingen</small></p>" 
+							All Round Events VZW
+							Meester Van Der Borghtstraat 10
+							2580 Putte
+							BTW: BE 0886 674 723
+							IBAN: BE68 7310 4460 6534
+							RPR Mechelen</small></p>" 
 					</html>';
 		$headers = 'From: info@all-round-events.be' . "\r\n" .
 		'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -3007,14 +3046,20 @@
 		}
 		admin_check($ID, $HASH, $db);
 		// select all the id's and email from one shift
-		$statement = $db->prepare("SELECT email ,users.Id_Users from work_day inner JOIN users on work_day.users_Id_Users = users.Id_Users inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;");
+		$statement = $db->prepare("SELECT DISTINCT email ,users.Id_Users from work_day inner JOIN users on work_day.users_Id_Users = users.Id_Users inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;");
 		$statement->execute(array($shift_id));
 		$res = $statement->fetchAll();
 		foreach ($res as &$line) {
 			$email = $line["email"];
 			$id_pusher = $line["id_Users"];
 			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
-			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p></html>";
+			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p><p><small>
+																						All Round Events VZW
+																						Meester Van Der Borghtstraat 10
+																						2580 Putte
+																						BTW: BE 0886 674 723
+																						IBAN: BE68 7310 4460 6534
+																					RPR Mechelen</small></p></html>";
 			$headers = 'From: info@all-round-events.be' . "\r\n" .
 			'Reply-To: info@all-round-events.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
@@ -3025,34 +3070,21 @@
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message, 0, $id_pusher));
 		}
-		 
-		$statement = $db->prepare("select email from users where users.Id_Users = ?");
-		$statement->execute(array($user_id));
-		$res = $statement->fetchAll();
-		foreach ($res as &$line) {
-			$email = $line["email"];
-			$id_pusher = $line["id_Users"];
-			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
-			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p></html>";
-			$headers = 'From: info@all-round-events.be' . "\r\n" .
-			'Reply-To: info@all-round-events.be' . "\r\n" .
-			"Content-type:text/html;charset=UTF-8" . "\r\n" .
-			'X-Mailer: PHP/' . phpversion();
-			mail($email, $subject, $message_mail, $headers);
 
-			$notification_text = $text;
-			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
-			$statement->execute(array($message, 0, $user_id));
-		}
-
-		$statement = $db->prepare("SELECT email ,users.Id_Users from work_day inner JOIN users on work_day.users_Id_Users = users.Id_Users inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner JOIN shifts on shifts.idshifts = shift_days.shifts_idshifts where shifts.festival_idfestival = ?;");
+		$statement = $db->prepare("SELECT DISTINCT email ,users.Id_Users from work_day inner JOIN users on work_day.users_Id_Users = users.Id_Users inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner JOIN shifts on shifts.idshifts = shift_days.shifts_idshifts where shifts.festival_idfestival = ?;");
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 		foreach ($res as &$line) {
 			$email = $line["email"];
 			$id_pusher = $line["Id_Users"];
 			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
-			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p></html>";
+			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p><p><small>
+																						All Round Events VZW
+																						Meester Van Der Borghtstraat 10
+																						2580 Putte
+																						BTW: BE 0886 674 723
+																						IBAN: BE68 7310 4460 6534
+																					RPR Mechelen</small></p></html>";
 			$headers = 'From: info@all-round-events.be' . "\r\n" .
 			'Reply-To: info@all-round-events.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
@@ -3098,6 +3130,7 @@
 	elseif ($action == "add_location") {
 		// get the contenct from the api body
 		//
+		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
 			$ID = $xml["id"];
@@ -3120,6 +3153,7 @@
 	elseif ($action == "change_location") {
 		// get the contenct from the api body
 		//
+		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
 			$ID = $xml["id"];
@@ -3144,6 +3178,7 @@
 	elseif ($action == "delete_location") {
 		// get the contenct from the api body
 		//
+		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
 			$ID = $xml["id"];
@@ -3161,9 +3196,38 @@
 		$statement->execute(array($location_id));
 		exit(json_encode (json_decode ("{}")));
 	}
+	elseif ($action == "get_locations") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare("SELECT * FROM `locations` inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 or festivals.status != 7");
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+
+
+
 	elseif ($action == "add_external_appointment") {
 		// get the contenct from the api body
 		//
+		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
 			$ID = $xml["id"];
@@ -3193,6 +3257,7 @@
 	elseif ($action == "change_external_appointment") {
 		// get the contenct from the api body
 		//
+		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
 			$ID = $xml["id"];

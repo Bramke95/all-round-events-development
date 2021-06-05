@@ -126,8 +126,11 @@ function id_to_status(id){
 }
 
 // get the stastus from the id 
-function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full){
+function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full, is_empty_days){
 	var unemployment_but = "<input type='submit' id=unemployment"+ shift_id +" class='unemployment_to_festival' name='Werkloos' value='Werkloosheidsattest' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+	if(is_empty_days){
+		return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='blocked' name='afgesloten' value='Niet Actief' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+	}
 	if(id == 0){
 		if(is_already_subscribed){
 			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
@@ -245,13 +248,14 @@ function shift_processing(data){
 			let is_full = (parseInt(data[x].people_needed) <= parseInt(data[x].subscribed_final));
 			let is_completely_full = ((parseInt(data[x].people_needed) + parseInt(data[x].spare_needed)) <= parseInt(data[x].subscribed));
 			let is_subscrubed = false;
+			let is_empty_days = data[x].work_days == 0;
 			for (let y = 0; y < subscriptions.length; y++){
 				if (subscriptions[y].idshifts == data[x].idshifts){
 					is_subscrubed = true;
 					break;
 				}
 			}
-			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full) +"</div></div>");
+			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full, is_empty_days) +"</div></div>");
 			$("#shift_button" + data[x].idshifts).off();
 			$("#shift_button" + data[x].idshifts).click(function(event){
 				if($(this).hasClass("blocked")){return}
