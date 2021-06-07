@@ -2034,7 +2034,32 @@
 		}
 		$statement = $db->prepare("update festivals set status = ? where idfestival=?");
 		$statement->execute(array($status,$festi));
-		
+	}
+
+	elseif ($action == "festival_status_mail") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$festi = $xml["festival_id"];
+			$status = $xml["status"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare("select * from festivals where idfestival = ?;");
+		$statement->execute(array($festi));
+		$res = $statement->fetchAll();
+		$festival_name = $res[0]["name"];
+		$festi_id = $res[0]["idfestival"];
+		$status = $res[0]["status"];
+
 		if($status == 0){
 
 			
@@ -2134,8 +2159,8 @@
 				$subject = 'All-Round Events: Uitbetaling starten voor' . $festival_name . ' .';
 				$message = '<html>
 								<p>Beste,</p>
-								<p>De uitbetalingen voor ' . $festival_name . ' zullen plaatsvinden de komende dagen.  </br></p>
-								<p>Je zal een mail ontvangen van zodra de uitbetaling voor jou persoonlijk is gebeurt! We willen je nogmaals bedanken voor je medewerkingen en hopen je de volgende keer terug te zien! </p>
+								<p>De uitbetalingen voor ' . $festival_name . ' zullen plaatsvinden tijdens komende dagen.  </br></p>
+								<p>We willen je nogmaals bedanken voor je inzet en hopen je graag op een volgend evenement terug te zien!</p>
 								<p> </p>
 								<p>Met vriendelijke groeten</p>
 								<p><small>
@@ -3158,7 +3183,6 @@
 		try {
 			$ID = $xml["id"];
 			$HASH = $xml["hash"];
-			$shift_id = $xml["shift_id"];
 			$location = $xml["location"];
 			$appointment_time = $xml["appointment_time"];
 			$location_id = $xml["location_id"];
@@ -3170,8 +3194,8 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('UPDATE locations SET location = ?, appointment_time = ?, shift_id = ? WHERE location_id = ?;');
-		$statement->execute(array($location, $appointment_time, $shift_id, $location_id));
+		$statement = $db->prepare('UPDATE locations SET location = ?, appointment_time = ? WHERE location_id = ?;');
+		$statement->execute(array($location, $appointment_time, $location_id));
 		exit(json_encode (json_decode ("{}")));
 	}
 
@@ -3196,6 +3220,7 @@
 		$statement->execute(array($location_id));
 		exit(json_encode (json_decode ("{}")));
 	}
+
 	elseif ($action == "get_locations") {
 		// get the contenct from the api body
 		//
@@ -3222,6 +3247,32 @@
 		exit(json_encode (json_decode ("{}")));
 	}
 
+	elseif ($action == "get_location") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare("SELECT * FROM `locations` where location_id=?;");
+		$statement->execute(array($location_id));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
 
 
 	elseif ($action == "add_external_appointment") {

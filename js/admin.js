@@ -1040,6 +1040,14 @@ function reload_subscription(){
     }, subscribers_callback);
 }
 
+function subscription_get_(){
+    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("get_subscribers", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, subscribers_callback);
+}
+
 //callback adding a shift 
 function shift_processing_short(data) {
     // add days
@@ -1127,21 +1135,25 @@ function user_lookup(user, user_id) {
 }
 
 function subscribers_callback(data) {
+    api("get_locations", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, location_subscription_callback);
 	$(".shift_day_line").remove();
     for (let x = 0; x < data.length; x++) {
         let user_status = "unknown";
 
         if (data[x].reservation_type == 2) {
             user_status = "Geregistreerd";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: " + data[x].name + "<p><p style='width:20%'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         if (data[x].reservation_type == 3) {
             user_status = "Ingeschreven";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: " + data[x].name + "<p><p style='width:20%'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select id=shift"+ data[x].shifts_idshifts +" class='select_external_location'><option class='select_external_location_option' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         if (data[x].reservation_type == 99) {
             user_status = "reservelijst";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%'>naam: " + data[x].name + "<p><p style='width:20%'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'>  Opvang keuze: </p><p><select id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         $(".unsubscribe_user").off();
         $(".unsubscribe_user").click(function(event) {
@@ -1172,6 +1184,13 @@ function subscribers_callback(data) {
         });
 
 
+    }
+}
+function location_subscription_callback(data){
+
+    for (let x = 0; x < data.length; x++) {
+        console.log(data[x]);
+        $('.select_external_location[id=shift'+ data[x].idshifts +']').append("<option class='select_external_location' id="+ data[x].location_id +">"+ data[x].location +"</option>");
     }
 }
 
@@ -1227,7 +1246,7 @@ function festival_processing(data) {
 		return;
 	}
     for (let x = 0; x < data.length; x++) {
-        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input></div>");
+        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input></div>");
         $('#' + data[x].idfestival + " select").val(data[x].status);
         // change festival
         $(".change_festival").off();
@@ -1248,7 +1267,7 @@ function festival_processing(data) {
         $(".festi_status").off();
         $(".festi_status").change(function(event) {
             let festi = event.target.attributes.id.value;
-            let type = $(this).val()
+            let type = $(this).val();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("change_festival_status", {
                 "id": coockie.ID,
@@ -1257,7 +1276,21 @@ function festival_processing(data) {
                 "status": type
             }, autofill_festivals);
         });
+        $(".mail_festival").off();
+        $(".mail_festival").click(function(event) {
+            let festi = event.target.attributes.id.value;
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            api("festival_status_mail", {
+                "id": coockie.ID,
+                "hash": coockie.TOKEN,
+                "festival_id": festi
+            }, mail_done);
+        });
     }
+}
+
+function mail_done(data){
+    alert("Mails verzonden!");
 }
 
 function load_shift_days_shifts(data) {
@@ -1325,41 +1358,37 @@ function load_shift_days_shifts_locations(data) {
         let counter = $('.shift_day_line', "#shift" + data[x].idshifts).length + 1;
         $("#shift" + data[x].idshifts).append("<div id='shift_day" + data[x].idshifts + "' class='shift_day_line2'><p class='shift_day_title' style='width:10%'>Opvang moment<p><p style='width:20%'>Tijdsip: " + data[x].appointment_time + "<p><p style='width:20%'>Plaats: " + data[x].location + "</p><p style='width:20%'></p><input type='submit' id=" + data[x].location_id + " class='change_shift_day_location' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].location_id + " class='delete_shift_day_location' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
 
-        $(".change_shift_day").click(function(event) {
+        $(".change_shift_day_location").off();
+        $(".change_shift_day_location").click(function(event) {
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             open_id = event.target.attributes.id.value;
-            api("get_shift_day", {
+            api("get_location", {
                 "id": coockie.ID,
                 "hash": coockie.TOKEN,
-                "shift_day_id": open_id
-            }, full_in_changed_shift_day)
-            $("#change_shift_day").fadeIn(500);
+                "location_id": open_id
+            }, full_in_changed_shift_location_day)
+            $("#change_shift_day_location").fadeIn(500);
             //cancel
-            $("#change_shift_day_abort").click(function() {
-                $("#change_shift_day").fadeOut(500);
+            $("#change_shift_location_abort").click(function() {
+                $("#change_shift_day_location").fadeOut(500);
             });
-            $("#change_shift_day_start").off();
-            $("#change_shift_day_start").click(function() {
+            $("#change_shift_location_start").off();
+            $("#change_shift_location_start").click(function() {
                 // change
-                let start = $("#shift_day_start_change").val();
-                let start_object = new Date(start);
-                let start_db = formatDate(start_object)
+                let meeting_date = $("#shift_day_start_location_change").val();
+                let meeting_date_object = new Date(meeting_date);
+                let meeting = formatDate(meeting_date_object);
 
-                let stop = $("#shift_day_stop_change").val();
-                let stop_object = new Date(stop);
-                let stop_db = formatDate(stop_object)
-
-                let money = $("#compensation_change").val();
+                let location = $("#shift_day_location_change_location").val();
                 var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-                api("change_shift_day", {
+                api("change_location", {
                     "id": coockie.ID,
                     "hash": coockie.TOKEN,
-                    "shift_day_id": open_id,
-                    start: start_db,
-                    stop: stop_db,
-                    money: money
+                    "location": location,
+                    "appointment_time": meeting,
+                    "location_id": open_id
                 }, load_festivals_shifts);
-                $("#change_shift_day").fadeOut(500);
+                $("#change_shift_day_location").fadeOut(500);
             });
         });
         $(".delete_shift_day_location").off();
@@ -1383,6 +1412,12 @@ function full_in_changed_shift_day(data) {
     $("#shift_day_start_change").val(shift.start_date.replace(" ", "T"));
     $("#shift_day_stop_change").val(shift.shift_end.replace(" ", "T"));
     $("#compensation_change").val(shift.cost);
+}
+function full_in_changed_shift_location_day(data) {
+    let loc = data[0];
+    // Todo set in textfield
+    $("#shift_day_start_location_change").val(loc.appointment_time.replace(" ", "T"));
+    $("#shift_day_location_change_location").val(loc.location);
 }
 
 function clearAll() {

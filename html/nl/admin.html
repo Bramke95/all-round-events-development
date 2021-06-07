@@ -351,6 +351,33 @@
 			
 		</div>
 	</div>
+
+	<div id='change_shift_day_location'>
+		<h1>veranderd opvang moment: </h1>
+		<div class="row">
+			<div class="col-25">
+		        <label for="beginuur">Uur/datum van afspraak:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="datetime-local" name="startuur" id="shift_day_start_location_change">
+		      </div>
+		</div>
+		
+		<div class="row">
+			<div class="col-25">
+		        <label for="einduur">Locatie:</label>
+		      </div>
+		      <div class="col-75">
+		        <input type="text" name="einduur" id="shift_day_location_change_location">
+		      </div>
+		</div>
+		
+		<div id='control_add_user'>
+			<input type="submit" id="change_shift_location_start" name="add" value="Vervanderen" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;">
+			<input type="submit" id="change_shift_location_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
+			
+		</div>
+	</div>
 	
 	<div id="user_select">
 		<h2>Zoek een vrijwilliger:<h2>
@@ -509,10 +536,7 @@
 		</div>
 		
 		<div id='user_data'>
-		
 		</div>
-		
-
 		<div id='control_add_user'>
 			<input type="submit" id="manual_user_start" name="add" value="Inschrijven" placeholder="" style="background-color: #4CAF50 ;margin-left:10px; margin-top:10px;">
 			<input type="submit" id="manual_user_abort" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
