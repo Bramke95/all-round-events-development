@@ -126,14 +126,18 @@ function id_to_status(id){
 }
 
 // get the stastus from the id 
-function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full, is_empty_days){
+function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered){
 	var unemployment_but = "<input type='submit' id=unemployment"+ shift_id +" class='unemployment_to_festival' name='Werkloos' value='Werkloosheidsattest' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+	var external_locations = "";
+	if(has_external_locations){
+		external_locations = "<input type='submit' id=external"+ shift_id +" class='subscribe_to_location' name='ingeschrijven' value='Opvang moment selecteren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+	}
 	if(is_empty_days){
 		return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='blocked' name='afgesloten' value='Niet Actief' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 	}
 	if(id == 0){
 		if(is_already_subscribed){
-			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+			return external_locations + unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 
 		}
 		else {
@@ -143,7 +147,13 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 	}
 	else if (id == 1){
 		if(is_already_subscribed){
-			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Ingeschreven(uitschrijven niet mogelijk)' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+			if(is_registered){
+				return  unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='geregistreerd' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
+
+			}
+			else {
+				return  external_locations + unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Ingeschreven(uitschrijven niet mogelijk)' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+			}
 		}
 		else {
 			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='gesloten' value='Inschrijven niet mogelijk' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
@@ -152,7 +162,14 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 	}
 	else if (id == 2){
 		if(is_already_subscribed){
-			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+			if(is_registered){
+				return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registratie annuleren' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+
+			}
+			else {
+				return external_locations +unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+
+			}
 		}
 		else if (is_completely_full){
 			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
@@ -165,7 +182,14 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 	}
 	else if (id == 3){
 		if(is_already_subscribed){
-			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+			if(is_registered){
+				return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Registratie annuleren' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+
+			}
+			else {
+				return external_locations + unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+
+			}
 
 		}
 		else if (is_completely_full){
@@ -184,7 +208,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 	}
 
 	else if (id == 4){
-		if (is_already_subscribed){
+		if (is_already_subscribed && !is_registered){
 			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Ingeschreven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 
 		}
@@ -194,7 +218,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 		}
 	}
 	else if (id == 5){
-		if (is_already_subscribed){
+		if (is_already_subscribed && !is_registered){
 			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='change festival' value='eindafrekeningen' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 
 		}
@@ -231,6 +255,22 @@ function festival_shift_processing(data){
 	$("#festival_list").fadeIn("fast");
 }
 
+function load_locations(shift_id){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+	api("get_locations_by_shift",{"id" : coockie.ID, "hash" : coockie.TOKEN, "shift_id": shift_id}, function(locations){
+		api("subscribe_external_location_user",{"id" : coockie.ID, "hash" : coockie.TOKEN}, function(location_subscribed){
+			for(let y = 0; y < location_subscribed.length; y++){
+				$(".radio_external_option[id="+ location_subscribed[y].location_id +"]").attr('checked', true);
+			}
+		});
+		$("#external_location_div").html("");
+		for(let x = 0; x < locations.length; x++){
+			$("#external_location_div").append("<p><input class=radio_external_option type=radio id="+ locations[x].location_id + " name=location user="+ coockie.ID +" value="+ locations[x].location +"> "+ locations[x].appointment_time +" " + locations[x].location +"</p>");
+		}	
+
+	});
+}
+
 //callback adding a shift 
 function shift_processing(data){
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -248,14 +288,17 @@ function shift_processing(data){
 			let is_full = (parseInt(data[x].people_needed) <= parseInt(data[x].subscribed_final));
 			let is_completely_full = ((parseInt(data[x].people_needed) + parseInt(data[x].spare_needed)) <= parseInt(data[x].subscribed));
 			let is_subscrubed = false;
+			let is_registered = false;
 			let is_empty_days = data[x].work_days == 0;
+			let has_external_locations = data[x].external_meeting_locations > 0;
 			for (let y = 0; y < subscriptions.length; y++){
 				if (subscriptions[y].idshifts == data[x].idshifts){
 					is_subscrubed = true;
+					is_registered = subscriptions[y].reservation_type == 2;
 					break;
 				}
 			}
-			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full, is_empty_days) +"</div></div>");
+			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered) +"</div></div>");
 			$("#shift_button" + data[x].idshifts).off();
 			$("#shift_button" + data[x].idshifts).click(function(event){
 				if($(this).hasClass("blocked")){return}
@@ -283,6 +326,30 @@ function shift_processing(data){
 				var open_id = event.target.attributes.id.value;
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				api("user_unsubscribe",{"id" : coockie.ID, "hash" : coockie.TOKEN, "Id_Users": coockie.ID, "idshifts": open_id.replace(/\D/g,'')}, load_festivals_shifts);
+			});
+			$(".subscribe_to_location").off();
+			$(".subscribe_to_location").click(function(event){
+				let id = event.target.attributes.id.value;
+        		let selected_shift = id.replace(/[a-z]/gi, '');
+				load_locations(selected_shift);
+				$("#add_external_location_div").fadeIn(500);
+				$("#abort_external_location").off();
+				$("#abort_external_location").click(function(event){
+					$("#add_external_location_div").fadeOut(500);
+				});
+				$("#validate_external_location").off();
+				$("#validate_external_location").click(function(event){
+					if($(".radio_external_option:checked").length > 0){
+						let id = $(".radio_external_option:checked").attr("id");
+						var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+						api("subscribe_external_location",{"id" : coockie.ID, "hash" : coockie.TOKEN,"location_id": id.replace(/\D/g,'')}, function(){});
+						$("#add_external_location_div").fadeOut(500);
+						return;
+					}
+					alert("Je hebt geen opvang keuze geselecteerd.");
+					
+				});
+				
 			});
 		}
 	})

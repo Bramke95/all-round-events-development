@@ -137,6 +137,21 @@ input[type=submit] {
 	box-shadow: 5px 10px 20px 0px;
 	display: none;	
 }
+#add_external_location_div{
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: fixed;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;
+	display: none;
+}
 
 #top_user_space {
 	height: 40px;

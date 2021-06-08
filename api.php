@@ -1291,7 +1291,12 @@
 			$statement3 = $db->prepare('select * from shift_days where 	shifts_idshifts=?');
 			$statement3->execute(array($row["idshifts"]));
 			$res3 = $statement3->fetchAll();
-			$row["work_days"] = count($res3); 
+			$row["work_days"] = count($res3);
+
+			$statement4 = $db->prepare('select * from locations where shift_id=?');
+			$statement4->execute(array($row["idshifts"]));
+			$res4 = $statement4->fetchAll();
+			$row["external_meeting_locations"] = count($res4);  
 			
 			$res[$counter] = $row;
 			$counter++;			
@@ -3247,6 +3252,33 @@
 		exit(json_encode (json_decode ("{}")));
 	}
 
+	elseif ($action == "get_locations_by_shift") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_id = $xml["shift_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare("SELECT * FROM `locations` where  shift_id=?");
+		$statement->execute(array($shift_id));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+
 	elseif ($action == "get_location") {
 		// get the contenct from the api body
 		//
@@ -3333,6 +3365,130 @@
 		// check if festival is open
 		$statement = $db->prepare('update external_appointment_id set location_id = ? where location_id = ? and user_id=?;');
 		$statement->execute(array($location, $user_id));
+		exit(json_encode (json_decode ("{}")));
+	}
+
+	elseif ($action == "subscribe_external_location") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+			$location = $xml["location"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+
+		token_check($ID, $HASH, $db);
+		
+		// check if festival is open 
+
+		// check if festival is open
+		$statement = $db->prepare('SELECT festivals.status, idshifts from shifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN locations on locations.shift_id = shifts.idshifts where locations.location_id = ? LIMIT 1;');
+		$statement->execute(array($location_id));
+		$res = $statement->fetchAll();
+		$shift = $res[0]["idshifts"];
+		if($res[0]["status"] > 3 ) {
+			exit("Event in wrong state to push external event");
+		}
+		$statement = $db->prepare('select * from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join locations on locations.shift_id = shifts.idshifts where locations.location_id = ? and work_day.users_Id_Users = ?');
+		$statement->execute(array($location_id, $ID));
+		$res = $statement->fetchAll();
+		if(count($res) < 1){
+			exit("Cannot subscribe to event when user is not part of event itself.");
+		}
+		$statement = $db->prepare("DELETE external_appointment from external_appointment  inner JOIN locations on locations.location_id = external_appointment.location_id inner join shifts on shifts.idshifts = locations.shift_id where shifts.idshifts = ? and external_appointment.user_id=?");
+		$statement->execute(array($shift, $ID));
+
+		$statement = $db->prepare("insert into external_appointment (external_appointment.location_id, external_appointment.user_id, present) VALUES (?,?,?);");
+		$statement->execute(array($location_id, $ID, 0));
+
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "subscribe_external_location_admin") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+			$user_id = $xml["user_id"];
+			$shift_id = $xml["shift_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+
+		admin_check($ID, $HASH, $db);
+		
+		$statement = $db->prepare("DELETE external_appointment from external_appointment  inner JOIN locations on locations.location_id = external_appointment.location_id inner join shifts on shifts.idshifts = locations.shift_id where shifts.idshifts = ? and external_appointment.user_id=?");
+		$statement->execute(array($shift_id, $user_id));
+
+		$statement = $db->prepare("insert into external_appointment (external_appointment.location_id, external_appointment.user_id, present) VALUES (?,?,?);");
+		$statement->execute(array($location_id, $user_id, 0));
+
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "subscribe_external_location_user") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare("SELECT external_appointment.external_appointment_id, external_appointment.location_id, external_appointment.user_id, external_appointment.present FROM `external_appointment` inner join locations on locations.location_id = external_appointment.location_id inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where (festivals.status != 6 or festivals.status != 7) and external_appointment.user_id = ?");
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "subscribe_external_location_active") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare("SELECT external_appointment.external_appointment_id, external_appointment.location_id, external_appointment.user_id, external_appointment.present,locations.shift_id FROM `external_appointment` inner join locations on locations.location_id = external_appointment.location_id inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 or festivals.status != 7");
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
 		exit(json_encode (json_decode ("{}")));
 	}
 

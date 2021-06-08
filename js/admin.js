@@ -1145,15 +1145,15 @@ function subscribers_callback(data) {
 
         if (data[x].reservation_type == 2) {
             user_status = "Geregistreerd";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select user="+ data[x].users_Id_Users +" id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         if (data[x].reservation_type == 3) {
             user_status = "Ingeschreven";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select id=shift"+ data[x].shifts_idshifts +" class='select_external_location'><option class='select_external_location_option' id='-1'>Nog geen gekozen</option></select></p></div></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select user="+ data[x].users_Id_Users +" id=shift"+ data[x].shifts_idshifts +" class='select_external_location'><option class='select_external_location_option' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         if (data[x].reservation_type == 99) {
             user_status = "reservelijst";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'>  Opvang keuze: </p><p><select id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'>  Opvang keuze: </p><p><select user="+ data[x].users_Id_Users +" id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         $(".unsubscribe_user").off();
         $(".unsubscribe_user").click(function(event) {
@@ -1175,22 +1175,42 @@ function subscribers_callback(data) {
             if (user == coockie.ID) {
                 user = "admin"
             }
-            api("user_subscribe", {
+            api("subscribe_external_location_active", {
+                "id": coockie.ID,
+                "hash": coockie.TOKEN
+            }, get_external_subscriptions);
+        });
+        $('.select_external_location').off();
+        $('.select_external_location').change(function(event){
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            let id = event.target.attributes.id.value;
+            let user = event.target.attributes.user.value;
+            let location = $(this).children(":selected").attr("value");
+            api("subscribe_external_location_admin", {
                 "id": coockie.ID,
                 "hash": coockie.TOKEN,
-                "idshifts": shift,
-                "Id_Users": user
-            }, reload_subscription);
+                "location_id": location.replace(/[a-z]/gi, ''),
+                "user_id": user.replace(/[a-z]/gi, ''),
+                "shift_id": id.replace(/[a-z]/gi, '')
+            }, get_external_subscriptions);
         });
 
 
     }
 }
 function location_subscription_callback(data){
-
     for (let x = 0; x < data.length; x++) {
-        console.log(data[x]);
-        $('.select_external_location[id=shift'+ data[x].idshifts +']').append("<option class='select_external_location' id="+ data[x].location_id +">"+ data[x].location +"</option>");
+        $('.select_external_location[id=shift'+ data[x].idshifts +']').append("<option class='select_external_location' value="+ data[x].location_id +">"+ data[x].appointment_time + " " + data[x].location +"</option>");
+    }
+    api("subscribe_external_location_active", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, get_external_subscriptions);
+}
+
+function get_external_subscriptions(data){
+    for (let x = 0; x < data.length; x++) {
+        $(".select_external_location[user="+ data[x].user_id +"][id=shift"+ data[x].shift_id +"]").val(data[x].location_id);
     }
 }
 
