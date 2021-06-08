@@ -2940,6 +2940,46 @@
 		}
 		$pdf->Output();
 	}
+	elseif ($action == "pdf_listing_external") {
+		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
+		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
+		$location_id= isset($_GET['location_id']) ? $_GET['location_id'] : '';
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT external_appointment.present, locations.location, locations.appointment_time, Images.picture_name,users_data.name, users_data.telephone FROM `external_appointment` INNER JOIN locations on locations.location_id = external_appointment.location_id INNER JOIN users_data on users_data.users_Id_Users = external_appointment.user_id INNER JOIN Images on Images.users_Id_Users = users_data.users_Id_Users WHERE external_appointment.location_id = ? and Images.is_primary =1');
+		$statement->execute(array($location_id));
+		$res = $statement->fetchAll();
+		require('fpdf.php');
+		$w=array(30,55,20,20,20,20,20,20);
+		$pdf = new FPDF('P','mm','A4');
+		$pdf->SetTitle("Aanwezigheden opvang");
+		$pdf->AddPage();
+		$pdf->SetFont('Arial','',14);
+		$pdf->Write(10, "Opvang" . " " .$res[0]["appointment_time"] . " " . $res[0]["location"]);
+		$pdf->Ln();
+		$pdf->SetFont('Arial','',8);
+		$header = array('foto', 'Naam', 'nummer','aanwezig','','', '');
+		for($i=0;$i<count($header);$i++){
+			$pdf->Cell($w[$i],7,$header[$i],1,0,'C');
+		}
+		$pdf->Ln();
+		foreach ($res as &$line) {
+			$image1 = $line["picture_name"];
+			$pdf->Cell($w[0],10,$pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 0, 9.9),1);
+			$pdf->Cell($w[1],10,$line["name"],1);
+			$present = '';
+
+			if ($line["present"] == 1){
+				$present = '           X';
+			}
+			$pdf->Cell($w[2],10,$line["telephone"],1);
+			$pdf->Cell($w[3],10,$present,1);
+			$pdf->Cell($w[4],10,"",1);
+			$pdf->Cell($w[5],10,"",1);
+			$pdf->Cell($w[6],10,"",1);
+			$pdf->Ln();
+		}
+		$pdf->Output();
+	}
 	if ($action == "change_pass"){
 		
 		$xml_dump = file_get_contents('php://input');
@@ -3489,6 +3529,55 @@
 			$json = json_encode($res);
 			exit($json);
 		}
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "subscribe_external_location_listing") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare("SELECT locations.location_id, locations.appointment_time, locations.location, locations.shift_id, users_data.name, users_data.telephone, Images.picture_name, users_data.users_Id_Users, external_appointment.present from locations inner join external_appointment on external_appointment.location_id = locations.location_id inner join users_data on users_data.users_Id_Users = external_appointment.user_id INNER join Images on Images.users_Id_Users=users_data.users_Id_Users WHERE locations.location_id = ?");
+		$statement->execute(array($location_id));
+		$res = $statement->fetchAll();
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "present_set_external_location") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$present = $xml["present"];
+			$location_id = $xml["location_id"];
+			$user_id = $xml["user_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare("update external_appointment set present=? where user_id=? and location_id=?;");
+		$statement->execute(array($present, $user_id, $location_id));
 		exit(json_encode (json_decode ("{}")));
 	}
 
