@@ -113,6 +113,8 @@
 			for(var i = 0; i < res.length; i++) {
 				if (res[i].is_primary == 1){
 					$("#front_picture").append('<img src=/'+ res[i].picture_name +' alt="Smiley face" ">');
+					$("#front_picture").fadeIn(300);
+
 				}	
 			}	
 		}			
@@ -163,8 +165,8 @@
 			$("#tel").text(res.telephone || "-");
 			$("#marital_state").text(marital_state_name || "-");
 			$("#employment").text(employment || "-");
-
 			$("#text").text(res.text);
+			$("#main_info").fadeIn(300);
 			
 		}
 	}

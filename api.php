@@ -1277,7 +1277,7 @@
 		$statement->execute();
 		$counter = 0;
 		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?');
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type != 5');
 			$statement2->execute(array($row["idshifts"]));
 			$res2 = $statement2->fetchAll();
 			$row["subscribed"] = $res2[0]["count(distinct users_Id_Users)"];
@@ -1916,6 +1916,9 @@
 		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
 		$statement->execute(array($Id_Users, $shift_id ));
 
+		$statement = $db->prepare('delete external_appointment from external_appointment inner join locations on locations.location_id = external_appointment.location_id where external_appointment.user_id=? and locations.shift_id = ?');
+		$statement->execute(array($Id_Users, $shift_id ));
+
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0,
@@ -2284,7 +2287,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select work_day.Payout, festivals.idfestival, shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and work_day.reservation_type = 3 ORDER BY work_day.users_Id_Users;');
+		$statement = $db->prepare('select work_day.Payout, festivals.idfestival, shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and (work_day.reservation_type = 3 or work_day.reservation_type = 5) ORDER BY work_day.users_Id_Users;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 		if ($res){
@@ -3580,6 +3583,62 @@
 		$statement->execute(array($present, $user_id, $location_id));
 		exit(json_encode (json_decode ("{}")));
 	}
+	elseif ($action == "festival_mail_external_location") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$festival_id = $xml["festival_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		// select all the id's and email from one shift
+		$statement = $db->prepare("select DISTINCT users.email, users_data.name, festivals.name as festival_name from work_day INNER JOIN users on work_day.users_Id_Users = users.Id_Users inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner JOIN shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where shifts.festival_idfestival = ? and users.Id_Users not in (select DISTINCT external_appointment.user_id from external_appointment inner JOIN locations on locations.shift_id inner join shifts on shifts.idshifts = locations.shift_id where shifts.festival_idfestival = ?)");
+		$statement->execute(array($festival_id, $festival_id));
+		$res = $statement->fetchAll();
+		foreach ($res as &$line) {
+			$email = $line["email"];
+			$festival_name = $line["festival_name"];
+			$name = $line["name"];
+			$subject = "Opvang keuze voor " . $festival_name;
+			$message = '<html>
+				<p>Beste, '. $name .'</p>
+				<p>Binnenkort is het zover en zal jij als vrijwillger aan de slag gaan op ' . $festival_name . '. </br></p>
+				<p></p>
+				<p>Je kan vanaf nu een opvang locatie kiezen op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a>, gelieve in te loggen en naar inschrijvingen te gaan. Gelieve hier je opvang locatie en uur naar keuze door te geven voor dit evenement.</p>
+
+				<p>Indien je niet meer kan deelnemen aan dit evenement gelieve je dan zo vlug mogelijk uit te schrijven op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a> of door te antwoorden op deze mail.</p>
+				<p>Indien u nog meer vragen hebt kan u altijd antwoorden op deze mail of een kijkje nemen op in onze <a href="https://all-round-events.be/html/nl/info.html">FAQ</a>.</p>
+
+				<p>Met vriendelijke groeten</p>
+				<p><small>
+					All Round Events VZW
+					Meester Van Der Borghtstraat 10
+					2580 Putte
+					BTW: BE 0886 674 723
+					IBAN: BE68 7310 4460 6534
+					RPR Mechelen 
+				</small></html>';
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-round-events.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			mail($email, $subject, $message, $headers);
+
+			$notification_text = $text;
+			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
+			$statement->execute(array($message, 0, $id_pusher));
+		}
+	}
 
 	else {
 		exit(json_encode(array(
@@ -3588,6 +3647,10 @@
 			'error_message' => "not a valid action"
 		)));
 	}
+
+
+
+
 
 
 

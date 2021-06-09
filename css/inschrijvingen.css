@@ -413,6 +413,21 @@ label {
 	  cursor: pointer;
 	  width: 95%;
 	  float: none;
+	  margin: 2px;
 	}
+
+  	#add_external_location_div {
+		top: 0px;
+		left: 0px;
+		width: 90%;
+		height: 90%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
+	    padding: 10px;
+	    margin: 15px;
+	}
+
 
 }

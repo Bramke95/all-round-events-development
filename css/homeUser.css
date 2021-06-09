@@ -20,6 +20,7 @@ body {
 	margin-top: 15px;
 	height: 380px;
 	margin-right: 10px;
+	display: none;
 
 }
 #front_picture img {
@@ -37,6 +38,7 @@ body {
 	border-radius: 5px;
 	border: 2px solid indianred;
 	margin-bottom: 150px;
+	display: none;
 
 }
 #main_info {

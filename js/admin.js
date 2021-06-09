@@ -131,7 +131,7 @@ var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
     }, festival_checkbox);
 
 function callback_messenger(data){
-    alert("Bericht Verzonen")
+    alert("Bericht Verzonden!")
 }
 
 function messenger_listing() {
@@ -739,7 +739,7 @@ function get_subscribers_checkbox_callback(data) {
     
     let user_html = "<input type='submit' id='download_pdf' shift_day='" + selected_workday_presense + "' name='change festival' value='download pdf' placeholder='' style='background-color: green;width:100%;  margin-left:10px;  margin-top:10px;  margin-bottom:10px'>"
     for (let x = 0; x < data.length; x++) {
-        if (selected_workday_presense == data[x].shift_days_idshift_days && data[x].reservation_type == 3) {
+        if (selected_workday_presense == data[x].shift_days_idshift_days && (data[x].reservation_type == 3 || data[x].reservation_type == 5)) {
             let in_ = "";
             let out = "";
             let present = "";
@@ -1241,10 +1241,12 @@ function subscribers_callback(data) {
             if (user == coockie.ID) {
                 user = "admin"
             }
-            api("subscribe_external_location_active", {
+            api("user_subscribe", {
                 "id": coockie.ID,
-                "hash": coockie.TOKEN
-            }, get_external_subscriptions);
+                "hash": coockie.TOKEN,
+                "idshifts": shift,
+                "Id_Users": user
+            }, reload_subscription);
         });
         $('.select_external_location').off();
         $('.select_external_location').change(function(event){
@@ -1332,7 +1334,7 @@ function festival_processing(data) {
 		return;
 	}
     for (let x = 0; x < data.length; x++) {
-        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input></div>");
+        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_external_location' name='mail' value='Verstuur opvang keuze.' placeholder='Verstuurt naar iedereen in het festival om een keuze te maken over welke opvang ze willen.' style='background-color: red ;  margin-left:10px;'></input></div>");
         $('#' + data[x].idfestival + " select").val(data[x].status);
         // change festival
         $(".change_festival").off();
@@ -1367,6 +1369,16 @@ function festival_processing(data) {
             let festi = event.target.attributes.id.value;
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("festival_status_mail", {
+                "id": coockie.ID,
+                "hash": coockie.TOKEN,
+                "festival_id": festi
+            }, mail_done);
+        });
+        $(".mail_external_location").off();
+        $(".mail_external_location").click(function(event) {
+            let festi = event.target.attributes.id.value;
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            api("festival_mail_external_location", {
                 "id": coockie.ID,
                 "hash": coockie.TOKEN,
                 "festival_id": festi

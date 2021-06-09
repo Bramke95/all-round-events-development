@@ -458,6 +458,21 @@ nav li {
 		margin: 1px !important;
 		float: none !important;
 	}
+	.mail_festival {
+		width: 100% !important;
+		margin: 1px !important;
+		float: none !important;
+	}
+	.delete_shift_day_location {
+		width: 100% !important;
+		margin: 1px !important;
+		float: none !important;
+	}
+	.change_shift_day_location {
+		width: 100% !important;
+		margin: 1px !important;
+		float: none !important;
+	}
 	.shift_title {
 		display: block;
 	}
@@ -473,7 +488,22 @@ nav li {
 		width: 100% !important;
 		margin: 2px !important;
 	}
+	.add_location_day_shift {
+		float: none !important;
+		width: 100% !important;
+		margin: 2px !important;
+	}
 	.delete_shift {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.payout_approved {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.payout_denied {
 		float: none !important;
 		width: 100%;
 		margin: 2px !important;
@@ -538,6 +568,16 @@ nav li {
 		left: 0%;
 	}
 	#change_shift {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
+	}
+	#change_shift_day_location {
 		top: 0px;
 		left: 0px;
 		width: 98%;
