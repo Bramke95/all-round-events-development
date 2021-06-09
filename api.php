@@ -1481,7 +1481,7 @@
 		}
 		// this is an admin action, check if this is an admin
 		token_check($ID, $HASH, $db);
-		$statement = $db->prepare('SELECT festivals.status, shifts.idshifts, shift_days.cost, shift_days.idshift_days, shift_days.shift_end, shift_days.start_date FROM shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 AND festivals.status != 7;');
+		$statement = $db->prepare('SELECT festivals.idfestival, festivals.status, shifts.idshifts, shift_days.cost, shift_days.idshift_days, shift_days.shift_end, shift_days.start_date, shifts.name FROM shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 AND festivals.status != 7;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		if ($res){
@@ -3638,6 +3638,54 @@
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message, 0, $id_pusher));
 		}
+	}
+	elseif ($action == "add_user_to_day_manual") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$Id_Users = $xml["Id_Users"];
+			$shift_day_id = $xml["shift_day_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		// check if festival is open
+		$statement = $db->prepare('INSERT INTO work_day (reservation_type, shift_days_idshift_days, users_Id_Users) VALUES (?,?,?);');
+		$statement->execute(array("5" ,$shift_day_id, $Id_Users));
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "remove_user_to_day_manual") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$Id_Users = $xml["Id_Users"];
+			$shift_day_id = $xml["shift_day_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		// check if festival is open
+		$statement = $db->prepare('DELETE work_day from work_day  where work_day.reservation_type = ? and work_day.shift_days_idshift_days = ? and work_day.users_Id_Users =?;');
+		$statement->execute(array("5" ,$shift_day_id, $Id_Users));
+		exit(json_encode (json_decode ("{}")));
 	}
 
 	else {

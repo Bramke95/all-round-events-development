@@ -310,11 +310,12 @@ function shift_processing(data){
 			$("#shift_button" + data[x].idshifts).off();
 			$("#shift_button" + data[x].idshifts).click(function(event){
 				if($(this).hasClass("blocked")){return}
+					
+				$("html").css({'cursor':'progress'});
 				if(unemployment){
 					if (!confirm("Aandacht! Omdat je werkloos bent, moet je voor elk evenement een toelating krijgen van de VDAB. U vindt dit document per dienst op deze pagina. Schrijf u dus alleen in als u dit document heeft ingevuld en bij de juiste instantie heeft ingeleverd. Anuleer als u uw inschrijving niet wilt vervoledigen! Klik OK als u de inschrijving wilt voltooien.")){
-						
+						return;
 					}
-					window.open("https://www.vdab.be/magezine/06-2017/vrijwilligerswerk");
 				}		
 
 				var open_id = event.target.attributes.id.value;
@@ -371,6 +372,8 @@ function load_shift_days_shifts(data) {
 		let counter = $('.shift_day_line',"#shift"+ data[x].idshifts).length + 1;
 		$("#shift"+ data[x].idshifts).append("<div id='shift_day"+data[x].idshifts+"' class='shift_day_line'><p class='shift_day_title' style='width:10%'>Dag "+ counter +"<p><p style='width:20%'>Start: "+ data[x].start_date +"<p><p style='width:20%'>Einde: "+ data[x].shift_end +"<p><p style='width:20%'>Dagvergoeding: €"+ data[x].cost + "</p></div>");
 	}
+	$("html").css({'cursor':'auto'});
+
 }
 
 

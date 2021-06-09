@@ -12,10 +12,12 @@ var selected_user = 0;
 var selected_festival_presense = 0;
 var selected_location_precense = 0;
 var selected_shift_presense = 0;
+var selected_shift_day_manual_man = -1;
 var festival_payout = -1;
 selected_workday_presense = 0;
 festi_days = 1;
 var messenger_specific_festival = -1;
+var scroll = 0;
 
 $(document).ready(function() {
     check_if_admin(autofill_festivals);
@@ -87,6 +89,11 @@ $(document).ready(function() {
     $("#subscription_li").click(function(event) {
 
         festival_shift_subscribers();
+
+    });
+    $("#subscription_manual_li").click(function(event) {
+
+        festival_shift_subscribers_manual();
 
     });
 
@@ -277,6 +284,168 @@ function festival_shift_subscribers() {
         "select": "active",
         "festi_id": "invalid"
     }, festival_shift_processing_ligth);
+}
+
+function festival_shift_subscribers_manual() {
+    clearAll();
+    $("#subscription_manual_li").css({
+        "textDecoration": "underline"
+    });
+    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("get_festivals", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN,
+        "select": "active",
+        "festi_id": "invalid"
+    }, festival_shift_day_processing);
+}
+
+function festival_shift_day_processing(data){
+    if (data.length == 0 || data.length == undefined){
+        $("#festival_list").html("");
+        $("#festival_list").append("<div id='empty' class='festi2' ><p>Geen actieve festivals. </p></div>");
+        $("#festival_list").show();
+        return;
+    }
+    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("get_shift_days", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, manual_subscription_shift_days);
+    $("#festival_list").html("");
+    if (data.length == 0 || data.length == undefined){
+        $("#festival_list").html("");
+        $("#festival_list").append("<div id='empty' class='festi2' ><p>Geen actieve festivals. </p></div>");
+        $("#festival_list").show();
+    }
+    for (let x = 0; x < data.length; x++) {
+        $("#festival_list").append("<div id=festi" + data[x].idfestival + " class='festi' ><div style='width:100%' class='festi_date'><p><strong>" + data[x].name + "</strong></p></div style='width:10%'><p>" + data[x].date + "</p><input type='submit' id=" + data[x].idfestival + " class='shirts' name='shirts' value='T-shirts' placeholder='' style='background-color: rgb(76, 175, 80);  margin-left:10px;float:none;'><p style='width:60%'>" + data[x].details + "</p></div>");
+        $('#' + data[x].idfestival + " select").val(data[x].status);
+        $(".shirts").off();
+        $(".shirts").click(function(event) {
+        let id = event.target.attributes.id.value;
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        api("tshirts", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "festi_id": id
+        }, show_shirts_dialog);
+        });
+
+        // change festival
+    }
+    $("#festival_list").fadeIn("fast");
+}
+
+function manual_subscription_shift_days(data){
+    // add days
+    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    
+    api("get_workdays_subscribers", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, populate_subscriptions_by_shift_days);
+    
+    $("#add_shift").hide();
+    for (let x = 0; x < data.length; x++) {
+        $("#festi" + data[x].idfestival).append("<div id=shiftday" + data[x].idshift_days + " class='shift_line' ><div class='shift_title'><div style='width:100%' class='festi_date'><p><strong>Shift: " + data[x].name + "</p><div class='shift_title'><div style='width:25%' class='festi_date'><p>start: " + data[x].start_date + "</p></div><p style='width:25%'>Einde: " + data[x].shift_end + "</p><p style='width:25%'>Prijs:" + data[x].cost + "</p><input type='submit' id='shiftday"+ data[x].idshift_days +"' class='add_user_to_shift_day' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'></div></div>");
+    }
+    $(".add_user_to_shift_day").off();
+    $(".add_user_to_shift_day").click(function(){
+        let id = event.target.attributes.id.value;
+        let shift_day = id.replace(/[a-z]/gi, '');
+        selected_shift_day_manual_man = shift_day;
+        $("#add_user_manual_man").fadeIn(300);
+
+
+        $("#manual_user_abort_2").off();
+        $("#manual_user_abort_2").click(function(){
+            $("#add_user_manual_man").fadeOut(300);
+        });
+
+         $("#user_search3").off();
+        $("#user_search3").keydown(function() {
+            let user_part = $("#user_search3").val();
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            api("user_search", {
+                "id": coockie.ID,
+                "hash": coockie.TOKEN,
+                "search": user_part
+            }, add_user_search_result2);
+        });
+    });
+}
+function add_user_search_result2(data) {
+    user_list = data;
+    $("#myDropdown3 a").remove();
+    for (let x = 0; x < data.length; x++) {
+        $("#myDropdown3").append("<a id='user" + data[x].users_Id_Users + "' class ='user_select_list2' href='#';>" + data[x].name + "</a>");
+        $(".user_select_list2").off();
+        $(".user_select_list2").click(function(event) {
+            
+            scroll = $(window).scrollTop();
+            let id = event.target.attributes.id.value;
+            id = id.replace(/[a-z]/gi, '');
+            let user = user_list.find(function(user) {
+                return user.users_Id_Users == id;
+            })
+            selected_user = id;
+            $("#user_data2").html("<img src=/" + user.picture_name + " alt='Toevoegen van lid'><label><strong>Naam: </strong></label><p>" + user.name + "<p> <label><strong>Geboortedatum: </strong></label><p>" + user.date_of_birth + "<p>     <label><strong>rijksregister: </strong></label><p>" + user.driver_license + "<p>");
+            $(window).scrollTop(scroll);
+            setTimeout(function(){$(window).scrollTop(scroll);}, 30);
+            
+        });
+    }
+     $(window).off();
+    $(window).click(function() {
+        $("#myDropdown3 a").remove();
+    });
+    $("#manual_user_start_2").off();
+    $("#manual_user_start_2").click(function(event) {
+        scroll = $(window).scrollTop();
+        $("#add_user_manual_man").fadeOut(500);
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        api("add_user_to_day_manual", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "Id_Users": selected_user,
+            "shift_day_id": selected_shift_day_manual_man
+        }, festival_shift_subscribers_manual);
+        
+
+    });
+}
+function populate_subscriptions_by_shift_days(data){
+    for (let x = 0; x < data.length; x++) {
+        if(data[x].reservation_type == 3){
+            $("#shiftday" + data[x].shift_days_idshift_days).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: Ingeschreven in shift<p/></div></div>");
+
+        }
+        if(data[x].reservation_type == 5){
+            $("#shiftday" + data[x].shift_days_idshift_days).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: Manueel ingeschreven.<p><input type='submit' id=shiftday" + data[x].shift_days_idshift_days+ " user=user"+ data[x].users_Id_Users +" class='unsubscribe_user_manual' name='delete festival' value='uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></p></div></div>");
+
+        }
+    }
+    $(window).scrollTop(scroll);
+    
+    $(".unsubscribe_user_manual").click(function(event) {
+        scroll = $(window).scrollTop();
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        let id = event.target.attributes.id.value;
+        let shift_day = id.replace(/[a-z]/gi, '');
+
+        let user = event.target.attributes.user.value;
+        let user_id = user.replace(/[a-z]/gi, '');
+
+        api("remove_user_to_day_manual", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "Id_Users": user_id,
+            "shift_day_id": shift_day
+        }, festival_shift_subscribers_manual);
+        
+
+    });
 }
 
 function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state, size){
@@ -1025,7 +1194,9 @@ function shift_processing(data) {
             }, fill_in_change_shift);
             $("#change_shift").fadeIn(500);
         });
+        $(".delete_shift").off();
         $(".delete_shift").click(function(event) {
+            scroll = $(window).scrollTop();
             let id = event.target.attributes.id.value;
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("delete_shift", {
@@ -1043,7 +1214,7 @@ function shift_processing(data) {
             $("#add_shift_day_start").off();
             $("#add_shift_day_start").click(function(event) {
                 // api add shift 
-
+                scroll = $(window).scrollTop();
                 let start = $("#shift_day_start").val();
                 let start_object = new Date(start);
                 let start_db = formatDate(start_object)
@@ -1078,7 +1249,7 @@ function shift_processing(data) {
             });
             $("#add_shift_external_start").off();
             $("#add_shift_external_start").click(function(event) {
-
+                scroll = $(window).scrollTop();
                 let loc_date = $("#location_time").val();
                 let loc_date_object = new Date(loc_date);
                 let loc_date_db = formatDate(loc_date_object)
@@ -1146,6 +1317,7 @@ function shift_processing_short(data) {
         $("#manual_user_abort").click(function() {
             $("#add_user_manual").fadeOut(500);
         });
+        $("#user_search").off();
         $("#user_search").keydown(function() {
             let user_part = $("#user_search").val();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -1167,6 +1339,7 @@ function add_user_search_result(data) {
         $("#myDropdown").append("<a id='user" + data[x].users_Id_Users + "' class ='user_select_list' href='#';>" + data[x].name + "</a>");
         $(".user_select_list").off();
         $(".user_select_list").click(function(event) {
+            scroll = $(window).scrollTop();
             let id = event.target.attributes.id.value;
             id = id.replace(/[a-z]/gi, '');
             let user = user_list.find(function(user) {
@@ -1174,6 +1347,7 @@ function add_user_search_result(data) {
             })
             selected_user = id;
             $("#user_data").html("<img src=/" + user.picture_name + " alt='Toevoegen van lid'><label><strong>Naam: </strong></label><p>" + user.name + "<p>	<label><strong>Geboortedatum: </strong></label><p>" + user.date_of_birth + "<p>		<label><strong>rijksregister: </strong></label><p>" + user.driver_license + "<p>");
+            setTimeout(function(){$(window).scrollTop(scroll);}, 30);
         })
     }
     $(window).click(function() {
@@ -1181,6 +1355,7 @@ function add_user_search_result(data) {
     });
     $("#manual_user_start").off();
     $("#manual_user_start").click(function(event) {
+        scroll = $(window).scrollTop() + 20;
         $("#add_user_manual").fadeOut(500);
         var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
         if (coockie.ID == selected_user) {
@@ -1201,6 +1376,7 @@ function user_lookup(user, user_id) {
 }
 
 function subscribers_callback(data) {
+    
     api("get_locations", {
         "id": coockie.ID,
         "hash": coockie.TOKEN
@@ -1223,6 +1399,7 @@ function subscribers_callback(data) {
         }
         $(".unsubscribe_user").off();
         $(".unsubscribe_user").click(function(event) {
+            scroll = $(window).scrollTop();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             let user = event.target.attributes.id.value;
             let shift = event.target.attributes.shift.value
@@ -1235,6 +1412,7 @@ function subscribers_callback(data) {
         });
         $(".subscribe_user").off();
         $(".subscribe_user").click(function(event) {
+            scroll = $(window).scrollTop();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             let user = event.target.attributes.id.value;
             let shift = event.target.attributes.shift.value
@@ -1262,6 +1440,7 @@ function subscribers_callback(data) {
                 "shift_id": id.replace(/[a-z]/gi, '')
             }, get_external_subscriptions);
         });
+        $(window).scrollTop(scroll);
 
 
     }
@@ -1298,6 +1477,7 @@ function fill_in_change_shift(data) {
     $("#change_shift_start").off();
     $("#change_shift_start").click(function(event) {
         //change data
+        scroll = $(window).scrollTop();
         let name = $("#shift_name_change").val();
         let details = $("#shift_details_change").val();
         let people = $("#people_needed_change").val();
@@ -1397,8 +1577,9 @@ function load_shift_days_shifts(data) {
         //TODO Counter should only count days with correct ID 
         let counter = $('.shift_day_line', "#shift" + data[x].idshifts).length + 1;
         $("#shift" + data[x].idshifts).append("<div id='shift_day" + data[x].idshifts + "' class='shift_day_line'><p class='shift_day_title' style='width:10%'>Dag " + counter + "<p><p style='width:20%'>Start: " + data[x].start_date + "<p><p style='width:20%'>Einde: " + data[x].shift_end + "<p><p style='width:20%'>Dagvergoeding: " + data[x].cost + "</p><input type='submit' id=" + data[x].idshift_days + " class='change_shift_day' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshift_days + " class='delete_shift_day' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div>");
-
+        $(".change_shift_day").off();
         $(".change_shift_day").click(function(event) {
+            scroll = $(window).scrollTop();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             open_id = event.target.attributes.id.value;
             api("get_shift_day", {
@@ -1414,6 +1595,7 @@ function load_shift_days_shifts(data) {
             $("#change_shift_day_start").off();
             $("#change_shift_day_start").click(function() {
                 // change
+                scroll = $(window).scrollTop();
                 let start = $("#shift_day_start_change").val();
                 let start_object = new Date(start);
                 let start_db = formatDate(start_object)
@@ -1437,6 +1619,7 @@ function load_shift_days_shifts(data) {
         });
         $(".delete_shift_day").off();
         $(".delete_shift_day").click(function(event) {
+            scroll = $(window).scrollTop();
             let id = event.target.attributes.id.value;
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("delete_shift_day", {
@@ -1458,6 +1641,7 @@ function load_shift_days_shifts_locations(data) {
 
         $(".change_shift_day_location").off();
         $(".change_shift_day_location").click(function(event) {
+            scroll = $(window).scrollTop();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             open_id = event.target.attributes.id.value;
             api("get_location", {
@@ -1491,6 +1675,7 @@ function load_shift_days_shifts_locations(data) {
         });
         $(".delete_shift_day_location").off();
         $(".delete_shift_day_location").click(function(event) {
+            scroll = $(window).scrollTop();
             let id = event.target.attributes.id.value;
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("delete_location", {
@@ -1501,6 +1686,7 @@ function load_shift_days_shifts_locations(data) {
 
         });
     }
+    $(window).scrollTop(scroll);
 }
 
 
@@ -1535,6 +1721,9 @@ function clearAll() {
         "textDecoration": "none"
     });
     $("#subscription_li").css({
+        "textDecoration": "none"
+    });
+    $("#subscription_manual_li").css({
         "textDecoration": "none"
     });
     $("#present_li").css({

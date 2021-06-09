@@ -16,7 +16,9 @@ img {
   border: none;
   cursor: pointer;
 }
-
+nav ul {
+	height: 4rem !important; 
+}
 /* Dropdown button on hover & focus */
 .dropbtn:hover, .dropbtn:focus {
   background-color: #3e8e41;
@@ -40,8 +42,20 @@ img {
   display: inline-block;
 }
 
+.dropdown3 {
+  position: relative;
+  display: inline-block;
+}
+
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
+  position: absolute;
+  background-color: #f6f6f6;
+  min-width: 230px;
+  border: 1px solid #ddd;
+  z-index: 1;
+}
+.dropdown-content3 {
   position: absolute;
   background-color: #f6f6f6;
   min-width: 230px;
@@ -174,6 +188,22 @@ nav a {
 }
 
 #add_shift_day {
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: fixed;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;
+	display: none;
+}
+
+#add_user_manual_man {
 	z-index: 5;
 	height : auto;
 	position: relative; 
@@ -402,6 +432,10 @@ label {
 	width: 30%;
 	float: right;
 }
+#user_data2 img{
+	width: 30%;
+	float: right;
+}
 nav li {
 	margin-right: 1rem !important;
 }
@@ -439,7 +473,7 @@ nav li {
 	  font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
 	}
 	#top_menu {
-		height: 340px;
+		height: 360px;
 	}
 	#add_festit_init {
 		width:100%;
@@ -469,6 +503,11 @@ nav li {
 		float: none !important;
 	}
 	.change_shift_day_location {
+		width: 100% !important;
+		margin: 1px !important;
+		float: none !important;
+	}
+	.mail_external_location {
 		width: 100% !important;
 		margin: 1px !important;
 		float: none !important;
@@ -586,6 +625,16 @@ nav li {
 		position:fixed;
 		top: 0%;
 		left: 0%;
+	}
+	#add_user_manual_man {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;		
 	}
 	#add_shift {
 		top: 0px;
