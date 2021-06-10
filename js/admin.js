@@ -13,6 +13,7 @@ var selected_festival_presense = 0;
 var selected_location_precense = 0;
 var selected_shift_presense = 0;
 var selected_shift_day_manual_man = -1;
+var selected_location_manual_man = -1;
 var festival_payout = -1;
 selected_workday_presense = 0;
 festi_days = 1;
@@ -312,6 +313,10 @@ function festival_shift_day_processing(data){
         "id": coockie.ID,
         "hash": coockie.TOKEN
     }, manual_subscription_shift_days);
+    api("get_locations", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, manual_subscription_locations);
     $("#festival_list").html("");
     if (data.length == 0 || data.length == undefined){
         $("#festival_list").html("");
@@ -335,6 +340,45 @@ function festival_shift_day_processing(data){
         // change festival
     }
     $("#festival_list").fadeIn("fast");
+};
+
+function manual_subscription_locations(data){
+    // add days
+    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    
+    api("subscribe_external_location_active", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, populate_subscriptions_by_locations);
+    
+    $("#add_shift").hide();
+    for (let x = 0; x < data.length; x++) {
+        $("#festi" + data[x].festival_idfestival).append("<div id=loc" + data[x].location_id + " class='shift_line' ><div class='shift_title'><div style='width:100%' class='festi_date'><p><strong>opvang: " + data[x].name + "</p><div class='shift_title'><div style='width:25%' class='festi_date'><p>tijdsstip: " + data[x].appointment_time + "</p></div><p style='width:25%'>locatie: " + data[x].location + "</p><input type='submit' id='location"+ data[x].location_id +"' class='add_user_to_location' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'></div></div>");
+    }
+    $(".add_user_to_location").off();
+    $(".add_user_to_location").click(function(){
+        let id = event.target.attributes.id.value;
+        let location = id.replace(/[a-z]/gi, '');
+        selected_location_manual_man = location;
+        $("#add_user_manual_man_location").fadeIn(300);
+
+
+        $("#manual_user_abort_4").off();
+        $("#manual_user_abort_4").click(function(){
+            $("#add_user_manual_man_location").fadeOut(300);
+        });
+
+         $("#user_search4").off();
+        $("#user_search4").keydown(function() {
+            let user_part = $("#user_search4").val();
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            api("user_search", {
+                "id": coockie.ID,
+                "hash": coockie.TOKEN,
+                "search": user_part
+            }, add_user_search_result4);
+        });
+    });
 }
 
 function manual_subscription_shift_days(data){
@@ -375,6 +419,7 @@ function manual_subscription_shift_days(data){
         });
     });
 }
+
 function add_user_search_result2(data) {
     user_list = data;
     $("#myDropdown3 a").remove();
@@ -411,10 +456,75 @@ function add_user_search_result2(data) {
             "Id_Users": selected_user,
             "shift_day_id": selected_shift_day_manual_man
         }, festival_shift_subscribers_manual);
+    });
+}
+
+function add_user_search_result4(data) {
+    user_list = data;
+    $("#myDropdown4 a").remove();
+    for (let x = 0; x < data.length; x++) {
+        $("#myDropdown4").append("<a id='user" + data[x].users_Id_Users + "' class ='user_select_list4' href='#';>" + data[x].name + "</a>");
+        $(".user_select_list4").off();
+        $(".user_select_list4").click(function(event) {
+            
+            scroll = $(window).scrollTop();
+            let id = event.target.attributes.id.value;
+            id = id.replace(/[a-z]/gi, '');
+            let user = user_list.find(function(user) {
+                return user.users_Id_Users == id;
+            })
+            selected_user = id;
+            $("#user_data4").html("<img src=/" + user.picture_name + " alt='Toevoegen van lid'><label><strong>Naam: </strong></label><p>" + user.name + "<p> <label><strong>Geboortedatum: </strong></label><p>" + user.date_of_birth + "<p>     <label><strong>rijksregister: </strong></label><p>" + user.driver_license + "<p>");
+            $(window).scrollTop(scroll);
+            setTimeout(function(){$(window).scrollTop(scroll);}, 30);
+            
+        });
+    }
+     $(window).off();
+    $(window).click(function() {
+        $("#myDropdown4 a").remove();
+    });
+    $("#manual_user_start_4").off();
+    $("#manual_user_start_4").click(function(event) {
+        scroll = $(window).scrollTop();
+        $("#add_user_manual_man_location").fadeOut(500);
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        api("subscribe_external_location_admin_manual", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "user_id": selected_user,
+            "location_id": selected_location_manual_man
+        }, festival_shift_subscribers_manual);
+    });
+}
+
+function populate_subscriptions_by_locations(data){
+    for (let x = 0; x < data.length; x++) {
+        $("#loc" + data[x].location_id).append("<div id='shift" + data[x].location_id + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: opvang geselecteerd<p/><input type='submit' id=location" + data[x].location_id + " user=user"+ data[x].user_id +" class='unsubscribe_user_manual_location' name='delete festival' value='Verwijderen uit opvang' placeholder='' style='background-color: red ;  margin-left:10px;'></div></div>");
+    }
+    $(window).scrollTop(scroll);
+    
+    $(".unsubscribe_user_manual_location").off();
+    $(".unsubscribe_user_manual_location").click(function(event) {
+        scroll = $(window).scrollTop();
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        let id = event.target.attributes.id.value;
+        let location = id.replace(/[a-z]/gi, '');
+
+        let user = event.target.attributes.user.value;
+        let user_id = user.replace(/[a-z]/gi, '');
+
+        api("unsubscribe_external_location_admin_manual", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "user_id": user_id,
+            "location_id": location
+        }, festival_shift_subscribers_manual);
         
 
     });
 }
+
 function populate_subscriptions_by_shift_days(data){
     for (let x = 0; x < data.length; x++) {
         if(data[x].reservation_type == 3){
@@ -422,12 +532,13 @@ function populate_subscriptions_by_shift_days(data){
 
         }
         if(data[x].reservation_type == 5){
-            $("#shiftday" + data[x].shift_days_idshift_days).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: Manueel ingeschreven.<p><input type='submit' id=shiftday" + data[x].shift_days_idshift_days+ " user=user"+ data[x].users_Id_Users +" class='unsubscribe_user_manual' name='delete festival' value='uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></p></div></div>");
+            $("#shiftday" + data[x].shift_days_idshift_days).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p style='width:20%;margin-top:22px;'>naam: " + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: Manueel ingeschreven.<p><input type='submit' id=shiftday" + data[x].shift_days_idshift_days+ " user=user"+ data[x].users_Id_Users +" class='unsubscribe_user_manual' name='delete festival' value='uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'><input type='submit' id=shiftday" + data[x].shift_days_idshift_days+ " user=user"+ data[x].users_Id_Users +" class='mail_user_manual' name='' value='Mail planning naar gebruiker.' placeholder='' style='background-color: green ;  margin-left:10px;'></p></div></div>");
 
         }
     }
     $(window).scrollTop(scroll);
-    
+
+    $(".unsubscribe_user_manual").off();
     $(".unsubscribe_user_manual").click(function(event) {
         scroll = $(window).scrollTop();
         var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -444,7 +555,25 @@ function populate_subscriptions_by_shift_days(data){
             "shift_day_id": shift_day
         }, festival_shift_subscribers_manual);
         
+    });
 
+    $(".mail_user_manual").off();
+    $(".mail_user_manual").click(function(event) {
+        scroll = $(window).scrollTop();
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        let id = event.target.attributes.id.value;
+        let shift_day = id.replace(/[a-z]/gi, '');
+
+        let user = event.target.attributes.user.value;
+        let user_id = user.replace(/[a-z]/gi, '');
+
+        api("mail_user_by_shift_day", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "Id_Users": user_id,
+            "shift_day_id": shift_day
+        }, function(){alert("Verzonden!")});
+        
     });
 }
 

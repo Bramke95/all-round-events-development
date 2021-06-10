@@ -3285,7 +3285,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare("SELECT * FROM `locations` inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 or festivals.status != 7");
+		$statement = $db->prepare("SELECT locations.appointment_time, locations.location_id, locations.location, locations.shift_id, shifts.idshifts, shifts.datails, shifts.name, shifts.festival_idfestival FROM `locations` inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 or festivals.status != 7;");
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		if ($res){
@@ -3434,9 +3434,10 @@
 		// check if festival is open 
 
 		// check if festival is open
-		$statement = $db->prepare('SELECT festivals.status, idshifts from shifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN locations on locations.shift_id = shifts.idshifts where locations.location_id = ? LIMIT 1;');
+		$statement = $db->prepare('SELECT festivals.name, festivals.status, idshifts from shifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN locations on locations.shift_id = shifts.idshifts where locations.location_id = ? LIMIT 1;');
 		$statement->execute(array($location_id));
 		$res = $statement->fetchAll();
+		$festival = $res[0]["name"];
 		$shift = $res[0]["idshifts"];
 		if($res[0]["status"] > 3 ) {
 			exit("Event in wrong state to push external event");
@@ -3453,8 +3454,45 @@
 		$statement = $db->prepare("insert into external_appointment (external_appointment.location_id, external_appointment.user_id, present) VALUES (?,?,?);");
 		$statement->execute(array($location_id, $ID, 0));
 
+		$statement = $db->prepare("SELECT * FROM users where users.Id_Users = ?;");
+		$statement->execute(array($ID));
+		$res = $statement->fetchAll();
+		$email = $res[0]['email'];
+		$name = $res[0]['name'];
+		$statement = $db->prepare("SELECT * FROM locations where locations.location_id = ?");
+		$statement->execute(array($location_id));
+		$location = $statement->fetchAll();
+
+		$subject = "Opvang keuze voor " . $festival;
+		$message = '<html>
+				<p>Beste, '. $name .'</p>
+				<p></br></p>
+				<p>Je hebt gezozen voor een opvang moment, je wordt verwacht op '. $location[0]["appointment_time"] .'</br></p>
+				<p>op de volgende locatie: '. $location[0]["location"] .'</p>
+				<p></br></p>
+
+				<p>Indien je niet meer kan deelnemen aan dit evenement gelieve je dan zo vlug mogelijk uit te schrijven op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a> of door te antwoorden op deze mail.</p>
+				<p>Indien u nog meer vragen hebt kan u altijd antwoorden op deze mail of een kijkje nemen op in onze <a href="https://all-round-events.be/html/nl/info.html">FAQ</a>.</p>
+
+				<p>Met vriendelijke groeten</p>
+				<p><small>
+					All Round Events VZW
+					Meester Van Der Borghtstraat 10
+					2580 Putte
+					BTW: BE 0886 674 723
+					IBAN: BE68 7310 4460 6534
+					RPR Mechelen 
+				</small></html>';
+		$headers = 'From: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-round-events.be' . "\r\n" .
+		"Content-type:text/html;charset=UTF-8" . "\r\n" .
+		'X-Mailer: PHP/' . phpversion();
+		mail($email, $subject, $message, $headers);
+
+
 		exit(json_encode (json_decode ("{}")));
 	}
+
 	elseif ($action == "subscribe_external_location_admin") {
 		// get the contenct from the api body
 		//
@@ -3475,6 +3513,12 @@
 		}
 
 		admin_check($ID, $HASH, $db);
+
+		$statement = $db->prepare('select festivals.name from festivals inner JOIN shifts ON festivals.idfestival = shifts.festival_idfestival where shifts.idshifts = 27;');
+		$statement->execute(array($shift_id));
+		$res = $statement->fetchAll();
+		$festival = $res[0]["name"];
+
 		
 		$statement = $db->prepare("DELETE external_appointment from external_appointment  inner JOIN locations on locations.location_id = external_appointment.location_id inner join shifts on shifts.idshifts = locations.shift_id where shifts.idshifts = ? and external_appointment.user_id=?");
 		$statement->execute(array($shift_id, $user_id));
@@ -3482,8 +3526,136 @@
 		$statement = $db->prepare("insert into external_appointment (external_appointment.location_id, external_appointment.user_id, present) VALUES (?,?,?);");
 		$statement->execute(array($location_id, $user_id, 0));
 
+		$statement = $db->prepare("SELECT * FROM users where users.Id_Users = ?;");
+		$statement->execute(array($user_id));
+		$res = $statement->fetchAll();
+		$email = $res[0]['email'];
+		$name = $res[0]['name'];
+		$statement = $db->prepare("SELECT locations.appointment_time, locations.location from locations inner join shifts on locations.shift_id = shifts.idshifts where shifts.idshifts = ?;");
+		$statement->execute(array($shift_id));
+		$location = $statement->fetchAll();
+
+		$subject = "Opvang voor " . $festival;
+		$message = '<html>
+				<p>Beste, '. $name .'</p>
+				<p></br></p>
+				<p>Je wordt verwacht op '. $location[0]["appointment_time"] .'</br></p>
+				<p>op de volgende locatie: '. $location[0]["location"] .'</p>
+				<p></br></p>
+
+				<p>Indien je niet meer kan deelnemen aan dit evenement gelieve je dan zo vlug mogelijk uit te schrijven op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a> of door te antwoorden op deze mail.</p>
+				<p>Indien u nog meer vragen hebt kan u altijd antwoorden op deze mail of een kijkje nemen op in onze <a href="https://all-round-events.be/html/nl/info.html">FAQ</a>.</p>
+
+				<p>Met vriendelijke groeten</p>
+				<p><small>
+					All Round Events VZW
+					Meester Van Der Borghtstraat 10
+					2580 Putte
+					BTW: BE 0886 674 723
+					IBAN: BE68 7310 4460 6534
+					RPR Mechelen 
+				</small></html>';
+		$headers = 'From: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-round-events.be' . "\r\n" .
+		"Content-type:text/html;charset=UTF-8" . "\r\n" .
+		'X-Mailer: PHP/' . phpversion();
+		mail($email, $subject, $message, $headers);
+
 		exit(json_encode (json_decode ("{}")));
 	}
+	elseif ($action == "subscribe_external_location_admin_manual") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+			$user_id = $xml["user_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+
+		admin_check($ID, $HASH, $db);
+		
+		$statement = $db->prepare('SELECT festivals.name, festivals.status, idshifts from shifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN locations on locations.shift_id = shifts.idshifts where locations.location_id = ? LIMIT 1;');
+		$statement->execute(array($location_id));
+		$res = $statement->fetchAll();
+		$festival = $res[0]["name"];
+
+		$statement = $db->prepare("DELETE external_appointment from external_appointment  inner JOIN locations on locations.location_id = external_appointment.location_id where locations.location_id =? and external_appointment.user_id=?");
+		$statement->execute(array($location_id, $user_id));
+
+		$statement = $db->prepare("insert into external_appointment (external_appointment.location_id, external_appointment.user_id, present) VALUES (?,?,?);");
+		$statement->execute(array($location_id, $user_id, 0));
+
+		$statement = $db->prepare("SELECT * FROM users where users.Id_Users = ?;");
+		$statement->execute(array($user_id));
+		$res = $statement->fetchAll();
+		$email = $res[0]['email'];
+		$name = $res[0]['name'];
+		$statement = $db->prepare("SELECT * FROM locations where locations.location_id = ?");
+		$statement->execute(array($location_id));
+		$location = $statement->fetchAll();
+
+		$subject = "Opvangvoor " . $festival;
+		$message = '<html>
+				<p>Beste, '. $name .'</p>
+				<p></br></p>
+				<p>Je wordt verwacht op '. $location[0]["appointment_time"] .'</br></p>
+				<p>op de volgende locatie: '. $location[0]["location"] .'</p>
+				<p></br></p>
+
+				<p>Indien je niet meer kan deelnemen aan dit evenement gelieve je dan zo vlug mogelijk uit te schrijven op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a> of door te antwoorden op deze mail.</p>
+				<p>Indien u nog meer vragen hebt kan u altijd antwoorden op deze mail of een kijkje nemen op in onze <a href="https://all-round-events.be/html/nl/info.html">FAQ</a>.</p>
+
+				<p>Met vriendelijke groeten</p>
+				<p><small>
+					All Round Events VZW
+					Meester Van Der Borghtstraat 10
+					2580 Putte
+					BTW: BE 0886 674 723
+					IBAN: BE68 7310 4460 6534
+					RPR Mechelen 
+				</small></html>';
+		$headers = 'From: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-round-events.be' . "\r\n" .
+		"Content-type:text/html;charset=UTF-8" . "\r\n" .
+		'X-Mailer: PHP/' . phpversion();
+		mail($email, $subject, $message, $headers);
+
+		exit(json_encode (json_decode ("{}")));
+	}
+	elseif ($action == "unsubscribe_external_location_admin_manual") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$location_id = $xml["location_id"];
+			$user_id = $xml["user_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+
+		admin_check($ID, $HASH, $db);
+		//mail
+		$statement = $db->prepare("DELETE external_appointment from external_appointment  inner JOIN locations on locations.location_id = external_appointment.location_id where locations.location_id =? and external_appointment.user_id=?");
+		$statement->execute(array($location_id, $user_id));
+		exit(json_encode (json_decode ("{}")));
+	}
+
 	elseif ($action == "subscribe_external_location_user") {
 		// get the contenct from the api body
 		//
@@ -3524,8 +3696,8 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		token_check($ID, $HASH, $db);
-		$statement = $db->prepare("SELECT external_appointment.external_appointment_id, external_appointment.location_id, external_appointment.user_id, external_appointment.present,locations.shift_id FROM `external_appointment` inner join locations on locations.location_id = external_appointment.location_id inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 or festivals.status != 7");
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare("SELECT external_appointment.external_appointment_id, external_appointment.location_id, external_appointment.user_id, external_appointment.present,locations.shift_id, users_data.name, Images.picture_name FROM `external_appointment` inner join locations on locations.location_id = external_appointment.location_id inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = external_appointment.user_id inner join Images on Images.users_Id_Users = external_appointment.user_id where (festivals.status != 6 or festivals.status != 7) and Images.is_primary = 1");
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		if ($res){
@@ -3534,6 +3706,7 @@
 		}
 		exit(json_encode (json_decode ("{}")));
 	}
+
 	elseif ($action == "subscribe_external_location_listing") {
 		// get the contenct from the api body
 		//
@@ -3583,6 +3756,7 @@
 		$statement->execute(array($present, $user_id, $location_id));
 		exit(json_encode (json_decode ("{}")));
 	}
+
 	elseif ($action == "festival_mail_external_location") {
 		// get the contenct from the api body
 		//
@@ -3685,6 +3859,68 @@
 		// check if festival is open
 		$statement = $db->prepare('DELETE work_day from work_day  where work_day.reservation_type = ? and work_day.shift_days_idshift_days = ? and work_day.users_Id_Users =?;');
 		$statement->execute(array("5" ,$shift_day_id, $Id_Users));
+		exit(json_encode (json_decode ("{}")));
+	}
+
+	elseif ($action == "mail_user_by_shift_day") {
+		// get the contenct from the api body
+		//
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$Id_Users = $xml["Id_Users"];
+			$shift_day_id = $xml["shift_day_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select festivals.idfestival from shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where shift_days.idshift_days = ?;');
+		$statement->execute(array($shift_day_id));
+		$res = $statement->fetchAll();
+		$festival = $res[0]["idfestival"];
+		$statement = $db->prepare('select users.email, shift_days.start_date, shift_days.shift_end,shift_days.cost, festivals.name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shift_days.shifts_idshifts = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users on users.Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and users.Id_Users = ?;');
+		$statement->execute(array($festival, $Id_Users));
+		$res = $statement->fetchAll();
+		$shift_info = "";
+		$email = $res[0]["email"];
+		$festival_name = $res[0]["name"];
+		foreach ($res as &$shift) {
+			$shift_info .= "<p>Van " . $shift["start_date"] . " tot " .  $shift["shift_end"] . " voor " . $shift["cost"] . "euro </p>" ;
+		}
+		$subject = 'All-Round Events: Update voor  ' . $festival_name;
+		$message = '<html>
+		<p>Beste,</p>
+		<p>Je bent ingeschreven om te komen werken op  ' . $festival_name . '. </br></p>
+		<p> We hebben je ingeschreven voor volgende momenten:</p>
+		' . $shift_info .
+		"<p></p>
+		<p>Indien bovenstaande date niet correct zijn of moest je niet meer kunnen komen, gelieve dan zo snel mogelijk een mail te sturen door te antwoorden op deze mail!</p>
+		<p></p>
+		<p>Met vriendelijke groeten</p>
+		<p><small>
+			All Round Events VZW
+			Meester Van Der Borghtstraat 10
+			2580 Putte
+			BTW: BE 0886 674 723
+			IBAN: BE68 7310 4460 6534
+			RPR Mechelen</small></p>" .
+		"</html>";
+		$headers = 'From: inschrijvingen@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-roundevents.be' . "\r\n" .
+		"Content-type:text/html;charset=UTF-8" . "\r\n" .
+		'X-Mailer: PHP/' . phpversion();
+		mail($email, $subject, $message, $headers);
+
+
+		// check if festival is open
+		
 		exit(json_encode (json_decode ("{}")));
 	}
 
