@@ -491,6 +491,7 @@ nav li {
 	  padding: 1em;
 	  background: #e5e5e5;
 	  font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
+	  width: 95% !important;
 	}
 	#top_menu {
 		height: 360px;
@@ -567,7 +568,27 @@ nav li {
 		width: 100%;
 		margin: 2px !important;
 	}
+	.add_user_to_location {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
 	.change_shift {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.add_user_to_shift_day {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.mail_user_manual {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.unsubscribe_user_manual {
 		float: none !important;
 		width: 100%;
 		margin: 2px !important;
@@ -759,7 +780,7 @@ nav li {
 	
 
 	input[type=checkbox]{
-	  margin-right: auto;
+	  margin-right: 10px;
 	  margin-top: auto;
 	  margin-bottom: auto;
 	  transform: scale(2.5);
