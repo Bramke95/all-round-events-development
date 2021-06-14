@@ -3070,9 +3070,9 @@
 		$subject = 'Wachtwoord reset';
 		$message = '<html>
 						<p>Beste,</p>
-						<p>Je hebt een wachtwoord reset aagevraagd, hieronder vind u uw nieuw wachtwoord. Indien u uw wachtwoord wilt wijzingen kunt u dit doen door in te loggen en naar uw profiel te gaan. </br></p>
+						<p>Je hebt een wachtwoord reset aagevraagd, hieronder vind u uw nieuw wachtwoord. Indien u uw wachtwoord wilt wijzingen kunt u dit doen door in te loggen en naar uw profiel aanpassen te gaan. </br></p>
 						<p>Uw email: '. $email .'</br></p>
-						<p>Uw wachtwoord: '. $pass .'</br></p>
+						<p>Uw nieuw wachtwoord: '. $pass .'</br></p>
 						<p> </p>
 						<p>Met vriendelijke groeten</p>
 						<p><small>
@@ -3603,7 +3603,7 @@
 		$statement->execute(array($location_id));
 		$location = $statement->fetchAll();
 
-		$subject = "Opvangvoor " . $festival;
+		$subject = "Opvang voor " . $festival;
 		$message = '<html>
 				<p>Beste, '. $name .'</p>
 				<p></br></p>
@@ -3790,7 +3790,7 @@
 				<p></p>
 				<p>Je kan vanaf nu een opvang locatie kiezen op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a>, gelieve in te loggen en naar inschrijvingen te gaan. Gelieve hier je opvang locatie en uur naar keuze door te geven voor dit evenement.</p>
 
-				<p>Indien je niet meer kan deelnemen aan dit evenement gelieve je dan zo vlug mogelijk uit te schrijven op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a> of door te antwoorden op deze mail.</p>
+				<p>Indien je niet meer kan deelnemen aan dit evenement gelieve je dan zo snel mogelijk uit te schrijven op de <a href="https://all-round-events.be/html/nl/inschrijven.html">website</a> of door te antwoorden op deze mail.</p>
 				<p>Indien u nog meer vragen hebt kan u altijd antwoorden op deze mail of een kijkje nemen op in onze <a href="https://all-round-events.be/html/nl/info.html">FAQ</a>.</p>
 
 				<p>Met vriendelijke groeten</p>
@@ -3901,7 +3901,7 @@
 		<p> We hebben je ingeschreven voor volgende momenten:</p>
 		' . $shift_info .
 		"<p></p>
-		<p>Indien bovenstaande date niet correct zijn of moest je niet meer kunnen komen, gelieve dan zo snel mogelijk een mail te sturen door te antwoorden op deze mail!</p>
+		<p>Indien bovenstaande data niet correct zijn of moest je niet meer kunnen komen, gelieve dan zo snel mogelijk een mail te sturen door te antwoorden op deze mail!</p>
 		<p></p>
 		<p>Met vriendelijke groeten</p>
 		<p><small>
