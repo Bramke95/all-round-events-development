@@ -1464,6 +1464,47 @@
 	// returns a list of al the shift days available for only active festivals. 
 	//
 	//
+	elseif ($action == "get_shift_days_admin") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+		// this is an admin action, check if this is an admin
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT festivals.idfestival, festivals.status, shifts.idshifts, shift_days.cost, shift_days.idshift_days, shift_days.shift_end, shift_days.start_date, shifts.name FROM shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 AND festivals.status != 7;');
+		$statement->execute(array());
+		$counter = 0;
+		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+
+			$statement3 = $db->prepare('select * from work_day where work_day.shift_days_idshift_days = ?');
+			$statement3->execute(array($row["idshift_days"]));
+			$res3 = $statement3->fetchAll();
+			$row["users_total"] = count($res3);
+			$res[$counter] = $row;
+			$counter++;	
+		}
+
+
+
+
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
 	elseif ($action == "get_shift_days") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');

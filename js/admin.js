@@ -309,7 +309,7 @@ function festival_shift_day_processing(data){
         return;
     }
     var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-    api("get_shift_days", {
+    api("get_shift_days_admin", {
         "id": coockie.ID,
         "hash": coockie.TOKEN
     }, manual_subscription_shift_days);
@@ -392,7 +392,7 @@ function manual_subscription_shift_days(data){
     
     $("#add_shift").hide();
     for (let x = 0; x < data.length; x++) {
-        $("#festi" + data[x].idfestival).append("<div id=shiftday" + data[x].idshift_days + " class='shift_line' ><div class='shift_title'><div style='width:100%' class='festi_date'><p><strong>Shift: " + data[x].name + "</p><div class='shift_title'><div style='width:25%' class='festi_date'><p>start: " + data[x].start_date + "</p></div><p style='width:25%'>Einde: " + data[x].shift_end + "</p><p style='width:25%'>Prijs:" + data[x].cost + "</p><input type='submit' id='shiftday"+ data[x].idshift_days +"' class='add_user_to_shift_day' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'></div></div>");
+        $("#festi" + data[x].idfestival).append("<div id=shiftday" + data[x].idshift_days + " class='shift_line' ><div class='shift_title'><div style='width:100%' class='festi_date'><p><strong>Shift: " + data[x].name + "</p><div class='shift_title'><div style='width:20%' class='festi_date'><p>start: " + data[x].start_date + "</p></div><p style='width:20%'>Einde: " + data[x].shift_end + "</p><p style='width:20%'>Prijs:" + data[x].cost + "</p><p style='width:20%'>Aantal ingeschreven: " + data[x].users_total + "</p><input type='submit' id='shiftday"+ data[x].idshift_days +"' class='add_user_to_shift_day' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'></div></div>");
     }
     $(".add_user_to_shift_day").off();
     $(".add_user_to_shift_day").click(function(){
