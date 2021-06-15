@@ -230,7 +230,7 @@ function add_user_search_result2(data){
             selected_user = id;
 			$("#fname").val(user.name);
 			var date = new Date(user.date_of_birth);
-			var input_date = formatDate(date)
+			var input_date = formatDate2(date)
 			$("#dateofbirth").val(input_date);
 
 			$("#gender").val(user.Gender);
@@ -415,12 +415,12 @@ function manual_subscription_shift_days(data){
                 "id": coockie.ID,
                 "hash": coockie.TOKEN,
                 "search": user_part
-            }, add_user_search_result2);
+            }, add_user_search_result3);
         });
     });
 }
 
-function add_user_search_result2(data) {
+function add_user_search_result3(data) {
     user_list = data;
     $("#myDropdown3 a").remove();
     for (let x = 0; x < data.length; x++) {
@@ -673,6 +673,17 @@ function getCookie(name) {
     if (day.length < 2) day = '0' + day;
 
     return [year, month, day].join('-') + " " + [houre, minutes, seconds].join(':');
+    }
+    function formatDate2(date) {
+        var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
     }
 
 // function that makes api calles
@@ -1643,7 +1654,7 @@ function festival_processing(data) {
 		return;
 	}
     for (let x = 0; x < data.length; x++) {
-        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_external_location' name='mail' value='Verstuur opvang keuze.' placeholder='Verstuurt naar iedereen in het festival om een keuze te maken over welke opvang ze willen.' style='background-color: red ;  margin-left:10px;'></input></div>");
+        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_external_location' name='mail' value='Verstuur opvang keuze.' placeholder='Verstuurt naar iedereen in het festival om een keuze te maken over welke opvang ze willen.' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='csv_festival_download' name='csv' value='CSV' placeholder='Download CSV' style='background-color: red ;  margin-left:10px;'></input></div>");
         $('#' + data[x].idfestival + " select").val(data[x].status);
         // change festival
         $(".change_festival").off();
@@ -1692,6 +1703,11 @@ function festival_processing(data) {
                 "hash": coockie.TOKEN,
                 "festival_id": festi
             }, mail_done);
+        });
+        $(".csv_festival_download").click(function(event) {
+            let festi = event.target.attributes.id.value;
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            window.open(url + "csv_listing_festival&ID=" + coockie.ID + "&HASH=" + coockie.TOKEN + "&festi_id=" + festi);
         });
     }
 }

@@ -3923,6 +3923,27 @@
 		
 		exit(json_encode (json_decode ("{}")));
 	}
+	elseif ($action == "csv_listing_festival") {
+		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
+		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
+		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select users_data.name,  DATE(users_data.date_of_birth), users_data.driver_license from work_day inner JOIN shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? GROUP BY work_day.users_Id_Users');
+		$statement->execute(array($festi_id));
+		$res = $statement->fetchAll();
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="deelnemers.csv"');
+		$data = array();
+		foreach ($res as &$user) {
+			array_push($data, ($user["name"].",". $user["DATE(users_data.date_of_birth)"] . "," . $user["driver_license"]));
+		}
+		$fp = fopen('php://output', 'wb');
+		foreach ( $data as $line ) {
+    		$val = explode(",", $line);
+    		fputcsv($fp, $val);
+		}
+		fclose($fp);
+	}
 
 	else {
 		exit(json_encode(array(

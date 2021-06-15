@@ -578,6 +578,16 @@ nav li {
 		width: 100%;
 		margin: 2px !important;
 	}
+	.csv_festival_download {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
+	.unsubscribe_user_manual_location {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
 	.add_user_to_shift_day {
 		float: none !important;
 		width: 100%;
