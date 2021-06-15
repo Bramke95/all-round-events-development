@@ -3944,6 +3944,27 @@
 		}
 		fclose($fp);
 	}
+	elseif ($action == "csv_listing_festival_payout") {
+		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
+		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
+		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select work_day.users_Id_Users, SUM(shift_days.cost), users_data.name, users_data.adres_line_two, festivals.name as festiname, work_day.Payout from work_day inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and ((work_day.in = 1 and work_day.out = 1) or work_day.present = 1) GROUP BY work_day.users_Id_Users');
+		$statement->execute(array($festi_id));
+		$res = $statement->fetchAll();
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="uitbetaling.csv"');
+		$data = array();
+		foreach ($res as &$user) {
+			array_push($data, ($user["name"].",". $user["adres_line_two"] . "," . $user["SUM(shift_days.cost)"] . ", Vrijwilligersvergoeding " . $user["festiname"]));
+		}
+		$fp = fopen('php://output', 'wb');
+		foreach ( $data as $line ) {
+    		$val = explode(",", $line);
+    		fputcsv($fp, $val);
+		}
+		fclose($fp);
+	}
 
 	else {
 		exit(json_encode(array(

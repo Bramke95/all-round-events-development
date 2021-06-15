@@ -583,6 +583,11 @@ nav li {
 		width: 100%;
 		margin: 2px !important;
 	}
+	.csv_festival_payout_download {
+		float: none !important;
+		width: 100%;
+		margin: 2px !important;
+	}
 	.unsubscribe_user_manual_location {
 		float: none !important;
 		width: 100%;
