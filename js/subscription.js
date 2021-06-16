@@ -178,10 +178,10 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 			}
 		}
 		else if (is_completely_full){
-			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='blocked' name='registeren' value='Volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 		}
 		else {
-			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren(reeds volzet)' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
 
 		}
 		
@@ -199,7 +199,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 
 		}
 		else if (is_completely_full){
-			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
+			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='Uitschrijven' value='volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 
 		}
 		else if (is_full){

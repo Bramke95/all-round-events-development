@@ -1154,12 +1154,12 @@
 			$query ='SELECT * FROM festivals WHERE idfestival = ? ;';
 			token_check($ID, $HASH, $db);
 		}
-		else if ("active"){
-			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7;';
+		else if ($type ==  "active"){
+			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 ORDER BY date DESC;';
 		}
 		else {
-			$query ='SELECT * FROM festivals;';
-			token_check($ID, $HASH, $db);
+			$query ='SELECT * FROM `festivals`ORDER BY date DESC limit 15';
+			admin_check($ID, $HASH, $db);
 		}
 		
 		

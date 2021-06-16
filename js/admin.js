@@ -707,7 +707,7 @@ function autofill_festivals() {
     api("get_festivals", {
         "id": coockie.ID,
         "hash": coockie.TOKEN,
-        "select": "active",
+        "select": "all",
         "festi_id": "invalid"
     }, festival_processing);
 }
