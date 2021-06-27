@@ -126,6 +126,7 @@ $(document).ready(function() {
                 "text": text,
                 "subject": subject
             }, callback_messenger);
+            alert("Verzenden gestart, je krijgt een melding als alle berichten verzonden zijn!");
         });
     });
 });
@@ -1693,6 +1694,7 @@ function festival_processing(data) {
                 "hash": coockie.TOKEN,
                 "festival_id": festi
             }, mail_done);
+            alert("Verzenden van mails gestart, je krijgt een nieuwe melding als alle mails verzonden zijn.");
         });
         $(".mail_external_location").off();
         $(".mail_external_location").click(function(event) {
@@ -1703,6 +1705,7 @@ function festival_processing(data) {
                 "hash": coockie.TOKEN,
                 "festival_id": festi
             }, mail_done);
+            alert("Verzenden van mails gestart, je krijgt een nieuwe melding als alle mails verzonden zijn.");
         });
         $(".csv_festival_download").click(function(event) {
             let festi = event.target.attributes.id.value;
@@ -1718,7 +1721,7 @@ function festival_processing(data) {
 }
 
 function mail_done(data){
-    alert("Mails verzonden!");
+    alert("Alle mails zijn verzonden!");
 }
 
 function load_shift_days_shifts(data) {
