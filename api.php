@@ -94,8 +94,8 @@
 	$db = new PDO('mysql:host=' . $host . ';dbname=' . $name . ';charset=utf8', $user, $pass);
 	$db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 	
-	// mailing stuff 
-
+	// make sure mailing continues after the browser session is closed
+	ignore_user_abort(true);
 	// gets the action that needs to be performed. 
 	$action = isset($_GET['action']) ? $_GET['action'] : '';
 
@@ -105,7 +105,7 @@
 	// -> The new user needs a valid activation code 
 	// -> the new user needs a email address that was never used before
 	// -> the user needs a valid password 
-	// !! it is the responsability of the frontend to hash the password. Never send an plain password to this function!! 
+	// 
 	//
 	if ($action == 'new_user') {
 		// get the contenct from the api body
@@ -2152,10 +2152,9 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				mail($email, $subject, $message, $headers);
-				
-				
+				mail($email, $subject, $message, $headers);	
 			}
+			exit(json_encode (json_decode ("{}")));
 		}
 		if($status == 3){
 			// mail to everyone that the event is now open in subscription mode
@@ -2186,7 +2185,7 @@
 									RPR Mechelen</small></p>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
-				'Reply-To: info@all-roundevents.be ' . "\r\n" .
+				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				mail($email, $subject, $message, $headers);
@@ -3175,7 +3174,7 @@
 																						IBAN: BE68 7310 4460 6534
 																					RPR Mechelen</small></p></html>";
 			$headers = 'From: info@all-round-events.be' . "\r\n" .
-			'Reply-To: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message_mail, $headers);
@@ -3200,7 +3199,7 @@
 																						IBAN: BE68 7310 4460 6534
 																					RPR Mechelen</small></p></html>";
 			$headers = 'From: info@all-round-events.be' . "\r\n" .
-			'Reply-To: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message_mail, $headers);
@@ -3525,7 +3524,7 @@
 					RPR Mechelen 
 				</small></html>';
 		$headers = 'From: info@all-round-events.be' . "\r\n" .
-		'Reply-To: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
 		mail($email, $subject, $message, $headers);
@@ -3597,7 +3596,7 @@
 					RPR Mechelen 
 				</small></html>';
 		$headers = 'From: info@all-round-events.be' . "\r\n" .
-		'Reply-To: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
 		mail($email, $subject, $message, $headers);
@@ -3665,7 +3664,7 @@
 					RPR Mechelen 
 				</small></html>';
 		$headers = 'From: info@all-round-events.be' . "\r\n" .
-		'Reply-To: info@all-round-events.be' . "\r\n" .
+		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
 		mail($email, $subject, $message, $headers);
@@ -3817,13 +3816,14 @@
 		}
 		admin_check($ID, $HASH, $db);
 		// select all the id's and email from one shift
-		$statement = $db->prepare("select DISTINCT users.email, users_data.name, festivals.name as festival_name from work_day INNER JOIN users on work_day.users_Id_Users = users.Id_Users inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner JOIN shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where shifts.festival_idfestival = ? and users.Id_Users not in (select DISTINCT external_appointment.user_id from external_appointment inner JOIN locations on locations.shift_id inner join shifts on shifts.idshifts = locations.shift_id where shifts.festival_idfestival = ?)");
+		$statement = $db->prepare("select DISTINCT users.email, users.id_Users ,users_data.name, festivals.name as festival_name from work_day INNER JOIN users on work_day.users_Id_Users = users.Id_Users inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner JOIN shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where shifts.festival_idfestival = ? and users.Id_Users not in (select DISTINCT external_appointment.user_id from external_appointment inner JOIN locations on locations.location_id = external_appointment.location_id inner join shifts on shifts.idshifts = locations.shift_id where shifts.festival_idfestival = ?)");
 		$statement->execute(array($festival_id, $festival_id));
 		$res = $statement->fetchAll();
 		foreach ($res as &$line) {
 			$email = $line["email"];
 			$festival_name = $line["festival_name"];
 			$name = $line["name"];
+			$id_pusher = $line["id_Users"];
 			$subject = "Opvang keuze voor " . $festival_name;
 			$message = '<html>
 				<p>Beste, '. $name .'</p>
@@ -3844,15 +3844,15 @@
 					RPR Mechelen 
 				</small></html>';
 			$headers = 'From: info@all-round-events.be' . "\r\n" .
-			'Reply-To: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			mail($email, $subject, $message, $headers);
-
-			$notification_text = $text;
+			$message2 = 'Binnenkort is het zover en zal jij als vrijwillger aan de slag gaan op ' . $festival_name .'!  Je kan vanaf nu een opvang locatie kiezen op de website, gelieve in te loggen en naar inschrijvingen te gaan. Gelieve hier je opvang locatie en uur naar keuze door te geven voor dit evenement.';
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
-			$statement->execute(array($message, 0, $id_pusher));
+			$statement->execute(array($message2, 0, $id_pusher));
 		}
+		exit(json_encode (json_decode ("{}")));
 	}
 	elseif ($action == "add_user_to_day_manual") {
 		// get the contenct from the api body
