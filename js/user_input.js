@@ -105,9 +105,6 @@
 		}
 		$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th><th></th></tr>');
 		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback_main )
-		api("get_education",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_education_callback)
-		api("get_languages",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_language_callback)
-		api("get_expierence",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_expierence_callback)
 		api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)
 	}
 
@@ -325,7 +322,8 @@
 		// click to insert data
     	$("#submit").click(function() {
 			var user = $("#fname").val();
-			var date_of_birth = $("#dateofbirth").val();
+			let date_of_birth_original = $("#dateofbirth").val();
+			var date_of_birth = formatDate(date_of_birth_original);
 			var gender = $("#gender").val();
 			var address_1 = $("#address_1").val();
 			var address_2 = $("#address_2").val();

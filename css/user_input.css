@@ -44,6 +44,7 @@ input[type=date]{
   border-radius: 4px;
   cursor: pointer;
   width: 97%;
+  margin-top: 2px;
 }
 
 /* Style the label to display next to the inputs */

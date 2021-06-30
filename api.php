@@ -1892,7 +1892,7 @@
 			$shift_info .= "<p>Van " . $shift["start_date"] . " tot " .  $shift["shift_end"] . " voor " . $shift["cost"] . "euro </p>" ;
 		}
 		
-		if ($ID == $Id_Users){
+		if ($ID == $Id_Users && $status != "0"){
 				token_check($ID, $HASH, $db);
 				$notification_text = 'Ja bent nu uitgeschreven voor ' . $festival_name . ' in shift ' . $shift["name"] . ' . Hopelijk tot een volgende keer!';
 				$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
@@ -1923,7 +1923,7 @@
 			
 			
 		}
-		else {
+		elseif ($status != "0") {
 			admin_check($ID, $HASH, $db);
 				$notification_text = 'Je zal jammer genoeg niet kunnen deelnemen aan  ' . $festival_name . ' in shift ' . $shift_info . '. Er komen snel andere evenementen! Hou je app in de gaten!';
 				$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
@@ -3104,7 +3104,7 @@
 		$pass = bin2hex(openssl_random_pseudo_bytes(8));
 		$salt = bin2hex(openssl_random_pseudo_bytes(40));
 		$hashed_pass = password_hash($pass . $salt, PASSWORD_DEFAULT);
-		$statement = $db->prepare('UPDATE users inner join users_data on users_data.users_Id_Users = users.Id_Users set pass=?, salt=? where email=?');
+		$statement = $db->prepare('UPDATE users set pass=?, salt=? where email=?');
 		$statement->execute(array($hashed_pass, $salt, $email));
 		# send email 
 		$subject = 'Wachtwoord reset';

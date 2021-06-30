@@ -126,17 +126,18 @@ function id_to_status(id){
 }
 
 // get the stastus from the id 
-function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered, is_manual){
+function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered, is_manual, is_interested){
 	var unemployment_but = "<input type='submit' id=unemployment"+ shift_id +" class='unemployment_to_festival' name='Werkloos' value='Werkloosheidsattest' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 	var external_locations = "";
 
 	if(is_manual){
 		return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Deels ingeschreven(Check uw mailbox)' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 	}
-
-
 	if(has_external_locations){
 		external_locations = "<input type='submit' id=external"+ shift_id +" class='subscribe_to_location' name='ingeschrijven' value='Opvang moment selecteren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
+	}
+	if(is_interested && id == 0){
+		return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Geen interesse meer' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 	}
 	if(is_empty_days){
 		return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='blocked' name='afgesloten' value='Niet Actief' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
@@ -181,7 +182,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 			return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='blocked' name='registeren' value='Volzet' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 		}
 		else {
-			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren(reeds volzet)' placeholder='' style='background-color: orange ;  margin-left:10px;'>";
+			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 
 		}
 		
@@ -296,6 +297,7 @@ function shift_processing(data){
 			let is_subscrubed = false;
 			let is_registered = false;
 			let is_manual = false;
+			let is_interested = false;
 			let is_empty_days = data[x].work_days == 0;
 			let has_external_locations = data[x].external_meeting_locations > 0;
 			for (let y = 0; y < subscriptions.length; y++){
@@ -303,10 +305,14 @@ function shift_processing(data){
 					is_manual = subscriptions[y].reservation_type == 5
 					is_subscrubed = true;
 					is_registered = subscriptions[y].reservation_type == 2;
+					is_interested = subscriptions[y].reservation_type == 0;
+					if(is_interested){
+						is_subscrubed = false;
+					}
 					break;
 				}
 			}
-			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered, is_manual) +"</div></div>");
+			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered, is_manual, is_interested) +"</div></div>");
 			$("#shift_button" + data[x].idshifts).off();
 			$("#shift_button" + data[x].idshifts).click(function(event){
 				if($(this).hasClass("blocked")){return}
