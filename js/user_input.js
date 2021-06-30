@@ -84,6 +84,8 @@
 		}
 		if (res["status"] == 200) {
 			alert("Alle gegevens zijn opgeslagen!");
+			window.location.href = "user.html";
+
 			
 		}
 		else {
@@ -320,7 +322,8 @@
 	$( document ).ready(function() {
 
 		// click to insert data
-    	$("#submit").click(function() {
+    	$("#submit").click(function(event) {
+    		event.preventDefault();
 			var user = $("#fname").val();
 			let date_of_birth_original = $("#dateofbirth").val();
 			var date_of_birth = formatDate(date_of_birth_original);
@@ -382,11 +385,17 @@
 		});
 		$("#submit_pass").click(function(event) {
 			let pass =  $("#pass_textfield").val();
-			var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-			api("change_pass",{"id" : coockie.ID, "hash" : coockie.TOKEN, "new_pass": pass}, function(){
-				alert("wachtwoord gewijzigd.");
-			})
-			
+			let pass2 =  $("#pass_textfield2").val();
+			if(pass != pass2){
+				alert("Je wachtwoorden kwamen niet overeen, probeer het opnieuw aub");
+			}
+			else {
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("change_pass",{"id" : coockie.ID, "hash" : coockie.TOKEN, "new_pass": pass}, function(){
+					alert("wachtwoord gewijzigd.");
+					window.location.href = "user.html";
+				})
+			}
 		});
 		
 

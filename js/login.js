@@ -86,8 +86,9 @@
 // starting function for this page, mainly for putting event handlers to the login, cancel button. Some checks are performed on the content in the input boxes
 	$( document ).ready(function() {
     	$("#BUT_reg").click(function() {
-			var email = $("#email_textfield").val()
-			var pass = $("#pass_textfield").val()
+			var email = $("#email_textfield").val();
+			email = email.replace(/\s/g, '');
+			var pass = $("#pass_textfield").val();
 			if (email == "" || pass == ""){
 				$("#error").html("<p><strong>Niet alle velden zijn ingevuld! </strong></p>");
 				return;

@@ -344,7 +344,7 @@
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		//  put everything in the database 
 		if(!$res){
-		$statement = $db->prepare('INSERT INTO users_data (name,size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
+		$statement = $db->prepare('INSERT INTO users_data (name,size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, employment, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
 				$statement->execute(array($name,$size,  $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $ID)); 
 		}
 		else {
@@ -1155,7 +1155,7 @@
 			token_check($ID, $HASH, $db);
 		}
 		else if ($type ==  "active"){
-			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 ORDER BY date DESC;';
+			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 ORDER BY date ASC;';
 		}
 		else {
 			$query ='SELECT * FROM `festivals`ORDER BY date DESC limit 15';

@@ -82,6 +82,7 @@
 	$( document ).ready(function() {
     	$("#BUT_reg").click(function() {
 			var email = $("#email_textfield").val()
+			email = email.replace(/\s/g, '');
 			var pass = $("#pass_textfield").val()
 			var code = $("#token_textfield").val()
 			GLOBAL_PASS = pass;
