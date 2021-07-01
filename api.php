@@ -2040,7 +2040,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select * from users_data inner join Images on (Images.users_Id_Users = users_data.users_Id_Users and Images.is_primary = 1) where name like ? limit 10; ');
+		$statement = $db->prepare('select  name,id_users as users_Id_Users,  size, date_of_birth, gender, adres_line_one, adres_line_two, driver_license, nationality, text, telephone, marital_state, employment, email from users_data INNER JOIN users on users.Id_Users = users_data.users_Id_Users inner join Images on (Images.users_Id_Users = users_data.users_Id_Users and Images.is_primary = 1) where name like ? limit 10;');
 		$statement->execute(array("%" . $search . "%"));
 		$res = $statement->fetchAll();
 		if ($res){

@@ -207,7 +207,7 @@ function users_select_box(){
     $("#user_select").show()
 
     $("#user_search2").keydown(function() {
-    	let user_part = $("#user_search").val();
+    	let user_part = $("#user_search2").val();
     	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
     	api("user_search", {
     		"id": coockie.ID,
@@ -236,6 +236,7 @@ function add_user_search_result2(data){
 			$("#dateofbirth").val(input_date);
 
 			$("#gender").val(user.Gender);
+            $("#email_user").val(user.email);
 			$("#address_1").val(user.adres_line_one);
 			$("#address_2").val(user.adres_line_two);
 			$("#tel").val(user.telephone);
