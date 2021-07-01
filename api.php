@@ -75,14 +75,15 @@
 		$token_db = $res["HASH"];
 		$admin = $res["Type"];
 		// check if the token excists 
-		if ($token_db != $token_user || $admin != "1"){
-			exit(json_encode(array(
-				'status' => 409,
-				'error_type' => 4,
-				'error_message' => "No admin rights"
-			)));
+		if ($token_db == $token_user && $admin == "1"){
+			return true; 
 		}
-		return true; 
+		exit(json_encode(array(
+			'status' => 409,
+			'error_type' => 4,
+			'error_message' => "No admin rights"
+		)));
+		
 		
 	}
 	// include DB configuration
@@ -2138,8 +2139,8 @@
 								<p>Ga naar de website en registreer je voor je gewenste shift, je kan dit doen met de volgende link: </p>
 								<p>https://all-round-events.be/html/nl/inschrijven.html</p>
 								<p> </p>
-								<p>Opgelet, registeren betekent niet dat je ingeschreven bent. Je zal zo snel mogelijk een mail ontvangen met het resultaat van je registratie! </p>
-								<p>Veel succes en hopelijk tot snel</p>
+								<p>Opgelet, registeren betekent niet dat je ingeschreven bent. Je zal zo snel mogelijk een mail ontvangen met het resultaat van je registratie! Kijk zeker je gegevens na voor je je inschrijft voor dit evenement.</p>
+								<p>Veel succes en hopelijk tot snel!</p>
 								<p><small>
 									All Round Events VZW
 									Meester Van Der Borghtstraat 10
