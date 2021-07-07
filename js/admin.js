@@ -374,7 +374,7 @@ function manual_subscription_locations(data){
             $("#add_user_manual_man_location").fadeOut(300);
         });
 
-         $("#user_search4").off();
+        $("#user_search4").off();
         $("#user_search4").keydown(function() {
             let user_part = $("#user_search4").val();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));

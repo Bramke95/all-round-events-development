@@ -102,9 +102,11 @@
 		
 		$("#reset_pass_start").click(function(){
 			$("#email_reset_pass").fadeIn(500);
+			$("#reset_pass_abort").off();
 			$("#reset_pass_abort").click(function(){
 				$("#email_reset_pass").fadeOut(500);
 			});
+			$("#reset_pass").off();
 			$("#reset_pass").click(function(){
 				let email_field = $("#email_field").val();
 				api("reset_pass", {"email" : email_field}, reset_pass_callback)
