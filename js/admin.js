@@ -235,7 +235,7 @@ function add_user_search_result2(data){
 			var input_date = formatDate2(date)
 			$("#dateofbirth").val(input_date);
 
-			$("#gender").val(user.Gender);
+			$("#gender").val(user.gender);
             $("#email_user").val(user.email);
 			$("#address_1").val(user.adres_line_one);
 			$("#address_2").val(user.adres_line_two);
@@ -246,6 +246,8 @@ function add_user_search_result2(data){
 			$("#text").val(user.text);
 			$("#marital_state").val(user.marital_state);
 			$("#user_info").show();
+            $(".container img").remove();
+            $(".container").prepend("<img src=/" + user.picture_name + " alt='Toevoegen van lid'>");
 			
 					// click to insert data
             $("#submit").off();

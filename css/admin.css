@@ -102,6 +102,10 @@ nav a {
 	margin-right: 1px !important;
 }
 
+.container img {
+	height: 200px;
+}
+
 #top_menu {
 	height: 100px;
 }
