@@ -19,7 +19,8 @@ function festival_processing(data){
 		$("#festival_list").append("<div id='No_festival' class='festi3' ><span>Op dit moment zijn er geen evenementen gepland, hou deze pagina en je mailbox goed in de gaten!</span></div>");
 	}
 	for (let x = 0; x < data.length; x++){
-		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi2' ><div style='width:20%' class='festi_date'><p><strong>"+ data[x].name + "</strong></p></div style='width:20%'><p> Over "+ formatDate(data[x].date) +" maanden!</p><p style='width:40%'>"+ data[x].details +"</p><p style='width:20%'>Status: "+ id_to_status(data[x].status) +"</p></div>");
+
+		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi2' ><div style='width:20%' class='festi_date'><p><strong>"+ data[x].name + "</strong></p></div style='width:20%'><p> Over "+ formatDate(data[x].date) + " dagen!</p><p style='width:40%'>"+ data[x].details +"</p><p style='width:20%'>Status: "+ id_to_status(data[x].status) +"</p></div>");
 		$('#' + data[x].idfestival + " select").val(data[x].status);
 		// change festival
 		$(".change_festival").click(function(event){
@@ -79,11 +80,9 @@ function getCookie(name) {
 
 // format date to the correct format for the input field 
 function monthDiff(d1, d2) {
-    var months;
-    months = (d2.getFullYear() - d1.getFullYear()) * 12;
-    months -= d1.getMonth();
-    months += d2.getMonth();
-    return months <= 0 ? 0 : months;
+	var start = Math.floor(d1.getTime() / (3600 * 24 * 1000)); //days as integer from..
+	var end = Math.floor(d2.getTime() / (3600 * 24 * 1000)); //days as integer from..
+	return end - start; // exact dates
 }
 
 function formatDate(date) {
@@ -92,8 +91,6 @@ function formatDate(date) {
 	return monthDiff(n, d);
 
 }
-
-
 
 // function that makes api calles
 function api(action, body, callback){
