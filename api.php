@@ -86,6 +86,16 @@
 		
 		
 	}
+	// splits name into first and last name
+	function split_name($name) {
+		if (is_null($name)){
+			return array("", "");
+		}
+	    $name = trim($name);
+	    $last_name = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
+	    $first_name = trim( preg_replace('#'.preg_quote($last_name,'#').'#', '', $name ) );
+	    return array($first_name, $last_name);
+	}
 	// include DB configuration
 	require_once 'config.php';
 	
@@ -3986,6 +3996,42 @@
 		}
 		fclose($fp);
 	}
+	elseif ($action == "excel_listing_pukkelpop") {
+		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
+		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
+		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select users.is_admin, users_data.name, users.email, users_data.date_of_birth, users_data.driver_license, users_data.Gender, users_data.users_Id_Users from work_day inner JOIN shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join users on users.Id_Users = work_day.users_Id_Users where festivals.idfestival = ? GROUP BY work_day.users_Id_Users ORDER BY `users_data`.`date_of_birth` DESC;');
+		$statement->execute(array($festi_id));
+		$res = $statement->fetchAll();
+		$excel_data = [['Voornaam', 'Achternaam', 'E-mail (verplicht)', 'GSM (met landcode)', 'Functie', 'Geboortedatum(verplicht)(dag-maand-jaar)', 'Rijksregisternummer(verplicht)', 'Europees Rijkregisternummer (verplicht indien geen rijksregisternummer)', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag', 'Opbouw/Afbraak', 'Overnachten', 'Verantwoordelijke', 'Straat', 'Nummer', 'Busnummer', 'Postcode', 'Gemeente', 'Postcode', 'Land', 'Postcode', 'Telefoon', 'Postcode', 'ICE Telefoon', 'Geslacht', 'Geboorteplaats']];
+		
+		foreach ($res as &$user) {
+			$gender = "m";
+			if($user["Gender"] > 0){
+				$gender = "v";
+			}
+			$responsable = 0;
+			$function = "crew medewerker";
+			if($user["is_admin"]){
+				$function = "verantwoordelijke";
+				$responsable = 1;
+			}
+
+			$surname = split_name($user["name"])[0];
+			$lastname = split_name($user["name"])[1];
+
+			$date_of_birth_database = $user["date_of_birth"];
+			$date_of_birth = date("d-m-Y", strtotime($date_of_birth_database) );		
+
+			array_push($excel_data, [$surname, $lastname, $user["email"], "",$function, $date_of_birth, $user["driver_license"], "", "1","1","1","1","0","1",$responsable,"", "","","","","","","","","","",$gender,""]);
+		}
+		
+		require('excel_lib.php');
+
+		$xlsx = SimpleXLSXGen::fromArray( $excel_data );
+		$xlsx->downloadAs('pukkelpop_excel_alle_deelnemers.xlsx');
+	}
 	elseif ($action == "csv_listing_festival_payout") {
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
@@ -4007,6 +4053,46 @@
 		}
 		fclose($fp);
 	}
+	elseif ($action == "user_work_days") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$user_id = $xml["user_id"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select * from Images where users_Id_Users =? and is_primary = 1');
+		$statement->execute(array($user_id));
+		$res = $statement->fetchAll();
+		if(count($res) == 0){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 8,
+				'error_message' => "profile picture is needed"
+			)));
+		}
+		
+		$statement = $db->prepare('SELECT reservation_type, idshifts, shift_days.start_date, shift_days.shift_end, shifts.name, festivals.name as festiname FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7;');
+		$statement->execute(array($user_id));
+		$res = $statement->fetchAll();
+		
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		else {
+			exit(json_encode (json_decode ("{}")));
+		}
+	}
+
 
 	else {
 		exit(json_encode(array(

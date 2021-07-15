@@ -7,6 +7,14 @@ img {
 	padding-right: 20px;
 }
 
+img:hover {
+	transform: scale(3);
+}
+
+.container img:hover {
+	transform: scale(1.2) !important; 
+}
+
 /* Dropdown Button */
 .dropbtn {
   background-color: #4CAF50;
@@ -191,7 +199,39 @@ nav a {
 	display: none;
 }
 
+#export_docoments {
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: fixed;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;	
+	display: none;
+}
+
 #add_shift {
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: fixed;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;
+	display: none;
+}
+
+#user_search_listing {
 	z-index: 5;
 	height : auto;
 	position: relative; 
@@ -685,6 +725,28 @@ nav li {
 		position:fixed;
 		top: 0%;
 		left: 0%;
+	}
+
+	#export_docoments{
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
+	}
+
+	#user_search_listing {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;		
 	}
 	#change_shift {
 		top: 0px;

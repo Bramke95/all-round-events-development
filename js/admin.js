@@ -247,11 +247,13 @@ function add_user_search_result2(data){
 			$("#marital_state").val(user.marital_state);
 			$("#user_info").show();
             $(".container img").remove();
+            $(".user_serach_work_listing").remove();
             $(".container").prepend("<img src=/" + user.picture_name + " alt='Toevoegen van lid'>");
+            $(".container").prepend('<input id="'+selected_user+'" class="user_serach_work_listing" type="submit" value="Actieve werkdagen">');
 			
-					// click to insert data
+			// click to insert data
             $("#submit").off();
-			$("#submit").click(function() {
+			$("#submit").click(function(event) {
 				var user = $("#fname").val();
 				var date_of_birth_orignal = $("#dateofbirth").val();
                 var date_of_birth = formatDate2(date_of_birth_orignal);
@@ -266,12 +268,41 @@ function add_user_search_result2(data){
 				var marital_state = $("#marital_state").val();
 				insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size);
 			});
+
+            $(".user_serach_work_listing").off();
+            $(".user_serach_work_listing").click(function(event) {
+                let id = event.target.attributes.id.value;
+                    var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+                    api("user_work_days", {
+                        "id": coockie.ID,
+                        "hash": coockie.TOKEN,
+                        "user_id": id
+                    }, callback_user_search_workdays);
+                });
+
         })
     }
     $(window).click(function() {
         $("#myDropdown2 a").remove();
 
     });
+}
+
+function callback_user_search_workdays(data){
+
+    $(".user_search_result_listing").html("");
+    $(".user_search_result_listing").html();
+        for (let x = 0; x < data.length; x++) {
+            $(".user_search_result_listing").append("<div id='user_listing_search_work' class='shift_day_line'><p style='width:25%;margin-top:22px;'>" + data[x].festiname + "</p><p style='width:25%;margin-top:22px;'>shift: " + data[x].name + "</p><p style='width:25%;margin-top:22px;'>van: "+ data[x].start_date +"<p/><p style='width:25%;margin-top:22px;'>tot: "+ data[x].shift_end +"<p/></div></div>");
+    }
+    $(".close_user_work_listing").off();
+    $("#close_user_work_listing").click(function(){
+        $("#user_search_listing").fadeOut(300);
+    });
+    $("#user_search_listing").fadeIn(300);
+    $("#user_search_listing").draggable();
+
+
 }
 
 
@@ -1661,7 +1692,7 @@ function festival_processing(data) {
 		return;
 	}
     for (let x = 0; x < data.length; x++) {
-        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_external_location' name='mail' value='Verstuur opvang keuze.' placeholder='Verstuurt naar iedereen in het festival om een keuze te maken over welke opvang ze willen.' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='csv_festival_download' name='csv' value='CSV leden' placeholder='Download CSV' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='csv_festival_payout_download' name='csv' value='CSV betaling' placeholder='Download CSV betalingen' style='background-color: red ;  margin-left:10px;'></input></div>");
+        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_external_location' name='mail' value='Verstuur opvang keuze.' placeholder='Verstuurt naar iedereen in het festival om een keuze te maken over welke opvang ze willen.' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='export_mode' name='csv' value='Export' placeholder='Download CSV' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='csv_festival_payout_download' name='csv' value='CSV betaling' placeholder='Download CSV betalingen' style='background-color: red ;  margin-left:10px;'></input></div>");
         $('#' + data[x].idfestival + " select").val(data[x].status);
         // change festival
         $(".change_festival").off();
@@ -1713,11 +1744,35 @@ function festival_processing(data) {
             }, mail_done);
             alert("Verzenden van mails gestart, je krijgt een nieuwe melding als alle mails verzonden zijn.");
         });
-        $(".csv_festival_download").click(function(event) {
+        $(".export_mode").off();
+        $(".export_mode").click(function(event) {
             let festi = event.target.attributes.id.value;
-            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-            window.open(url + "csv_listing_festival&ID=" + coockie.ID + "&HASH=" + coockie.TOKEN + "&festi_id=" + festi);
+            $("#export_button_placeholder").html("");
+            $("#export_button_placeholder").append('<input type="submit" id="'+ festi +'" name="abort" class="csv_festival_download" value="csv file" placeholder="" style="background-color: red ;  margin-top:10px; width:100%;">');
+            $("#export_button_placeholder").append('<input type="submit" id="'+ festi +'" name="abort" class="excel_festival_download_pukkelpop" value="Excel pukkelpop" placeholder="" style="background-color: red ;  margin-top:10px; width:100%;">');
+            $(".csv_festival_download").off();
+            $(".csv_festival_download").click(function(event) {
+                let festi = event.target.attributes.id.value;
+                var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+                window.open(url + "csv_listing_festival&ID=" + coockie.ID + "&HASH=" + coockie.TOKEN + "&festi_id=" + festi);
+            });
+            $(".excel_festival_download_pukkelpop").off();
+            $(".excel_festival_download_pukkelpop").click(function(event) {
+                let festi = event.target.attributes.id.value;
+                var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+                window.open(url + "excel_listing_pukkelpop&ID=" + coockie.ID + "&HASH=" + coockie.TOKEN + "&festi_id=" + festi);
+            });
+            $("#external_close").off();
+            $("#external_close").click(function(event) {
+                $("#export_docoments").fadeOut(300);
+            });
+            $("#export_docoments").fadeIn(300);
+
         });
+
+
+
+
         $(".csv_festival_payout_download").click(function(event) {
             let festi = event.target.attributes.id.value;
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
