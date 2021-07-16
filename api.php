@@ -2163,7 +2163,12 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				mail($email, $subject, $message, $headers);	
+				for($i = 0; $i < 10; ++$i) {
+					if (mail($email, $subject, $message, $headers)){
+						break;
+					}
+					sleep(0.25);
+				}	
 			}
 			exit(json_encode (json_decode ("{}")));
 		}
@@ -2199,8 +2204,12 @@
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				mail($email, $subject, $message, $headers);
-				
+				for($i = 0; $i < 10; ++$i) {
+					if (mail($email, $subject, $message, $headers)){
+						break;
+					}
+					sleep(0.25);
+				}	
 				
 			}
 		}
@@ -2234,8 +2243,12 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				mail($email, $subject, $message, $headers);
-				
+				for($i = 0; $i < 10; ++$i) {
+					if (mail($email, $subject, $message, $headers)){
+						break;
+					}
+					sleep(0.25);
+				}
 				
 			}
 		}
@@ -2269,7 +2282,12 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				mail($email, $subject, $message, $headers);
+				for($i = 0; $i < 10; ++$i) {
+					if (mail($email, $subject, $message, $headers)){
+						break;
+					}
+					sleep(0.25);
+				}
 				
 				
 			}
@@ -3188,8 +3206,14 @@
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-			mail($email, $subject, $message_mail, $headers);
 
+			for($i = 0; $i < 10; ++$i) {
+				if (mail($email, $subject, $message_mail, $headers)){
+					break;
+				}
+				sleep(0.25);
+			}
+			
 			$notification_text = $text;
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message, 0, $id_pusher));
@@ -3213,7 +3237,13 @@
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-			mail($email, $subject, $message_mail, $headers);
+			
+			for($i = 0; $i < 10; ++$i) {
+				if (mail($email, $subject, $message_mail, $headers)){
+						break;
+				}
+				sleep(0.25);
+			}
 
 			$notification_text = $text;
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
@@ -3856,9 +3886,16 @@
 				</small></html>';
 			$headers = 'From: info@all-round-events.be' . "\r\n" .
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
+
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-			mail($email, $subject, $message, $headers);
+			
+			for($i = 0; $i < 10; ++$i) {
+				if (mail($email, $subject, $message, $headers)){
+					break;
+				}
+				sleep(0.25);
+			}
 			$message2 = 'Binnenkort is het zover en zal jij als vrijwillger aan de slag gaan op ' . $festival_name .'!  Je kan vanaf nu een opvang locatie kiezen op de website, gelieve in te loggen en naar inschrijvingen te gaan. Gelieve hier je opvang locatie en uur naar keuze door te geven voor dit evenement.';
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message2, 0, $id_pusher));
