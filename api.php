@@ -1169,19 +1169,22 @@
 		$query = '';
 		if ($type == "select"){
 			$query ='SELECT * FROM festivals WHERE idfestival = ? ;';
+			$statement = $db->prepare($query);
+			$statement->execute(array($festi_id));
 			token_check($ID, $HASH, $db);
 		}
 		else if ($type ==  "active"){
 			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 ORDER BY date ASC;';
+			$statement = $db->prepare($query);
+			$statement->execute(array());
 		}
 		else {
 			$query ='SELECT * FROM `festivals`ORDER BY date DESC limit 15';
 			admin_check($ID, $HASH, $db);
+			$statement = $db->prepare($query);
+			$statement->execute(array());
 		}
 		
-		
-		$statement = $db->prepare($query);
-		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 
 		if ($res){
