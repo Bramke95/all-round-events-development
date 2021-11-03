@@ -96,6 +96,12 @@
 	    $first_name = trim( preg_replace('#'.preg_quote($last_name,'#').'#', '', $name ) );
 	    return array($first_name, $last_name);
 	}
+	
+	function add_to_mail_queue($db, $email, $subject, $message, $headers){
+		$statement = $db->prepare('INSERT INTO  mails (address, subject, mail_text, mail_headers) VALUES(?, ?, ?, ?)');
+		$statement->execute(array($email, $subject, $message, $headers));
+		
+	}
 	// include DB configuration
 	require_once 'config.php';
 	
@@ -1823,7 +1829,7 @@
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-			mail($email, $subject, $message, $headers);
+			add_to_mail_queue($db, $email, $subject, $message, $headers);
 		}
 		if ($status == 3){
 			$notification_text = 'Ja bent nu ingeschreven voor ' . $festival_name . '. Tot dan!';
@@ -1851,7 +1857,7 @@
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-			mail($email, $subject, $message, $headers);
+			add_to_mail_queue($db, $email, $subject, $message, $headers);
 		}
 		
 		
@@ -1930,7 +1936,7 @@
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				mail($email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers);
 			
 			
 		}
@@ -1961,7 +1967,7 @@
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				mail($email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers);
 			
 		}
 		
@@ -2163,12 +2169,7 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				for($i = 0; $i < 10; ++$i) {
-					if (mail($email, $subject, $message, $headers)){
-						break;
-					}
-					sleep(0.25);
-				}	
+				add_to_mail_queue($db, $email, $subject, $message, $headers);
 			}
 			exit(json_encode (json_decode ("{}")));
 		}
@@ -2204,12 +2205,9 @@
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				for($i = 0; $i < 10; ++$i) {
-					if (mail($email, $subject, $message, $headers)){
-						break;
-					}
-					sleep(0.25);
-				}	
+
+				add_to_mail_queue($db, $email, $subject, $message, $headers);
+			
 				
 			}
 		}
@@ -2243,12 +2241,8 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				for($i = 0; $i < 10; ++$i) {
-					if (mail($email, $subject, $message, $headers)){
-						break;
-					}
-					sleep(0.25);
-				}
+				add_to_mail_queue($db, $email, $subject, $message, $headers);
+
 				
 			}
 		}
@@ -2282,14 +2276,7 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				for($i = 0; $i < 10; ++$i) {
-					if (mail($email, $subject, $message, $headers)){
-						break;
-					}
-					sleep(0.25);
-				}
-				
-				
+				add_to_mail_queue($db, $email, $subject, $message, $headers);
 			}
 		}
 
@@ -3156,7 +3143,7 @@
 		'Reply-To: info@all-roundevents.be ' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		mail($email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers);
 	
 		exit(json_encode(array(
 			'status' => "OK",
@@ -3207,12 +3194,8 @@
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 
-			for($i = 0; $i < 10; ++$i) {
-				if (mail($email, $subject, $message_mail, $headers)){
-					break;
-				}
-				sleep(0.25);
-			}
+			add_to_mail_queue($db, $email, $subject, $message_mail, $headers);
+
 			
 			$notification_text = $text;
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
@@ -3238,13 +3221,7 @@
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			
-			for($i = 0; $i < 10; ++$i) {
-				if (mail($email, $subject, $message_mail, $headers)){
-						break;
-				}
-				sleep(0.25);
-			}
-
+			add_to_mail_queue($db, $email, $subject, $message_mail, $headers);
 			$notification_text = $text;
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message, 0, $id_pusher));
@@ -3568,7 +3545,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		mail($email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers);
 
 
 		exit(json_encode (json_decode ("{}")));
@@ -3640,7 +3617,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		mail($email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers);
 
 		exit(json_encode (json_decode ("{}")));
 	}
@@ -3708,7 +3685,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		mail($email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers);
 
 		exit(json_encode (json_decode ("{}")));
 	}
@@ -3890,12 +3867,9 @@
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			
-			for($i = 0; $i < 10; ++$i) {
-				if (mail($email, $subject, $message, $headers)){
-					break;
-				}
-				sleep(0.25);
-			}
+
+			add_to_mail_queue($db, $email, $subject, $message, $headers);
+
 			$message2 = 'Binnenkort is het zover en zal jij als vrijwillger aan de slag gaan op ' . $festival_name .'!  Je kan vanaf nu een opvang locatie kiezen op de website, gelieve in te loggen en naar inschrijvingen te gaan. Gelieve hier je opvang locatie en uur naar keuze door te geven voor dit evenement.';
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message2, 0, $id_pusher));
@@ -4005,7 +3979,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		mail($email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers);
 
 
 		// check if festival is open
@@ -4129,14 +4103,36 @@
 			exit(json_encode (json_decode ("{}")));
 		}
 	}
+	elseif ($action == "cron_6b075fee6c0701feba287db06923fc54") {
+		// mail service. This will be hit every 2 minutes and checks if mails need to be send
+		
+		// ask the DB how many mails where send in the lsat 5 min 
+		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURDATE(), INTERVAL 5 minute);');
+		$statement->execute();
+		$res = $statement->fetchAll();
+		
+		// 
+		$count = 20 - $res[0]["COUNT(*)"];
+		// select mails we can send 
+		$statement = $db->prepare('SELECT * FROM mails where mails.send_process is NULL LIMIT ' . strval($count) . ";");
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		
+		foreach ($res as &$line){
+			mail($line["address"],$line["subject"],$line["mail_text"],$line["mail_headers"]);
+			$statement = $db->prepare('update mails set mails.send_process=now() where mails.mail_id=?;');
+			$statement->execute(array($line["mail_id"]));
+			sleep(1);
+		}
+		
+		// if mails need 
+		exit("Cron run OK.");
+		
+	}
 
 
 	else {
-		exit(json_encode(array(
-			'status' => 404,
-			'error_type' => 10,
-			'error_message' => "not a valid action"
-		)));
+		header("Location: https://all-round-events.be/html/nl/home.html");
 	}
 
 
