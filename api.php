@@ -1134,7 +1134,7 @@
 		$statement->execute(array($date, $details, $status, $name, 0));
 		
 		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
-		$statement->execute(array($ID));
+		$statement->execute(array());
 		$res = $statement->fetchAll();
 
 		if ($res){
@@ -1259,7 +1259,7 @@
 		$statement->execute(array($name ,$discription,$length, $needed, $reserve,  $festi_id));
 		
 		$statement = $db->prepare('SELECT shifts.name,shifts.details,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6 or festivals.status != 7;');
-		$statement->execute(array($festi_id));
+		$statement->execute(array());
 		$res = $statement->fetchAll();
 
 		if ($res){
@@ -2153,12 +2153,12 @@
 				$subject = 'All-Round Events: Registratie open voor  ' . $festival_name;
 				$message = '<html>
 								<p>Beste,</p>
-								<p>Vanaf vandaag kan je jezelf registeren voor  ' . $festival_name . '. </br></p>
+								<p>Vanaf nu kan je jezelf registeren voor  ' . $festival_name . '. </br></p>
 
-								<p>Ga naar de website en registreer je voor je gewenste shift, je kan dit doen met de volgende link: </p>
+								<p>Ga naar onze website en registreer je voor je gewenste shift, je kan dit doen met de volgende link: </p>
 								<p>https://all-round-events.be/html/nl/inschrijven.html</p>
 								<p> </p>
-								<p>Opgelet, registeren betekent niet dat je ingeschreven bent. Je zal zo snel mogelijk een mail ontvangen met het resultaat van je registratie! Kijk zeker je gegevens na voor je je inschrijft voor dit evenement.</p>
+								<p>Opgelet, registeren betekent niet dat je ingeschreven bent. Je zal zo snel mogelijk een mail ontvangen met je definitieve inschrijving! Kijk zeker je gegevens na voor je je inschrijft voor dit evenement.</p>
 								<p>Veel succes en hopelijk tot snel!</p>
 								<p><small>
 									All Round Events VZW
@@ -4108,9 +4108,10 @@
 	}
 	elseif ($action == "cron_6b075fee6c0701feba287db06923fc54") {
 		// mail service. This will be hit every 2 minutes and checks if mails need to be send
-		
+		ignore_user_abort(true);
+		set_time_limit(0);
 		// ask the DB how many mails where send in the lsat 5 min 
-		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURDATE(), INTERVAL 5 minute);');
+		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 5 minute);');
 		$statement->execute();
 		$res = $statement->fetchAll();
 		
