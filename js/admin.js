@@ -114,6 +114,10 @@ $(document).ready(function() {
 
             let text = $("#text_text_messenger").val();
             let subject = $("#text_subject_messenger").val();
+            if(festid_id == -1){
+                festid_id = -2;
+                shift_id != -2;
+            }
             if(shift_id != -1){
                  festid_id = -1;
             }
@@ -152,15 +156,13 @@ function messenger_listing() {
         "select": "active",
         "festi_id": "invalid"
     }, festival_messenger_boxing);
-        api("get_shifts", {
-        "id": coockie.ID,
-        "hash": coockie.TOKEN
-    }, shift_messenger_boxing);
+    shift_messenger_boxing({});
+
 };
 
 function festival_messenger_boxing(data){
     let festi_html = "<select id='festivals_mes'>";
-    festi_html = festi_html + "<option class='select_festi_option_messenger' id='-1'>Geen</option>";
+    festi_html = festi_html + "<option class='select_festi_option_messenger' id='-1'>Alle Vrijwilligers</option>";
     for (let x = 0; x < data.length; x++) {
         festi_html = festi_html + "<option class='select_festi_option_messenger' id=" + data[x].idfestival + ">" + data[x].name + "</option>";
     }
@@ -180,7 +182,7 @@ function festival_messenger_boxing(data){
 
 function shift_messenger_boxing(data){
     let festi_html = "<select id='shift_mes'>";
-    festi_html = festi_html + "<option class='select_festi_option' id='-1'>Alle shiften in festival</option>";
+    festi_html = festi_html + "<option class='select_festi_option' id='-1'>Allemaal</option>";
     for (let x = 0; x < data.length; x++) {
         festi_html = festi_html + "<option class='select_festi_option' id=" + data[x].idshifts + ">" + data[x].festiname + " "+  data[x].name + "</option>";
     }

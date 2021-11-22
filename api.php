@@ -2406,9 +2406,14 @@
 		$statement->execute(array($ID));
 		$user = $statement->fetch(PDO::FETCH_ASSOC);
 
-		$statement = $db->prepare('SELECT festivals.name FROM festivals inner join shifts on festivals.idfestival=shifts.festival_idfestival WHERE shifts.idshifts = ?;');
+		$statement = $db->prepare('SELECT festivals.name FROM festivals inner join shifts on festivals.idfestival=shifts.festival_idfestival WHERE shifts.idshifts = ? and (festivals.status != 6 and festivals.status != 7);');
 		$statement->execute(array($shift));
 		$festival = $statement->fetch(PDO::FETCH_ASSOC);
+
+		if(!$festival){
+			exit("userpermissionexception: shift data is not public for user");
+
+		}
 		
 		$statement = $db->prepare('SELECT * FROM `shift_days` WHERE shift_days.shifts_idshifts = ? ORDER BY shift_days.start_date ASC  LIMIT 1;');
 		$statement->execute(array($shift));
@@ -3129,7 +3134,7 @@
 		$subject = 'Wachtwoord reset';
 		$message = '<html>
 						<p>Beste,</p>
-						<p>Je hebt een wachtwoord reset aagevraagd, hieronder vind u uw nieuw wachtwoord. Indien u uw wachtwoord wilt wijzingen kunt u dit doen door in te loggen en naar uw profiel aanpassen te gaan. </br></p>
+						<p>Je hebt een wachtwoord aangevraagd, hieronder vindt u uw nieuw wachtwoord. Indien u uw wachtwoord wilt wijzingen kunt u dit doen door in te loggen en naar uw profiel aanpassen te gaan. </br></p>
 						<p>Uw email: '. $email .'</br></p>
 						<p>Uw nieuw wachtwoord: '. $pass .'</br></p>
 						<p> </p>
@@ -3177,6 +3182,39 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
+
+		if($festi_id == -2){
+			// select all the id's and email from one shift
+			$statement = $db->prepare("SELECT * FROM users");
+			$statement->execute(array());
+			$res = $statement->fetchAll();
+			foreach ($res as &$line) {
+				$email = $line["email"];
+				$id_pusher = $line["id_Users"];
+				$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
+				$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p><p><small>
+																							All Round Events VZW
+																							Meester Van Der Borghtstraat 10
+																							2580 Putte
+																							BTW: BE 0886 674 723
+																							IBAN: BE68 7310 4460 6534
+																						RPR Mechelen</small></p></html>";
+				$headers = 'From: info@all-round-events.be' . "\r\n" .
+				'Reply-To: info@all-roundevents.be' . "\r\n" .
+				"Content-type:text/html;charset=UTF-8" . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();
+
+				add_to_mail_queue($db, $email, $subject, $message_mail, $headers);
+
+				
+				$notification_text = $text;
+				$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
+				$statement->execute(array($message, 0, $id_pusher));
+				
+			}
+			exit(json_encode (json_decode ("{}")));
+		}
+
 		// select all the id's and email from one shift
 		$statement = $db->prepare("SELECT DISTINCT email ,users.Id_Users from work_day inner JOIN users on work_day.users_Id_Users = users.Id_Users inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;");
 		$statement->execute(array($shift_id));
@@ -3231,6 +3269,7 @@
 		}
 
 	exit(json_encode (json_decode ("{}")));
+
 	}
 	elseif ($action == "tshirts") {
 		// get the contenct from the api body
