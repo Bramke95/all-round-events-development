@@ -4085,6 +4085,7 @@
 		$xlsx = SimpleXLSXGen::fromArray( $excel_data );
 		$xlsx->downloadAs('pukkelpop_excel_alle_deelnemers.xlsx');
 	}
+
 	elseif ($action == "csv_listing_festival_payout") {
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
@@ -4092,19 +4093,90 @@
 		admin_check($ID, $HASH, $db);
 		$statement = $db->prepare('select work_day.users_Id_Users, SUM(shift_days.cost), users_data.name, users_data.adres_line_two, festivals.name as festiname, work_day.Payout from work_day inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and ((work_day.in = 1 and work_day.out = 1) or work_day.present = 1) GROUP BY work_day.users_Id_Users');
 		$statement->execute(array($festi_id));
-		$res = $statement->fetchAll();
-		header('Content-Type: text/csv');
-		header('Content-Disposition: attachment; filename="uitbetaling.csv"');
-		$data = array();
-		foreach ($res as &$user) {
-			array_push($data, ($user["name"].",". $user["adres_line_two"] . "," . $user["SUM(shift_days.cost)"] . ", Vrijwilligersvergoeding " . $user["festiname"]));
-		}
-		$fp = fopen('php://output', 'wb');
-		foreach ( $data as $line ) {
-    		$val = explode(",", $line);
-    		fputcsv($fp, $val);
-		}
-		fclose($fp);
+		$res_detail = $statement->fetchAll();
+
+		$statement = $db->prepare('select count(*), SUM(result1) from(select work_day.users_Id_Users, SUM(shift_days.cost) as result1, users_data.name, users_data.adres_line_two, festivals.name as festiname, work_day.Payout from work_day inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and ((work_day.in = 1 and work_day.out = 1) or work_day.present = 1) GROUP BY work_day.users_Id_Users) src;');
+		$statement->execute(array($festi_id));
+		$res_overview = $statement->fetchAll();
+		header('Content-Type: text/xml');
+		header('Content-Disposition: attachment; filename="uitbetaling.xml"');
+
+
+		$data =  '<?xml version="1.0" encoding="utf-8" ?>
+	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03">
+		<CstmrCdtTrfInitn>
+		<GrpHdr>
+		    <MsgId>KBC/Local/Be68731044606534/M</MsgId>
+		    <CreDtTm>'. date_create()->format('Y-m-d H:i:s') .'</CreDtTm>
+		    <NbOfTxs>'. $res_overview[0]["count(*)"] .'</NbOfTxs>
+		    <CtrlSum>'. $res_overview[0]["SUM(result1)"] .'</CtrlSum>
+		    <InitgPty>
+		        <Nm>KBC/Local</Nm>
+		    </InitgPty>
+		</GrpHdr>';
+		foreach ($res_detail as &$user) {
+			$data = $data . '			
+		<PmtInf>
+		    <PmtInfId>KBC/Local/Be68731044606534/P</PmtInfId>
+		    <PmtMtd>TRF</PmtMtd>
+		    <BtchBookg>false</BtchBookg>
+		    <PmtTpInf>
+		        <InstrPrty>NORM</InstrPrty>
+		        <SvcLvl>
+		        	<Cd>SEPA</Cd>
+		        </SvcLvl>
+		    </PmtTpInf>
+		    <ReqdExctnDt>'. date_create()->format('Y-m-d H:i:s') .'</ReqdExctnDt>
+		    <Dbtr>
+		    	<Nm>All RoundEvents</Nm>
+		    </Dbtr>
+		    <DbtrAcct>
+		        <Id>
+		        	<IBAN>'. $user["adres_line_two"] .'</IBAN>
+		        </Id>
+		        <Ccy>EUR</Ccy>
+		    </DbtrAcct>
+		    DbtrAgt>
+		        <FinInstnId>
+		        	<BIC>KREDBEBB</BIC>
+		        </FinInstnId>
+		    </DbtrAgt>
+		    <CdtTrfTxInf>
+		        <PmtId>
+		        	<EndToEndId>NOT PROVIDED</EndToEndId>
+		        </PmtId>
+		        <Amt>
+		        	<InstdAmt Ccy="EUR">'. $user["SUM(shift_days.cost)"] .'</InstdAmt>
+		        </Amt>
+		        <CdtrAgt>
+		          <FinInstnId>
+		            <BIC>KREDBEBB</BIC>
+		          </FinInstnId>
+		        </CdtrAgt>
+		        <Cdtr>
+		          <Nm>'. $user["name"] .'</Nm>
+		          <PstlAdr>
+		            <Ctry>BE</Ctry>
+		          </PstlAdr>
+		        </Cdtr>
+		        <CdtrAcct>
+		          <Id>
+		            <IBAN>'. $user["adres_line_two"] .'</IBAN>
+		          </Id>
+		        </CdtrAcct>
+		        <RmtInf>
+		          <Ustrd>All round events Vrijwilligersvergoeding</Ustrd>
+		        </RmtInf>
+		      </CdtTrfTxInf>
+		    </PmtInf>';
+			}
+		$data = $data . '
+	</CstmrCdtTrfInitn>
+</Document>
+
+		';
+		exit($data);
+
 	}
 	elseif ($action == "user_work_days") {
 		// get the contenct from the api body

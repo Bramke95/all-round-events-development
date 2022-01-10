@@ -1774,7 +1774,7 @@ function festival_processing(data) {
 
 
 
-
+        $(".csv_festival_payout_download").off();
         $(".csv_festival_payout_download").click(function(event) {
             let festi = event.target.attributes.id.value;
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
