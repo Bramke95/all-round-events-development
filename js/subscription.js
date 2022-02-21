@@ -6,27 +6,39 @@ var open_id = -1;
 var url = "../../api.php?action=";
 unemployment = false;
 		
+// entry point for code
 $( document ).ready(function() {
 	add_optional_management();
 	load_festivals_shifts();
 });
 
+// check if we user is admin, in that case we add an management link to the li
 function add_optional_management(){
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("is_admin",{"id" : coockie.ID, "hash" : coockie.TOKEN}, add_optional_management_callback)
 }
+
+// callback for management request, if user is admin, an option is added to the li, otherwise no further action
 function add_optional_management_callback(is_admin){
 	if(is_admin.status == 200){
 		$("#top_menu ul").append("<li><a href='admin.html'>Beheer</a></li>");
 	}
 }
 
+// start requesting data from server, we need:
+// -> all active events 
+// -> data from user to check if data is complete, picture is uploaded, and for the employment setting
 function load_festivals_shifts(){
 	
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_festivals", {"id" : coockie.ID, "hash" : coockie.TOKEN, "select": "active_and_open" , "festi_id":"invalid"}, festival_shift_processing);
 	api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, check_user_data)
 }
+
+//callback for getting user data
+// -> if error type 4: user has invalid token, revert to login page
+// -> if error type 8: user has not given personal information 
+// -> save unemployment state to DB
 function check_user_data(res){
 	if (res == "ERROR"){
 		alert("Communication to the server failed");
@@ -44,6 +56,7 @@ function check_user_data(res){
 }
 
 // function that gets the cookie for the user ID and the TOKEN that are used to do API calls 
+// if not coockie can be found, back to login page
 function getCookie(name) {
 	var nameEQ = name + "=";
 	var ca = document.cookie.split(';');
@@ -72,7 +85,8 @@ function formatDate(date) {
     return [year, month, day].join('-') + " " + [houre, minutes, seconds].join(':');
 }
 
-// function that makes api calles
+// function that makes api calls 
+// TODO: make this function shared for all html pages
 function api(action, body, callback){
 	$.ajax({
 		type: 'POST',
@@ -88,54 +102,33 @@ function api(action, body, callback){
 	});
 };
 
-// get the stastus from the id 
-function id_to_status(id){
-	if(id == 0){
-		return "opvraging interesse";
-	}
-	else if (id == 1){
-		return "Aangekondigd";
-	}
-	else if (id == 2){
-		return "Open met vrije inschrijving";
-	}
-	else if (id == 3){
-		return "open met reservatie";
-	}
-	else if (id == 4){
-		return "festival bezig";
-	}
-	else if (id == 5){
-		return "eindafrekeningen";
-	}
-	else if (id == 6){
-		return "afgesloten";
-	}
-	else if (id == 7){
-		return "geannuleerd";
-	}
-	else {
-		return "unknown";
-	}
-}
 
-// get the stastus from the id 
+// funtion that generates the shift html
 function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered, is_manual, is_interested, is_reserved){
 	var unemployment_but = "<input type='submit' id=unemployment"+ shift_id +" class='unemployment_to_festival' name='Werkloos' value='Werkloosheidsattest Downloaden' placeholder='' style='background-color: cornflowerblue ;  margin-left:10px;'>";
 	var external_locations = "";
-
+	
+	// user has been subscribed manually and doesn't follow the shift(s). All further actions should be done by an admin
 	if(is_manual){
 		return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Deels ingeschreven(Check uw mailbox)' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 	}
+	
+	// this adds a button to let user select an meeting location before the event
 	if(has_external_locations){
 		external_locations = "<input type='submit' id=external"+ shift_id +" class='subscribe_to_location' name='ingeschrijven' value='Opvang moment selecteren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 	}
+	
+	// is interested is something different then subscribed 
 	if(is_interested && id == 0){
 		return "<input type='submit' id=shift_button_unsub"+ shift_id +" class='de_sibscribe_to_festival' name='Uitschrijven' value='Geen interesse meer' placeholder='' style='background-color: red ;  margin-left:10px;'>";
 	}
+	
+	// the event has not active working days
 	if(is_empty_days){
 		return unemployment_but + "<input type='submit' id=shift_button_unsub"+ shift_id +" class='blocked' name='afgesloten' value='Niet Actief' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 	}
+	
+	// festival is closed but users can be interested 
 	if(id == 0){
 		if(is_already_subscribed){
 			if(is_reserved){
@@ -149,6 +142,8 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 
 		}
 	}
+	
+	// events is created but not open 
 	else if (id == 1){
 		if(is_already_subscribed){
 			if(is_registered){
@@ -167,6 +162,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 
 		}
 	}
+	//user can subscribe
 	else if (id == 2){
 		if(is_already_subscribed){
 			if(is_registered){
@@ -189,9 +185,10 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 		else {
 			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='sibscribe_to_festival' name='registeren' value='Registeren' placeholder='' style='background-color: green ;  margin-left:10px;'>";
 
-		}
-		
+		}	
 	}
+	
+	// user can register 
 	else if (id == 3){
 		if(is_already_subscribed){
 			if(is_registered){
@@ -221,6 +218,7 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 		}
 	}
 
+	// festival is ongoing
 	else if (id == 4){
 		if (is_already_subscribed && !is_registered){
 			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='festival bezig' value='Ingeschreven' placeholder='' style='background-color: green ;  margin-left:10px;'>";
@@ -231,6 +229,8 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 
 		}
 	}
+	
+	// festial is over, payout is being processed
 	else if (id == 5){
 		if (is_already_subscribed && !is_registered){
 			return unemployment_but + "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='change festival' value='eindafrekeningen' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
@@ -241,21 +241,30 @@ function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completel
 
 		}
 	}
+	// festials with another ID cannot end up here, nevertheless an error message
 	else {
 		return "<input type='submit' id=shift_button"+ shift_id +" class='blocked' name='error' value='error' placeholder='' style='background-color: gray ;  margin-left:10px;'>";
 	}
 }
 
+// callback for festivals
 function festival_shift_processing(data){
+	// token was invalid, back to login page
 	if (data.error_type == 4){
 		window.location.href = "login.html";
 	}
 	$("#festival_list").html("");
+	
+	// load shift 
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing);
+	
+	// no active events, print message to let user know
 	if (data.length == undefined || data.length == 0){
 		$("#festival_list").append("<div id=0 class='festi' ><p style='text-align:center'>Geen festivals actief, kom op een later moment terug!</p></div>");
 	}
+	
+	// print festivals on page 
 	for (let x = 0; x < data.length; x++){
 		$("#festival_list").append("<div id=" + data[x].idfestival +" class='festi' ><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div style='width:10%'><p style='width:60%'>"+ data[x].details +"</p></div>");
 		$('#' + data[x].idfestival + " select").val(data[x].status);
@@ -263,6 +272,7 @@ function festival_shift_processing(data){
 	$("#festival_list").fadeIn("fast");
 }
 
+//
 function load_locations(shift_id){
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("get_locations_by_shift",{"id" : coockie.ID, "hash" : coockie.TOKEN, "shift_id": shift_id}, function(locations){
@@ -281,18 +291,25 @@ function load_locations(shift_id){
 
 //callback adding a shift 
 function shift_processing(data){
+	
+	// load the users subscription so this can be reflected correctly 
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	api("shift_work_days", {"id" : coockie.ID, "hash" : coockie.TOKEN}, function(subscriptions){
+		
+		// error when user has no image 
 		if (subscriptions.error_type == 8){
 			alert("Je kan jezelf niet inschrijven zonder profielfoto, voeg er een toe aub");
 			window.location.href = "user_input.html";
 		}
-		// add days
+		
+		// add days to page
 		var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 		api("get_shift_days", {"id" : coockie.ID, "hash" : coockie.TOKEN}, load_shift_days_shifts);
 	
+		//
 		for (let x = 0; x < data.length; x++){
-		// calculate if full or not 
+		// calculate values
+		
 			let is_full = (parseInt(data[x].people_needed) <= parseInt(data[x].subscribed_final));
 			let is_completely_full = ((parseInt(data[x].people_needed) + parseInt(data[x].spare_needed)) <= parseInt(data[x].subscribed));
 			let is_subscrubed = false;
@@ -316,6 +333,8 @@ function shift_processing(data){
 				}
 			}
 			$("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts +" class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>"+ data[x].name + "</h2></div><p style='width:10%'>Dagen: "+ data[x].length +"</p><p style='width:60%'>"+ data[x].datails +"</p>"+ id_to_status(data[x].idshifts, data[x].status, is_subscrubed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered, is_manual, is_interested, is_reserved) +"</div></div>");
+			
+			// clik event for subscribe button
 			$("#shift_button" + data[x].idshifts).off();
 			$("#shift_button" + data[x].idshifts).click(function(event){
 				if($(this).hasClass("blocked")){return}
@@ -332,19 +351,23 @@ function shift_processing(data){
 				api("user_subscribe",{"id" : coockie.ID, "hash" : coockie.TOKEN, "Id_Users": coockie.ID, "idshifts": open_id.replace(/\D/g,'')}, subscribe_callback);
 			});
 
+			// click event for unemployment pfd
 			$("#unemployment" + data[x].idshifts).off(); // here
 			$("#unemployment" + data[x].idshifts).click(function(event){
 				var open_id = event.target.attributes.id.value;
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				window.open(url + "pdf_unemployment&ID=" + coockie.ID + "&HASH=" + coockie.TOKEN + "&shift=" + open_id.replace(/\D/g,''));
 			});
-
+			
+			// click event for unsubscribe button
 			$("#shift_button_unsub" + data[x].idshifts).click(function(event){
 				if($(this).hasClass("blocked")){return}
 				var open_id = event.target.attributes.id.value;
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				api("user_unsubscribe",{"id" : coockie.ID, "hash" : coockie.TOKEN, "Id_Users": coockie.ID, "idshifts": open_id.replace(/\D/g,'')}, load_festivals_shifts);
 			});
+			
+			// click event for location pop up 
 			$(".subscribe_to_location").off();
 			$(".subscribe_to_location").click(function(event){
 				let id = event.target.attributes.id.value;
@@ -374,7 +397,7 @@ function shift_processing(data){
 
 }
 
-
+// load the day detail lines
 function load_shift_days_shifts(data) {
 
 	for(let x=0; x < data.length; x++){
@@ -382,9 +405,9 @@ function load_shift_days_shifts(data) {
 		$("#shift"+ data[x].idshifts).append("<div id='shift_day"+data[x].idshifts+"' class='shift_day_line'><p class='shift_day_title' style='width:10%'>Dag "+ counter +"<p><p style='width:20%'>Start: "+ data[x].start_date +"<p><p style='width:20%'>Einde: "+ data[x].shift_end +"<p><p style='width:20%'>Dagvergoeding: €"+ data[x].cost + "</p></div>");
 	}
 	$("html").css({'cursor':'auto'});
-
 }
 
+// subscribe callback: error message if something goes wrong, otherwise reload page to reflect subscription 
 function subscribe_callback(res){
 
 	if (res.status == 200){

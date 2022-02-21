@@ -1,6 +1,14 @@
 <?php
-	error_reporting(E_ALL ^ E_DEPRECATED);
+	// all round events api
+	//-> The api that needs to be called is 
+	//https://all-round-events.be/api.php
+	// always use query parameter action to define what action you want to perform 
+	
 
+
+//**********************************************************************************************************
+//									GENERAL HELPERS FUNTIONS
+//**********************************************************************************************************
 	function token_check($id, $token_user, $db) {
 		//
 		// Following things can happend with the token check
@@ -41,8 +49,8 @@
 			)));
 		}
 		return true; 
-		
 	}
+	
 	function admin_check($id, $token_user, $db) {
 		//
 		// does the same action as token_check but it also checks if the user is the admin, use this function for actions that need admin rights
@@ -86,8 +94,9 @@
 		
 		
 	}
-	// splits name into first and last name
+	
 	function split_name($name) {
+	// splits name into first and last name
 		if (is_null($name)){
 			return array("", "");
 		}
@@ -97,25 +106,36 @@
 	    return array($first_name, $last_name);
 	}
 	
+	
 	function add_to_mail_queue($db, $email, $subject, $message, $headers){
+	// add mail to the mail queue 
 		$statement = $db->prepare('INSERT INTO  mails (address, subject, mail_text, mail_headers) VALUES(?, ?, ?, ?)');
 		$statement->execute(array($email, $subject, $message, $headers));
-		
 	}
-	// include DB configuration
+	
+	
+//******************************************************************************************************************************
+//										SETUP ENVIRONMENT
+//******************************************************************************************************************************
+	// ignore all error reporting in production
+	error_reporting(E_ALL ^ E_DEPRECATED);
+	
+	// include DB configuration, includes DB credentials 
 	require_once 'config.php';
 	
-
 	// connect to the database 
-
 	$db = new PDO('mysql:host=' . $host . ';dbname=' . $name . ';charset=utf8', $user, $pass);
 	$db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 	
-	// make sure mailing continues after the browser session is closed
+	// make sure every request is processed 
 	ignore_user_abort(true);
 	// gets the action that needs to be performed. 
 	$action = isset($_GET['action']) ? $_GET['action'] : '';
-
+	
+	
+//******************************************************************************************************************************
+//										ALL ACTIONS
+//******************************************************************************************************************************
 	//
 	// This is the function that adds a new user to the database. 
 	// It however does a lot of checks to determine if the activation is valid 
@@ -443,7 +463,7 @@
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
-				'error_message' => "Not all fields where available, need: ID, HASH"
+				'error_message' => "Not all fields where available"
 			)));
 		}
 		token_check($ID, $HASH, $db);
@@ -481,44 +501,16 @@
 		)));
 
 	}
-
 	//
-	// this is where the complaints are stored, the user must not be logged in for this section. 
-	// The only requirement is that all string are there. 
-	//
-	elseif ($action == "insert_complaint") {
-		// get the contenct from the api body
-		$xml_dump = file_get_contents('php://input');
-		$xml = json_decode($xml_dump, true);
-		try {
-			$name = $xml["name"];
-			$first_name = $xml["first_name"];
-			$type = $xml["type"];
-			$text = $xml["text"];
-			
-
-		} catch (Exception $e) {
-			exit(json_encode(array(
-				'status' => 409,
-				'error_type' => 4,
-				'error_message' => "Not all fields where available, need: name, first_name, type, text"
-			)));
-		}
-		// entering the complaint in the DB
-		$statement = $db->prepare('INSERT INTO complains (name, first_name, type, text) VALUES (?,?,?,?)');
-		$statement->execute(array($name, $first_name, $type, $text));
-		exit(json_encode(array(
-			'status' => 200,
-			'error_type' => 0
-		)));
-	}
-
-	//
-	// this if statement adds a education to the databse 
-	// the record is added for one specific devide 
+	// DEPRECATED, but keep for maybe the future? 
+	// 
 	//
 	elseif ($action == "add_education") {
-				// get the contenct from the api body
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -535,10 +527,9 @@
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
-				'error_message' => "Not all fields where available, need: ID, HASH"
+				'error_message' => "Not all fields where available"
 			)));
 		}
-		// check if the api had a valid token that has read/write property
 		if (!token_check($ID, $HASH, $db)){
 			exit(json_encode(array(
 				'status' => 409,
@@ -549,8 +540,6 @@
 		$statement = $db->prepare('INSERT INTO educations (from_date, to_date, school, education, percentage, users_Id_Users) VALUES (?,?,?,?,?,?)');
 				$statement->execute(array($from, $to, $school, $education, $percentage, $ID)); 
 		
-
-		// end the api
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 100
@@ -558,11 +547,15 @@
 	}
 
 	// 
-	// gets a list of all the educations 
+	// DEPRECATED
 	//
 	//
 	elseif ($action == "get_education") {
-		// get all the info from the api 
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -594,9 +587,17 @@
 		)));
 		
 	}	
-
+	
+	// 
+	// DEPRECATED
+	//
+	//
 	elseif ($action == "delete_education") {
-		// get all the info from the api 
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -623,11 +624,15 @@
 	}
 
 	//
-	// this if statement adds a education to the databse 
-	// the record is added for one specific devide 
+	// action is DEPRECATED
+	//  
 	//
 	elseif ($action == "add_language") {
-				// get the contenct from the api body
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -666,11 +671,15 @@
 	}
 
 	// 
-	// gets a list of all the languages
+	// DEPRECATED
 	//
 	//
 	elseif ($action == "get_languages") {
-		// get all the info from the api 
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -702,9 +711,17 @@
 		)));
 		
 	}	
-
+	
+	// 
+	// DEPRECATED
+	//
+	//
 	elseif ($action == "delete_language") {
-		// get all the info from the api 
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -731,11 +748,16 @@
 	}
 
 	//
-	// this if statement adds a expierences to the databse 
-	// the record is added for one specific devide 
+	// DEPRECATED
+	// 
 	//
+	
 	elseif ($action == "add_expierence") {
-				// get the contenct from the api body
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));		
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -772,11 +794,15 @@
 	}
 
 	// 
-	// gets a list of all the expierences
+	// DEPERECATED
 	//
 	//
 	elseif ($action == "get_expierence") {
-		// get all the info from the api 
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -807,12 +833,18 @@
 			'error_message' => "No languages found"
 		)));
 		
-	}	
+	}
+	
+	// 
+	// DEPERECATED
 	//
-	// delete expierences from db
 	//
 	elseif ($action == "delete_expierence") {
-		// get all the info from the api 
+		exit(json_encode(array(
+			'status' => 500,
+			'error_type' => 7,
+			'error_message' => "Action is DEPRECATED"
+		)));
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -837,9 +869,12 @@
 			'error_type' => 100
 		)));
 	}
+	
 	//
-	// adding an picture to the DB 
-	// The image is stored on the local file system. Only the name and location 
+	// uploading an picture to the website
+	// -> forsee ID, HASH 
+	// -> forsee image as fromdata
+	// -> check status code 
 	//
 	elseif ($action == "upload_picture"){
 		$xml_dump = json_encode(json_decode($_POST["auth"]));
@@ -859,8 +894,10 @@
 		// check if the user is and token is valid 
 		token_check($ID, $HASH, $db);
 		
-
+		// make sure Id is clean 
 		$ID = str_replace('"', "", $ID);
+		
+		// Check if user has not more than 5 pictures
 		$statement = $db->prepare('SELECT COUNT(*) FROM Images WHERE users_Id_Users = ?;');
 		$statement->execute(array((int)$ID));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
@@ -872,9 +909,17 @@
 				'error_message => "Only 5 pictures allowed!"'
 			)));
 		}
+		
+		// make sure that the first images is profile picure by default 
 		if ($count == 0){
 			$is_primary = 1;
 		}	
+		
+		// handle file write:
+		// -> generate random hash
+		// -> check if file is an images with a size in reasons
+		// -> write image to file system with the random hash as name
+		// -> save hash name to DB and link it to user 
 		$random_hash = bin2hex(openssl_random_pseudo_bytes(32));
 		$target_dir = "upload/";
 		$target_file = $target_dir . basename($_FILES["img"]["name"]);
@@ -893,14 +938,12 @@
 		}
 
 		// Check file size
-		//throw new Exception($_FILES);
 		if ($_FILES["fileToUpload"]["size"] > 250000) {
 	    	echo "Sorry, your file is too large.";
 	    	$uploadOk = 0;
 			}
 		// Allow certain file formats
-		if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-		&& $imageFileType != "gif" ) {
+		if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
 	    	exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 11,
@@ -928,7 +971,7 @@
 		}
 	}
 	//
-	// This function gets all the pictures locactions from the user id
+	// requests all pictures by user, this function only provides the unique id of the picture, the picture itself is only the relative url 
 	// 
 	//
 	elseif ($action == "get_pictures"){
@@ -948,6 +991,7 @@
 		// check if the user is and token is valid 
 		token_check($ID, $HASH, $db);
 
+		// request all pictures by user 
 		$statement = $db->prepare('SELECT picture_name, is_primary  FROM Images WHERE users_Id_Users = ?');
 		$statement->execute(array($ID));
 		$res = $statement->fetchAll();
@@ -963,7 +1007,8 @@
 		)));
 
 	}
-	// delete a picture from a used
+	//
+	// delete a picture from a user. This function removes the DB entry AND the picture itself.
 	//
 	//
 	elseif ($action == "delete_picture"){	
@@ -1012,7 +1057,9 @@
 		)));
 		
 	}
-	// maka another picture the profile
+	
+	//
+	// make a different piture your profile picture, all other pictures will be removed from profile and the picture given to this api is enabled
 	//
 	//
 	elseif ($action == "make_profile"){
@@ -1032,6 +1079,7 @@
 		}
 		// check if the user is and token is valid 
 		token_check($ID, $HASH, $db);
+		//check if the picture atually excists, then remove it 
 		if (file_exists($picture)) {
 			$statement = $db->prepare('UPDATE Images set is_primary=0 where users_Id_Users=?');
 			$statement->execute(array((int)$ID)); 
@@ -1046,13 +1094,13 @@
 			exit(json_encode(array(
 				'status' => 200,
 				'error_type' => 10,
-				'error_message' => "File does not excists"
+				'error_message' => "File not found"
 			)));
 		}
 	}
 	
-	
-	// returns ok if the user is admin, alse not, this can be used to check if certain functionallity needs to be visable or not
+	//
+	// check if the current user has administrator privileges. 
 	//
 	//
 	elseif ($action == "is_admin"){
@@ -1077,37 +1125,11 @@
 			'error_message' => "person is admin"
 		)));
 	}
-	
-	// add an evenement to the database, 
-	//
-	//
-	elseif ($action == "is_admin"){
-		$xml_dump = file_get_contents('php://input');
-		$xml = json_decode($xml_dump, true);
-		try {
-			$ID = $xml["id"];
-			$HASH = $xml["hash"];
-
-		} catch (Exception $e) {
-			exit(json_encode(array(
-				'status' => 409,
-				'error_type' => 4,
-				'error_message' => "Not all fields where available, need: ID, HASH"
-			)));
-		}
-		// check if the user is and token is valid and it is admin
-		admin_check($ID, $HASH, $db);
-		exit(json_encode(array(
-			'status' => 200,
-			'error_type' => 0,
-			'error_message' => "person is admin"
-		)));
-	}
-	
 	
 	//
 	// This action adds a festival/evenement to the database, This only adds the pure evenement in the database, not the shifts/days
 	// This action can only be performed by an administrator
+	// this api also returns all the opened festivals
 	//
 	elseif ($action == "add_festival") {
 		// get the contenct from the api body
@@ -1129,14 +1151,16 @@
 		}
 		// this is an admin action, check if this is an admin
 		admin_check($ID, $HASH, $db);
-		// entering the complaint in the DB
+		// entering the festical in the DB
 		$statement = $db->prepare('INSERT INTO festivals (date, details, status, name, full_shifts) VALUES (?,?,?,?,?)');
 		$statement->execute(array($date, $details, $status, $name, 0));
 		
+		// request all active festivals 
 		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
-
+		
+		// return all the festivals
 		if ($res){
 			$json = json_encode($res);
 			exit($json);
@@ -1148,7 +1172,8 @@
 		)));
 	}
 	//
-	// get a list of all the festivals 
+	// get a list of all the festivals, you can select... see code
+	//
 	//
 	elseif ($action == "get_festivals") {
 		$xml_dump = file_get_contents('php://input');
@@ -1167,18 +1192,22 @@
 			)));
 		}
 		$query = '';
+		// select one specific festival, only admin
 		if ($type == "select"){
 			$query ='SELECT * FROM festivals WHERE idfestival = ? ;';
 			$statement = $db->prepare($query);
 			$statement->execute(array($festi_id));
 			admin_check($ID, $HASH, $db);
 		}
+		// select all active events, also the hidden once 
 		else if ($type ==  "active"){
 			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 ORDER BY date ASC;';
 			$statement = $db->prepare($query);
 			$statement->execute(array());
 			admin_check($ID, $HASH, $db);
 		}
+		
+		// select all active festivals
 		else if ($type ==  "active_and_open"){
 			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 and status != 8 ORDER BY date ASC;';
 			$statement = $db->prepare($query);
@@ -1186,14 +1215,16 @@
 			token_check($ID, $HASH, $db);
 		}
 		else {
+		// select last 15 festivals
 			$query ='SELECT * FROM `festivals`ORDER BY date DESC limit 15';
 			admin_check($ID, $HASH, $db);
 			$statement = $db->prepare($query);
 			$statement->execute(array());
 		}
-		
+		// get result
 		$res = $statement->fetchAll();
-
+		
+		// return result
 		if ($res){
 			$json = json_encode($res);
 			exit($json);
@@ -1228,7 +1259,6 @@
 		// changing the festival data
 		$statement = $db->prepare('UPDATE festivals SET date=?, details=?, name=? where idfestival=?;');
 		$statement->execute(array($date, $details, $name,$idfestival));
-	
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0
@@ -1261,14 +1291,16 @@
 		}
 		// this is an admin action, check if this is an admin
 		admin_check($ID, $HASH, $db);
-		// entering the complaint in the DB
+		// entering the shift in the DB
 		$statement = $db->prepare('INSERT INTO shifts (name, datails, length, people_needed, spare_needed, festival_idfestival) VALUES (?,?,?,?,?,?)');
 		$statement->execute(array($name ,$discription,$length, $needed, $reserve,  $festi_id));
 		
+		// select all shift data
 		$statement = $db->prepare('SELECT shifts.name,shifts.details,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6 or festivals.status != 7;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 
+		// return shift data
 		if ($res){
 			$json = json_encode($res);
 			exit($json);
@@ -1282,6 +1314,7 @@
 	
 	//
 	// get a list of all the shifts that are active
+	//
 	//
 	elseif ($action == "get_shifts") {
 		// Todo => add data for reserve, full or not
@@ -1337,8 +1370,9 @@
 		exit(json_encode (json_decode ("{}")));
 	}
 	
-		//
+	//
 	// get a list of all the shifts
+	// 
 	//
 	elseif ($action == "get_shift") {
 		$xml_dump = file_get_contents('php://input');
