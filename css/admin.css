@@ -592,6 +592,11 @@ nav li {
 		margin: 1px !important;
 		float: none !important;
 	}
+	.export_mode {
+		width: 100% !important;
+		margin: 1px !important;
+		float: none !important;
+	}
 	.shift_title {
 		display: block;
 	}
@@ -746,7 +751,9 @@ nav li {
 		padding: 1px;
 		position:fixed;
 		top: 0%;
-		left: 0%;		
+		left: 0%;	
+		max-height: 400px;
+		overflow: scroll;	
 	}
 	#change_shift {
 		top: 0px;

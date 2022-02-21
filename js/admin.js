@@ -309,7 +309,7 @@ function callback_user_search_workdays(data){
 
 
 function get_select(id) {
-    return '<select id="' + id + '" style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="3">Open met vrije inschrijving</option><option value="2">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
+    return '<select id="' + id + '" style="width:20%" class="festi_status" name="status"><option value="0">opvraging interesse</option><option value="1">Aangekondigd</option><option value="3">Open met vrije inschrijving</option><option value="2">open met reservatie</option><option value="4">festival bezig</option><option value="5">eindafrekeningen</option><option value="8">Verborgen</option><option value="6">afgesloten</option><option value="7">geannuleerd</option></select>';
 }
 
 function festival_shift_subscribers() {

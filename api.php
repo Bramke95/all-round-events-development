@@ -1171,12 +1171,19 @@
 			$query ='SELECT * FROM festivals WHERE idfestival = ? ;';
 			$statement = $db->prepare($query);
 			$statement->execute(array($festi_id));
-			token_check($ID, $HASH, $db);
+			admin_check($ID, $HASH, $db);
 		}
 		else if ($type ==  "active"){
 			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 ORDER BY date ASC;';
 			$statement = $db->prepare($query);
 			$statement->execute(array());
+			admin_check($ID, $HASH, $db);
+		}
+		else if ($type ==  "active_and_open"){
+			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 and status != 8 ORDER BY date ASC;';
+			$statement = $db->prepare($query);
+			$statement->execute(array());
+			token_check($ID, $HASH, $db);
 		}
 		else {
 			$query ='SELECT * FROM `festivals`ORDER BY date DESC limit 15';
@@ -1861,6 +1868,13 @@
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			add_to_mail_queue($db, $email, $subject, $message, $headers);
+		}
+		if ($status == 99){
+			exit(json_encode(array(
+				'status' => 550,
+				'error_type' => 0,
+				'error_message' => "Added to reserved capacity."
+			)));	
 		}
 		
 		
@@ -3530,9 +3544,6 @@
 		}
 
 		token_check($ID, $HASH, $db);
-		
-		// check if festival is open 
-
 		// check if festival is open
 		$statement = $db->prepare('SELECT festivals.name, festivals.status, idshifts from shifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN locations on locations.shift_id = shifts.idshifts where locations.location_id = ? LIMIT 1;');
 		$statement->execute(array($location_id));
@@ -3824,7 +3835,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare("SELECT locations.location_id, locations.appointment_time, locations.location, locations.shift_id, users_data.name, users_data.telephone, Images.picture_name, users_data.users_Id_Users, external_appointment.present from locations inner join external_appointment on external_appointment.location_id = locations.location_id inner join users_data on users_data.users_Id_Users = external_appointment.user_id INNER join Images on Images.users_Id_Users=users_data.users_Id_Users WHERE locations.location_id = ?");
+		$statement = $db->prepare("SELECT locations.location_id, locations.appointment_time, locations.location, locations.shift_id, users_data.name, users_data.telephone, Images.picture_name, users_data.users_Id_Users, external_appointment.present from locations inner join external_appointment on external_appointment.location_id = locations.location_id inner join users_data on users_data.users_Id_Users = external_appointment.user_id INNER join Images on Images.users_Id_Users=users_data.users_Id_Users WHERE Images.is_primary = 1 and locations.location_id = ?");
 		$statement->execute(array($location_id));
 		$res = $statement->fetchAll();
 		if ($res){
@@ -4054,7 +4065,7 @@
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select users.is_admin, users_data.name, users.email, users_data.date_of_birth, users_data.driver_license, users_data.Gender, users_data.users_Id_Users from work_day inner JOIN shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join users on users.Id_Users = work_day.users_Id_Users where festivals.idfestival = ? GROUP BY work_day.users_Id_Users ORDER BY `users_data`.`date_of_birth` DESC;');
+		$statement = $db->prepare('select users.is_admin, users_data.name, users.email, users_data.date_of_birth, users_data.driver_license, users_data.Gender, users_data.users_Id_Users from work_day inner JOIN shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join users on users.Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and (work_day.reservation_type = 3 or work_day.reservation_type = 5) GROUP BY work_day.users_Id_Users ORDER BY `users_data`.`date_of_birth` DESC;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
 		$excel_data = [['Voornaam', 'Achternaam', 'E-mail (verplicht)', 'GSM (met landcode)', 'Functie', 'Geboortedatum(verplicht)(dag-maand-jaar)', 'Rijksregisternummer(verplicht)', 'Europees Rijkregisternummer (verplicht indien geen rijksregisternummer)', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag', 'Opbouw/Afbraak', 'Overnachten', 'Verantwoordelijke', 'Straat', 'Nummer', 'Busnummer', 'Postcode', 'Gemeente', 'Postcode', 'Land', 'Postcode', 'Telefoon', 'Postcode', 'ICE Telefoon', 'Geslacht', 'Geboorteplaats']];
@@ -4100,81 +4111,81 @@
 		$res_overview = $statement->fetchAll();
 		header('Content-Type: text/xml');
 		header('Content-Disposition: attachment; filename="uitbetaling.xml"');
-
+		$date_now = date_create()->format('Y-m-d H:i:s');
+		$date_now = str_replace(' ', 'T', $date_now);
 
 		$data =  '<?xml version="1.0" encoding="utf-8" ?>
-	<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03">
-		<CstmrCdtTrfInitn>
-		<GrpHdr>
-		    <MsgId>KBC/Local/Be68731044606534/M</MsgId>
-		    <CreDtTm>'. date_create()->format('Y-m-d H:i:s') .'</CreDtTm>
-		    <NbOfTxs>'. $res_overview[0]["count(*)"] .'</NbOfTxs>
-		    <CtrlSum>'. $res_overview[0]["SUM(result1)"] .'</CtrlSum>
-		    <InitgPty>
-		        <Nm>KBC/Local</Nm>
-		    </InitgPty>
-		</GrpHdr>';
-		foreach ($res_detail as &$user) {
-			$data = $data . '			
-		<PmtInf>
-		    <PmtInfId>KBC/Local/Be68731044606534/P</PmtInfId>
-		    <PmtMtd>TRF</PmtMtd>
-		    <BtchBookg>false</BtchBookg>
-		    <PmtTpInf>
-		        <InstrPrty>NORM</InstrPrty>
-		        <SvcLvl>
-		        	<Cd>SEPA</Cd>
-		        </SvcLvl>
-		    </PmtTpInf>
-		    <ReqdExctnDt>'. date_create()->format('Y-m-d H:i:s') .'</ReqdExctnDt>
-		    <Dbtr>
-		    	<Nm>All RoundEvents</Nm>
-		    </Dbtr>
-		    <DbtrAcct>
-		        <Id>
-		        	<IBAN>'. $user["adres_line_two"] .'</IBAN>
-		        </Id>
-		        <Ccy>EUR</Ccy>
-		    </DbtrAcct>
-		    DbtrAgt>
-		        <FinInstnId>
-		        	<BIC>KREDBEBB</BIC>
-		        </FinInstnId>
-		    </DbtrAgt>
-		    <CdtTrfTxInf>
-		        <PmtId>
-		        	<EndToEndId>NOT PROVIDED</EndToEndId>
-		        </PmtId>
-		        <Amt>
-		        	<InstdAmt Ccy="EUR">'. $user["SUM(shift_days.cost)"] .'</InstdAmt>
-		        </Amt>
-		        <CdtrAgt>
-		          <FinInstnId>
-		            <BIC>KREDBEBB</BIC>
-		          </FinInstnId>
-		        </CdtrAgt>
-		        <Cdtr>
-		          <Nm>'. $user["name"] .'</Nm>
-		          <PstlAdr>
-		            <Ctry>BE</Ctry>
-		          </PstlAdr>
-		        </Cdtr>
-		        <CdtrAcct>
-		          <Id>
-		            <IBAN>'. $user["adres_line_two"] .'</IBAN>
-		          </Id>
-		        </CdtrAcct>
-		        <RmtInf>
-		          <Ustrd>All round events Vrijwilligersvergoeding</Ustrd>
-		        </RmtInf>
-		      </CdtTrfTxInf>
-		    </PmtInf>';
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03">
+  <CstmrCdtTrfInitn>
+    <GrpHdr>
+      <MsgId>KBC/Local/BE68731044606534/M</MsgId>
+      <CreDtTm>'. $date_now .'</CreDtTm>
+      <NbOfTxs>'. $res_overview[0]["count(*)"] .'</NbOfTxs>
+      <CtrlSum>'. $res_overview[0]["SUM(result1)"] .'</CtrlSum>
+      <InitgPty>
+        <Nm>KBC/Local</Nm>
+      </InitgPty>
+    </GrpHdr>';
+foreach ($res_detail as &$user) {
+	$bank_number = str_replace(' ', '', $user["adres_line_two"]);
+$data = $data .'
+    <PmtInf>
+      <PmtInfId>KBC/Local/BE68731044606534/P</PmtInfId>
+      <PmtMtd>TRF</PmtMtd>
+      <BtchBookg>false</BtchBookg>
+      <PmtTpInf>
+        <InstrPrty>NORM</InstrPrty>
+        <SvcLvl>
+          <Cd>SEPA</Cd>
+        </SvcLvl>
+      </PmtTpInf>
+      <ReqdExctnDt>'. date_create()->format('Y-m-d') .'</ReqdExctnDt>
+      <Dbtr>
+        <Nm>All RoundEvents</Nm>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <IBAN>'. $bank_number .'</IBAN>
+        </Id>
+        <Ccy>EUR</Ccy>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BIC>KREDBEBB</BIC>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtTrfTxInf>
+        <PmtId>
+          <EndToEndId>NOT PROVIDED</EndToEndId>
+        </PmtId>
+        <Amt>
+          <InstdAmt Ccy="EUR">'. $user["SUM(shift_days.cost)"] .'</InstdAmt>
+        </Amt>
+        <CdtrAgt>
+          <FinInstnId>
+            <BIC>KREDBEBB</BIC>
+          </FinInstnId>
+        </CdtrAgt>
+        <Cdtr>
+          <Nm>'. $user["name"] .'</Nm>
+          <PstlAdr>
+            <Ctry>BE</Ctry>
+          </PstlAdr>
+        </Cdtr>
+        <CdtrAcct>
+          <Id>
+            <IBAN>'. $bank_number .'</IBAN>
+          </Id>
+        </CdtrAcct>
+        <RmtInf>
+          <Ustrd>All round events Vrijwilligersvergoeding</Ustrd>
+        </RmtInf>
+      </CdtTrfTxInf>
+    </PmtInf>';
 			}
 		$data = $data . '
-	</CstmrCdtTrfInitn>
-</Document>
-
-		';
+  </CstmrCdtTrfInitn>
+</Document>';
 		exit($data);
 
 	}
@@ -4222,12 +4233,12 @@
 		ignore_user_abort(true);
 		set_time_limit(0);
 		// ask the DB how many mails where send in the lsat 5 min 
-		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 5 minute);');
+		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 3 minute);');
 		$statement->execute();
 		$res = $statement->fetchAll();
 		
 		// 
-		$count = 20 - $res[0]["COUNT(*)"];
+		$count = 6 - $res[0]["COUNT(*)"];
 		// select mails we can send 
 		$statement = $db->prepare('SELECT * FROM mails where mails.send_process is NULL LIMIT ' . strval($count) . ";");
 		$statement->execute(array());
@@ -4237,26 +4248,12 @@
 			mail($line["address"],$line["subject"],$line["mail_text"],$line["mail_headers"]);
 			$statement = $db->prepare('update mails set mails.send_process=now() where mails.mail_id=?;');
 			$statement->execute(array($line["mail_id"]));
-			sleep(1);
+			sleep(4);
 		}
 		
 		// if mails need 
 		exit("Cron run OK.");
-		
 	}
-
-
 	else {
 		header("Location: https://all-round-events.be/html/nl/home.html");
 	}
-
-
-
-
-
-
-
-
-
-
-	

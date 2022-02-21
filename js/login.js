@@ -59,7 +59,7 @@
 		}
 		if (res["status"] == 200) {
 			setCookie('YOUR_CV_INLOG_TOKEN_AND_ID',JSON.stringify({"ID":  res.id  ,'TOKEN':  res.hash }), 14);
-			window.location.href = "user.html";
+			window.location.href = "inschrijven.html";
 			
 		}
 		else {
