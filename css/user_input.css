@@ -197,6 +197,15 @@ img {
   width: 250px;
 }
 
+.checkbox_mail {
+	box-shadow: none;
+	width: 12px;
+}
+
+#label_mail {
+	display: inline;
+}
+
 input[type=file] {
   width: 97%;
 }
@@ -231,6 +240,12 @@ div.show-image input.delete {
     left:165px;
 }
 #change_pass_div {
+	background-color: #f2f2f2;
+	padding: 10px;
+	border-radius: 5px;
+  margin-top: 10px;
+}
+#change_mail_div {
 	background-color: #f2f2f2;
 	padding: 10px;
 	border-radius: 5px;

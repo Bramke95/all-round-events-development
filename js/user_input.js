@@ -105,7 +105,6 @@
 		if (!coockie){
 			window.location.href = "login.html";
 		}
-		$("#schools").prepend('<tr><th>Van</th><th>Tot</th><th>school</th><th>opleiding</th><th>percentage</th><th></th></tr>');
 		api("get_main",{"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill_callback_main )
 		api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback)
 	}
@@ -134,6 +133,27 @@
 			$("#country").val(res.nationality);
 			$("#text").val(res.text);
 			$("#marital_state").val(res.marital_state);
+			if(res.subscribed == 1){
+				$('.checkbox_mail').prop('checked', true);
+			}
+			else {
+				$('.checkbox_mail').prop('checked', false);
+			}
+			$(".checkbox_mail").off();
+			$(".checkbox_mail").change(function(event) {
+				let out = this.checked;
+				let user = res.id
+				if(out){
+					var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+					api("mail_subscribe", {"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill);
+				}
+				else {
+					var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+					api("mail_unsubscribe", {"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill);
+				}
+				
+			});
+			
 		}
 	}
 

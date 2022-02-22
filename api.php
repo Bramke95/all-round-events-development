@@ -51,6 +51,16 @@
 		return true; 
 	}
 	
+	// get ip from user 
+	function getRealUserIp(){
+		switch(true){
+		  case (!empty($_SERVER['HTTP_X_REAL_IP'])) : return $_SERVER['HTTP_X_REAL_IP'];
+		  case (!empty($_SERVER['HTTP_CLIENT_IP'])) : return $_SERVER['HTTP_CLIENT_IP'];
+		  case (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) : return $_SERVER['HTTP_X_FORWARDED_FOR'];
+		  default : return $_SERVER['REMOTE_ADDR'];
+		}
+	 }
+	
 	function admin_check($id, $token_user, $db) {
 		//
 		// does the same action as token_check but it also checks if the user is the admin, use this function for actions that need admin rights
@@ -91,8 +101,6 @@
 			'error_type' => 4,
 			'error_message' => "No admin rights"
 		)));
-		
-		
 	}
 	
 	function split_name($name) {
@@ -132,7 +140,21 @@
 	// gets the action that needs to be performed. 
 	$action = isset($_GET['action']) ? $_GET['action'] : '';
 	
+//******************************************************************************************************************************
+//										AUDIT LOGS
+//******************************************************************************************************************************
+	$xml_dump = file_get_contents('php://input');
+	$xml = json_decode($xml_dump,true);
+	$ID = $xml["id"];
+	$ip = getRealUserIp();
+	if($action == "login"){
+		$xml_dump = "HIDDEN TO HIDE USER CREDENTIALS";
+	}
+	$statement = $db->prepare('INSERT INTO logs (api, data, user_id, ip) VALUES(?, ?, ?, ?)');
+	$statement->execute(array($action, $xml_dump, $ID, $ip));
 	
+
+
 //******************************************************************************************************************************
 //										ALL ACTIONS
 //******************************************************************************************************************************
@@ -485,6 +507,7 @@
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0,
+			'id' => $res2['Id_Users'],
 			'name' => $res['name'],
 			'date_of_birth' => $res['date_of_birth'],
 			'Gender' => $res['Gender'],
@@ -497,9 +520,9 @@
 			'telephone' => $res['telephone'],
 			'marital_state' => $res['marital_state'],
 			'email' => $res2['email'],
+			'subscribed' => $res2['subscribed'],
 			'text' => $res['text']
 		)));
-
 	}
 	//
 	// DEPRECATED, but keep for maybe the future? 
@@ -2193,7 +2216,7 @@
 			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
 			$statement->execute(array($notification_text, 1, -1));
 
-			$statement = $db->prepare("SELECT email FROM users;");
+			$statement = $db->prepare("SELECT email FROM users where subscribed = 1;");
 			$statement->execute(array());
 			$res = $statement->fetchAll();
 			foreach ($res as &$line) {
@@ -2214,7 +2237,8 @@
 									2580 Putte
 									BTW: BE 0886 674 723
 									IBAN: BE68 7310 4460 6534
-									RPR Mechelen</small></p>" 
+									RPR Mechelen</small></p></br>
+									<small>Geen mails meer ontvangen? Verwijderd jezelf op de mailinglijst op de website.</small>" 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -2230,7 +2254,7 @@
 			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
 			$statement->execute(array($notification_text, 1, -1));
 
-			$statement = $db->prepare("SELECT email FROM users;");
+			$statement = $db->prepare("SELECT email FROM users where subscribed = 1;");
 			$statement->execute(array());
 			$res = $statement->fetchAll();
 			foreach ($res as &$line) {
@@ -2250,7 +2274,8 @@
 									2580 Putte
 									BTW: BE 0886 674 723
 									IBAN: BE68 7310 4460 6534
-									RPR Mechelen</small></p>" 
+									RPR Mechelen</small></p></br>
+									<small>Geen mails meer ontvangen? Verwijderd jezelf op de mailinglijst op de website.</small> 
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
@@ -2268,7 +2293,7 @@
 		if($status == 5){
 			
 			// mail is send to all the user that payout will be hapening
-			$statement = $db->prepare("SELECT email FROM users inner join work_day on work_day.users_Id_Users = users.Id_Users inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? group by email;");
+			$statement = $db->prepare("SELECT email FROM users inner join work_day on work_day.users_Id_Users = users.Id_Users inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where subscribed = 1 and festivals.idfestival = ? group by email;");
 			$statement->execute(array($festi_id));
 			$res = $statement->fetchAll();
 			foreach ($res as &$line) {
@@ -2286,7 +2311,8 @@
 									2580 Putte
 									BTW: BE 0886 674 723
 									IBAN: BE68 7310 4460 6534
-									RPR Mechelen</small></p>" 
+									RPR Mechelen</small></p></br>
+									<small>Geen mails meer ontvangen? Verwijderd jezelf op de mailinglijst op de website.</small>									
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -2301,7 +2327,7 @@
 			// nothing should be hapening
 		}
 		if($status == 7){
-			$statement = $db->prepare("SELECT email FROM users;");
+			$statement = $db->prepare("SELECT email FROM users where subscribed = 1;");
 			$statement->execute(array());
 			$res = $statement->fetchAll();
 			foreach ($res as &$line) {
@@ -2321,7 +2347,8 @@
 									2580 Putte
 									BTW: BE 0886 674 723
 									IBAN: BE68 7310 4460 6534
-									RPR Mechelen</small></p>" 
+									RPR Mechelen</small></p></br>
+								<small>Geen mails meer ontvangen? Verwijderd jezelf op de mailinglijst op de website.</small>									
 							</html>';
 				$headers = 'From: aankondigen@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
@@ -3233,7 +3260,7 @@
 
 		if($festi_id == -2){
 			// select all the id's and email from one shift
-			$statement = $db->prepare("SELECT * FROM users");
+			$statement = $db->prepare("SELECT * FROM users where subscribed = 1;");
 			$statement->execute(array());
 			$res = $statement->fetchAll();
 			foreach ($res as &$line) {
@@ -3246,7 +3273,9 @@
 																							2580 Putte
 																							BTW: BE 0886 674 723
 																							IBAN: BE68 7310 4460 6534
-																						RPR Mechelen</small></p></html>";
+																						RPR Mechelen</small></br>
+																						<small>Geen mails meer ontvangen? Verwijderd jezelf op de mailinglijst op de website.</small>
+																						</p></html>";
 				$headers = 'From: info@all-round-events.be' . "\r\n" .
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
@@ -4152,19 +4181,27 @@
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03">
   <CstmrCdtTrfInitn>
     <GrpHdr>
-      <MsgId>KBC/Local/BE68731044606534/M</MsgId>
+      <MsgId>'. $res_detail[0]["festiname"] .'</MsgId>
       <CreDtTm>'. $date_now .'</CreDtTm>
       <NbOfTxs>'. $res_overview[0]["count(*)"] .'</NbOfTxs>
       <CtrlSum>'. $res_overview[0]["SUM(result1)"] .'</CtrlSum>
       <InitgPty>
-        <Nm>KBC/Local</Nm>
+        <Nm>all-round-events</Nm>
+        <Id>
+          <OrgId>
+            <Othr>
+              <Id>0886674723</Id>
+              <Issr>KBO-BCE</Issr>
+            </Othr>
+          </OrgId>
+        </Id>
       </InitgPty>
     </GrpHdr>';
 foreach ($res_detail as &$user) {
 	$bank_number = str_replace(' ', '', $user["adres_line_two"]);
 $data = $data .'
     <PmtInf>
-      <PmtInfId>KBC/Local/BE68731044606534/P</PmtInfId>
+      <PmtInfId>'. $res_detail[0]["festiname"] .'</PmtInfId>
       <PmtMtd>TRF</PmtMtd>
       <BtchBookg>false</BtchBookg>
       <PmtTpInf>
@@ -4179,7 +4216,7 @@ $data = $data .'
       </Dbtr>
       <DbtrAcct>
         <Id>
-          <IBAN>'. $bank_number .'</IBAN>
+          <IBAN>BE68731044606534</IBAN>
         </Id>
         <Ccy>EUR</Ccy>
       </DbtrAcct>
@@ -4262,6 +4299,47 @@ $data = $data .'
 			exit(json_encode (json_decode ("{}")));
 		}
 	}
+	
+	elseif ($action == "mail_unsubscribe") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('update users set subscribed=? where users.Id_Users=?;');
+		$statement->execute(array(0, $ID));
+		exit(json_encode (json_decode ("{}")));
+	}
+	
+	elseif ($action == "mail_subscribe") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('update users set subscribed=? where users.Id_Users=?;');
+		$statement->execute(array(1, $ID));
+		exit(json_encode (json_decode ("{}")));
+	}
+	
 	elseif ($action == "cron_6b075fee6c0701feba287db06923fc54") {
 		// mail service. This will be hit every 2 minutes and checks if mails need to be send
 		ignore_user_abort(true);
