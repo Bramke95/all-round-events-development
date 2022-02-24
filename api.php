@@ -115,10 +115,10 @@
 	}
 	
 	
-	function add_to_mail_queue($db, $email, $subject, $message, $headers){
+	function add_to_mail_queue($db, $email, $subject, $message, $headers, $prio){
 	// add mail to the mail queue 
-		$statement = $db->prepare('INSERT INTO  mails (address, subject, mail_text, mail_headers) VALUES(?, ?, ?, ?)');
-		$statement->execute(array($email, $subject, $message, $headers));
+		$statement = $db->prepare('INSERT INTO  mails (address, subject, mail_text, mail_headers, prio) VALUES(?, ?, ?, ?,?)');
+		$statement->execute(array($email, $subject, $message, $headers, $prio));
 	}
 	
 	
@@ -147,7 +147,7 @@
 	$xml = json_decode($xml_dump,true);
 	$ID = $xml["id"];
 	$ip = getRealUserIp();
-	if($action == "login"){
+	if($action == "login" || $action == "change_pass"){
 		$xml_dump = "HIDDEN TO HIDE USER CREDENTIALS";
 	}
 	$statement = $db->prepare('INSERT INTO logs (api, data, user_id, ip) VALUES(?, ?, ?, ?)');
@@ -495,6 +495,61 @@
 
 		$statement = $db->prepare('SELECT * FROM users WHERE Id_Users = ?');
 		$statement->execute(array($ID));
+		$res2 = $statement->fetch(PDO::FETCH_ASSOC);
+
+		if (!$res){
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 8,
+				'errpr_message' => "no info found",
+			)));
+		}
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'id' => $res2['Id_Users'],
+			'name' => $res['name'],
+			'date_of_birth' => $res['date_of_birth'],
+			'Gender' => $res['Gender'],
+			'adres_line_one' => $res['adres_line_one'],
+			'adres_line_two' => $res['adres_line_two'],
+			'driver_license' => $res['driver_license'],
+			'employment' => $res['employment'],
+			'size' => $res['size'],
+			'nationality' => $res['nationality'],
+			'telephone' => $res['telephone'],
+			'marital_state' => $res['marital_state'],
+			'email' => $res2['email'],
+			'subscribed' => $res2['subscribed'],
+			'text' => $res['text']
+		)));
+	}
+	//
+	// get all main information from the database
+	// To get the information an ID and a HASH is needed, the hash only needs write access
+	//
+	elseif ($action == "get_main_admin") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$user_id = $xml["user_id"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
+		$statement->execute(array($user_id));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+
+		$statement = $db->prepare('SELECT * FROM users WHERE Id_Users = ?');
+		$statement->execute(array($user_id));
 		$res2 = $statement->fetch(PDO::FETCH_ASSOC);
 
 		if (!$res){
@@ -1896,7 +1951,7 @@
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-			add_to_mail_queue($db, $email, $subject, $message, $headers);
+			add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
 		}
 		if ($status == 3){
 			$notification_text = 'Ja bent nu ingeschreven voor ' . $festival_name . '. Tot dan!';
@@ -1924,7 +1979,7 @@
 			'Reply-To: info@all-roundevents.be' . "\r\n" .
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-			add_to_mail_queue($db, $email, $subject, $message, $headers);
+			add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
 		}
 		if ($status == 99){
 			exit(json_encode(array(
@@ -2010,7 +2065,7 @@
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				add_to_mail_queue($db, $email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
 			
 			
 		}
@@ -2041,7 +2096,7 @@
 				'Reply-To: info@all-roundevents.be' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				add_to_mail_queue($db, $email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
 			
 		}
 		
@@ -2244,7 +2299,7 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				add_to_mail_queue($db, $email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers, 3);
 			}
 			exit(json_encode (json_decode ("{}")));
 		}
@@ -2282,7 +2337,7 @@
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 
-				add_to_mail_queue($db, $email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers, 3);
 			
 				
 			}
@@ -2318,7 +2373,7 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				add_to_mail_queue($db, $email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers, 3);
 
 				
 			}
@@ -2354,7 +2409,7 @@
 				'Reply-To: info@all-roundevents.be ' . "\r\n" .
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
-				add_to_mail_queue($db, $email, $subject, $message, $headers);
+				add_to_mail_queue($db, $email, $subject, $message, $headers, 3);
 			}
 		}
 
@@ -3200,9 +3255,41 @@
 				'error_message' => "Not all fields where available, email"
 			)));
 		}
+		$email = str_replace(' ', '', $email);
 		$pass = bin2hex(openssl_random_pseudo_bytes(8));
 		$salt = bin2hex(openssl_random_pseudo_bytes(40));
 		$hashed_pass = password_hash($pass . $salt, PASSWORD_DEFAULT);
+		
+		$statement = $db->prepare('select * from users where users.email=?;');
+		$statement->execute(array($email));
+		$res = $statement->fetchAll();
+		if(!$res){
+			$subject = 'Wachtwoord reset';
+			$message = '<html>
+							<p>Beste,</p>
+							<p>Je hebt een wachtwoord aangevraagd voor all-round-events, wij hebben echter geen account gevonden waarbij dit email adres is gebruikt. Kijk dus zeker na of je geen ander email adres hebt gebruikt.</br></p>
+							<p> </p>
+							<p>Met vriendelijke groeten</p>
+							<p><small>
+								All Round Events VZW
+								Meester Van Der Borghtstraat 10
+								2580 Putte
+								BTW: BE 0886 674 723
+								IBAN: BE68 7310 4460 6534
+								RPR Mechelen</small></p>
+						</html>';
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-roundevents.be ' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+			add_to_mail_queue($db, $email, $subject, $message, $headers, 1);
+			exit(json_encode(array(
+				'status' => "OK",
+				'error_type' => 0,
+				'error_message' => "OK"
+			)));
+		}
+		
 		$statement = $db->prepare('UPDATE users set pass=?, salt=? where email=?');
 		$statement->execute(array($hashed_pass, $salt, $email));
 		# send email 
@@ -3226,7 +3313,7 @@
 		'Reply-To: info@all-roundevents.be ' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		add_to_mail_queue($db, $email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers, 1);
 	
 		exit(json_encode(array(
 			'status' => "OK",
@@ -3246,8 +3333,7 @@
 			$text = $xml["text"];
 			$festi_id = $xml["festi_id"];
 			$shift_id = $xml["shift_id"];
-			$user_id = $xml["user_id"];
-
+			$email = $xml["email"];
 
 		} catch (Exception $e) {
 			exit(json_encode(array(
@@ -3257,9 +3343,30 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db);
+		
+		// personal mail
+		if (strlen($email) > 0 && $festi_id == -2) {
+			$id_pusher = $line["id_Users"];
+			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
+			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p><p><small>
+																						All Round Events VZW
+																						Meester Van Der Borghtstraat 10
+																						2580 Putte
+																						BTW: BE 0886 674 723
+																						IBAN: BE68 7310 4460 6534
+																					RPR Mechelen</small></br>
+																					</p></html>";
+			$headers = 'From: info@all-round-events.be' . "\r\n" .
+			'Reply-To: info@all-roundevents.be' . "\r\n" .
+			"Content-type:text/html;charset=UTF-8" . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
 
+			add_to_mail_queue($db, $email, $subject, $message_mail, $headers, 2);
+			exit(json_encode (json_decode ("{}")));
+		}
+
+		// mail everybody except the people that have disabled from the mailing list 
 		if($festi_id == -2){
-			// select all the id's and email from one shift
 			$statement = $db->prepare("SELECT * FROM users where subscribed = 1;");
 			$statement->execute(array());
 			$res = $statement->fetchAll();
@@ -3281,7 +3388,7 @@
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 
-				add_to_mail_queue($db, $email, $subject, $message_mail, $headers);
+				add_to_mail_queue($db, $email, $subject, $message_mail, $headers, 3);
 
 				
 				$notification_text = $text;
@@ -3289,7 +3396,6 @@
 				$statement->execute(array($message, 0, $id_pusher));
 				
 			}
-			exit(json_encode (json_decode ("{}")));
 		}
 
 		// select all the id's and email from one shift
@@ -3312,9 +3418,7 @@
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 
-			add_to_mail_queue($db, $email, $subject, $message_mail, $headers);
-
-			
+			add_to_mail_queue($db, $email, $subject, $message_mail, $headers, 3);
 			$notification_text = $text;
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message, 0, $id_pusher));
@@ -3339,7 +3443,7 @@
 			"Content-type:text/html;charset=UTF-8" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
 			
-			add_to_mail_queue($db, $email, $subject, $message_mail, $headers);
+			add_to_mail_queue($db, $email, $subject, $message_mail, $headers, 3);
 			$notification_text = $text;
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
 			$statement->execute(array($message, 0, $id_pusher));
@@ -3661,7 +3765,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		add_to_mail_queue($db, $email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
 
 
 		exit(json_encode (json_decode ("{}")));
@@ -3733,7 +3837,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		add_to_mail_queue($db, $email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers, 3);
 
 		exit(json_encode (json_decode ("{}")));
 	}
@@ -3801,7 +3905,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		add_to_mail_queue($db, $email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers, 3);
 
 		exit(json_encode (json_decode ("{}")));
 	}
@@ -3984,7 +4088,7 @@
 			'X-Mailer: PHP/' . phpversion();
 			
 
-			add_to_mail_queue($db, $email, $subject, $message, $headers);
+			add_to_mail_queue($db, $email, $subject, $message, $headers, 3);
 
 			$message2 = 'Binnenkort is het zover en zal jij als vrijwillger aan de slag gaan op ' . $festival_name .'!  Je kan vanaf nu een opvang locatie kiezen op de website, gelieve in te loggen en naar inschrijvingen te gaan. Gelieve hier je opvang locatie en uur naar keuze door te geven voor dit evenement.';
 			$statement = $db->prepare('INSERT INTO notifications (notification, global, user_id) VALUES (?,?,?);');
@@ -4095,7 +4199,7 @@
 		'Reply-To: info@all-roundevents.be' . "\r\n" .
 		"Content-type:text/html;charset=UTF-8" . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
-		add_to_mail_queue($db, $email, $subject, $message, $headers);
+		add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
 
 
 		// check if festival is open
@@ -4249,7 +4353,7 @@ $data = $data .'
           </Id>
         </CdtrAcct>
         <RmtInf>
-          <Ustrd>All round events Vrijwilligersvergoeding</Ustrd>
+          <Ustrd>Vrijwilligersvergoeding: '. $res_detail[0]["festiname"] .'</Ustrd>
         </RmtInf>
       </CdtTrfTxInf>
     </PmtInf>';
@@ -4340,6 +4444,40 @@ $data = $data .'
 		exit(json_encode (json_decode ("{}")));
 	}
 	
+	//
+	// get all the rest access logs and the mail logs 
+	//
+	//
+	elseif ($action == "get_logs") {
+		
+		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
+		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
+		admin_check($ID, $HASH, $db);
+		
+		$statement = $db->prepare('SELECT * FROM `logs` ORDER BY `timestamp` DESC LIMIT 5000');
+		$statement->execute(array());
+		$res_logs = $statement->fetchAll();
+		
+		$statement = $db->prepare('SELECT * FROM `mails` ORDER BY `mails`.`send_request` DESC LIMIT 5000');
+		$statement->execute(array());
+		$mail_logs = $statement->fetchAll();
+		header("Content-type: text/plain");
+		header("Content-Disposition: attachment; filename=all_round_events_logs.log");
+
+		// do your Db stuff here to get the content into $content
+		foreach ($res_logs as &$line) {
+			print $line['id'] . "@time:". $line['timestamp'] . "@remoteAddress:" . $line['ip'] .  "	" . $line['api'] . "	" . $line['data'] . "	" . $line['user_id'] . "\n";
+		}
+		print "\n";
+		print "\n";
+		print "################################################################################MAILS###################################################################################################";
+		print "\n";
+		foreach ($mail_logs as &$line) {
+			print "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n";
+			print $line['mail_id'] . "@REQUESTED:". $line['send_request'] . " PROCCESED:	" . $line['send_process'] . "\n	prio:" . $line['prio'] . "\n   " . $line['address'] . "\n	" . $line['subject'] . "\n	" . $line['mail_text'] . "\n	" . $line['mail_headers'];
+		}
+	}
+	
 	elseif ($action == "cron_6b075fee6c0701feba287db06923fc54") {
 		// mail service. This will be hit every 2 minutes and checks if mails need to be send
 		ignore_user_abort(true);
@@ -4352,7 +4490,7 @@ $data = $data .'
 		// 
 		$count = 6 - $res[0]["COUNT(*)"];
 		// select mails we can send 
-		$statement = $db->prepare('SELECT * FROM mails where mails.send_process is NULL LIMIT ' . strval($count) . ";");
+		$statement = $db->prepare('SELECT * FROM mails where mails.send_process is NULL order by mails.prio asc LIMIT ' . strval($count) . ";");
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		
