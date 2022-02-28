@@ -159,6 +159,13 @@ $(document).ready(function() {
             }, callback_messenger);
         });
     });
+	$("#server_li").click(function(event) {
+        $("#server_li").css({"textDecoration": "underline"});
+		clearAll();
+		server();
+		
+	})
+        
 });
 
 var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -2070,6 +2077,29 @@ function full_in_changed_shift_location_day(data) {
     // Todo set in textfield
     $("#shift_day_start_location_change").val(loc.appointment_time.replace(" ", "T"));
     $("#shift_day_location_change_location").val(loc.location);
+}
+
+function server(){
+	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+    api("get_mail_logs", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, function(){});
+	
+    api("get_api_logs", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, function(){});
+	
+	api("get_stats", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, function(){});
+	
+	api("get_settings", {
+        "id": coockie.ID,
+        "hash": coockie.TOKEN
+    }, function(){});
 }
 
 function clearAll() {

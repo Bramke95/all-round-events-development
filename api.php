@@ -147,8 +147,8 @@
 	$xml = json_decode($xml_dump,true);
 	$ID = $xml["id"];
 	$ip = getRealUserIp();
-	if($action == "login" || $action == "change_pass"){
-		$xml_dump = "HIDDEN TO HIDE USER CREDENTIALS";
+	if($action == "login" || $action == "change_pass" || $action =="new_user"){
+		$xml_dump = "User_credentials";
 	}
 	$statement = $db->prepare('INSERT INTO logs (api, data, user_id, ip) VALUES(?, ?, ?, ?)');
 	$statement->execute(array($action, $xml_dump, $ID, $ip));
@@ -4407,6 +4407,134 @@ $data = $data .'
 			exit(json_encode (json_decode ("{}")));
 		}
 	}
+	
+	// get all the logs;
+	elseif ($action == "get_api_logs") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);	
+		$statement = $db->prepare('select * from logs;');
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+	
+	// get all the mails;
+	elseif ($action == "get_mail_logs") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		admin_check($ID, $HASH, $db);	
+		$statement = $db->prepare('select * from mails;');
+		$statement->execute(array());
+		$res = $statement->fetchAll();
+		
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+	
+	//
+	// get all main information from the database
+	// To get the information an ID and a HASH is needed, the hash only needs write access
+	//
+	elseif ($action == "get_stats") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('SELECT COUNT(*) FROM `logs` WHERE logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
+		$statement->execute(array());
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT(*) FROM `logs` WHERE logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute) and logs.api = "login";');
+		$statement->execute(array());
+		$res2 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_request > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
+		$statement->execute(array());
+		$res3 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
+		$statement->execute(array());
+		$res4 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` where mails.send_process is null;');
+		$statement->execute(array());
+		$res5 = $statement->fetch(PDO::FETCH_ASSOC);
+
+		exit(json_encode(array(
+			'status' => 200,
+			'error_type' => 0,
+			'total_api_request' => $res['COUNT(*)'],
+			'total_api_login' => $res2['COUNT(*)'],
+			'total mail_request' => $res3['COUNT(*)'],
+			'total mail_send' => $res4['COUNT(*)'],
+			'mails_buffered' => $res5['COUNT(*)']
+		)));
+	}
+	
+	elseif ($action == "get_settings") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('select * from settings where settings.settings_id = 1;');
+		$statement->execute(array());
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		if ($res){
+			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+		
 	
 	elseif ($action == "mail_unsubscribe") {
 		// get the contenct from the api body
