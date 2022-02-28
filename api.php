@@ -551,6 +551,10 @@
 		$statement = $db->prepare('SELECT * FROM users WHERE Id_Users = ?');
 		$statement->execute(array($user_id));
 		$res2 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT * FROM Images WHERE users_Id_Users = ? and is_primary=1 limit 1;');
+		$statement->execute(array($user_id));
+		$res3 = $statement->fetch(PDO::FETCH_ASSOC);
 
 		if (!$res){
 			exit(json_encode(array(
@@ -565,7 +569,7 @@
 			'id' => $res2['Id_Users'],
 			'name' => $res['name'],
 			'date_of_birth' => $res['date_of_birth'],
-			'Gender' => $res['Gender'],
+			'gender' => $res['Gender'],
 			'adres_line_one' => $res['adres_line_one'],
 			'adres_line_two' => $res['adres_line_two'],
 			'driver_license' => $res['driver_license'],
@@ -575,10 +579,11 @@
 			'telephone' => $res['telephone'],
 			'marital_state' => $res['marital_state'],
 			'email' => $res2['email'],
-			'subscribed' => $res2['subscribed'],
-			'text' => $res['text']
+			'text' => $res['text'],
+			'picture_name' => $res3['picture_name']
 		)));
 	}
+	
 	//
 	// DEPRECATED, but keep for maybe the future? 
 	// 
@@ -1290,7 +1295,6 @@
 			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 and status != 8 ORDER BY date ASC;';
 			$statement = $db->prepare($query);
 			$statement->execute(array());
-			token_check($ID, $HASH, $db);
 		}
 		else {
 		// select last 15 festivals

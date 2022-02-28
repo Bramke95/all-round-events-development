@@ -358,7 +358,14 @@
 			var marital_state = $("#marital_state").val();
 			var employment = $("#employment").val();
 
-			
+			if(date_of_birth_original.length < 1){
+				alert("Je geboortedatum is ongeldig.");
+				return;
+			}
+			if("NaN-NaN-NaN" == date_of_birth){
+				alert("Je geboortedatum is ongeldig.");
+				return;
+			}
 			if(user.length < 1){
 				alert("Je hebt geen naam ingevuld.");
 				return;

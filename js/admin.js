@@ -127,7 +127,6 @@ $(document).ready(function() {
             let text = $("#text_text_messenger").val();
             let subject = $("#text_subject_messenger").val();
 			
-			
 			if(festid_id == -2){
                 festid_id = -2;
                 shift_id != -2;
@@ -142,6 +141,11 @@ $(document).ready(function() {
             if(shift_id != -1){
                  festid_id = -1;
             }
+			if(festid_id != -2){
+				if (!confirm("Je staat op het punt een grote hoeveelheid mails te versturen, ben je zeker?")){
+					return;
+				}
+			}
 
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("message", {
@@ -153,7 +157,6 @@ $(document).ready(function() {
                 "subject": subject,
 				"email": email_address
             }, callback_messenger);
-            alert("Verzenden gestart, je krijgt een melding als alle berichten verzonden zijn!");
         });
     });
 });
@@ -328,6 +331,61 @@ function add_user_search_result2(data){
 
     });
 }
+
+// click shift user callback
+function add_user_search_result10(user){
+    $("#myDropdown2 a").remove();
+    $(".user_select_list").off();
+	$("#fname").val(user.name);
+	var date = new Date(user.date_of_birth);
+	var input_date = formatDate2(date)
+	$("#dateofbirth").val(input_date);
+	$("#gender").val(user.gender);
+    $("#email_user").val(user.email);
+	$("#address_1").val(user.adres_line_one);
+	$("#address_2").val(user.adres_line_two);
+	$("#tel").val(user.telephone);
+	$("#license").val(user.driver_license);
+    $("#size").val(user.size);
+	$("#country").val(user.nationality);
+	$("#text").val(user.text);
+	$("#marital_state").val(user.marital_state);
+	$("#user_info").show();
+    $(".container img").remove();
+    $(".user_serach_work_listing").remove();
+    $(".container").prepend("<img src=/" + user.picture_name + " alt='Toevoegen van lid'>");
+    $(".container").prepend('<input id="'+ user.id +'" class="user_serach_work_listing" type="submit" value="Actieve werkdagen">');
+			
+			// click to insert data
+    $("#submit").off();
+	$("#submit").click(function(event) {
+		var user = $("#fname").val();
+		var date_of_birth_orignal = $("#dateofbirth").val();
+        var date_of_birth = formatDate2(date_of_birth_orignal);
+		var gender = $("#gender").val();
+		var address_1 = $("#address_1").val();
+		var address_2 = $("#address_2").val();
+        var size = $("#size").val();
+		var telephone = $("#tel").val();
+		var driving_license = $("#license").val();
+		var country = $("#country").val();
+		var text = $("#text").val();
+		var marital_state = $("#marital_state").val();
+		insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size);
+	});
+
+    $(".user_serach_work_listing").off();
+    $(".user_serach_work_listing").click(function(event) {
+        let id = event.target.attributes.id.value;
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        api("user_work_days", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "user_id": id
+        }, callback_user_search_workdays);
+    });
+};
+
 
 function callback_user_search_workdays(data){
 
@@ -1672,12 +1730,16 @@ function subscribers_callback(data) {
 			
 			$('#open_profile_subscribe').off();
 			$('#open_profile_subscribe').click(function(event){
-				
+				$("#users_li").click();
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+				api("get_main_admin", {"id": coockie.ID, "hash": coockie.TOKEN, "user_id": id}, add_user_search_result10);
+				$('#user_options_admin_select').fadeOut();
 			});
 			
 			$('#send_mail_subscribe').off();
 			$('#send_mail_subscribe').click(function(event){
 				$("#messemgers_li").click();
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				api("get_main_admin", {"id": coockie.ID, "hash": coockie.TOKEN, "user_id": id}, function(data){
 					$("#festivals_mes option[id='-2']").attr("selected", "selected");
 					$("#shift_messenger").fadeOut();
@@ -1686,16 +1748,22 @@ function subscribers_callback(data) {
 					$("#email_messenger").fadeIn();
 					$("#email_messenger").val(data.email);	
 					$('#user_options_admin_select').fadeOut();
+					setTimeout(function(){
+						$("#festivals_mes option[id='-2']").attr("selected", "selected");
+					}, 2000);
 				});
+				$('#user_options_admin_select').fadeOut();
 
 			});
 			$('#see_subscriptions_subscribe').off();
 			$('#see_subscriptions_subscribe').click(function(event){
+				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 				api("user_work_days", {
                     "id": coockie.ID,
                     "hash": coockie.TOKEN,
                     "user_id": id
                 }, callback_user_search_workdays);
+				
 			});
 			
         });
