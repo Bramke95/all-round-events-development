@@ -4273,7 +4273,7 @@
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
 		admin_check($ID, $HASH, $db);
-		$statement = $db->prepare('select work_day.users_Id_Users, SUM(shift_days.cost), users_data.name, users_data.adres_line_two, festivals.name as festiname, work_day.Payout from work_day inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and ((work_day.in = 1 and work_day.out = 1) or work_day.present = 1) GROUP BY work_day.users_Id_Users');
+		$statement = $db->prepare('select work_day.users_Id_Users, shift_days.cost, users_data.name, users_data.adres_line_two, festivals.name as festiname, work_day.Payout from work_day inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and ((work_day.in = 1 and work_day.out = 1) or work_day.present = 1);');
 		$statement->execute(array($festi_id));
 		$res_detail = $statement->fetchAll();
 
@@ -4291,7 +4291,7 @@
     <GrpHdr>
       <MsgId>'. $res_detail[0]["festiname"] .'</MsgId>
       <CreDtTm>'. $date_now .'</CreDtTm>
-      <NbOfTxs>'. $res_overview[0]["count(*)"] .'</NbOfTxs>
+      <NbOfTxs>'. count($res_detail) .'</NbOfTxs>
       <CtrlSum>'. $res_overview[0]["SUM(result1)"] .'</CtrlSum>
       <InitgPty>
         <Nm>all-round-events</Nm>
