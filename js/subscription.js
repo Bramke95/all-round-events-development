@@ -97,7 +97,9 @@ function api(action, body, callback){
 			//TODO check if token mismach, revert to login
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
-			window.location.href = "home.html";
+			alert("Er lijkt iets mis te zijn gegaan op de server, dit kan veroorzaakt worden bij grote drukte.");
+			location.reload();
+			
 		} 
 	});
 };

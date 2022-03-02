@@ -36,7 +36,7 @@
 		        callback(JSON.parse(resp));
 		    },
 		    error: function(XMLHttpRequest, textStatus, errorThrown) { 
-                 callback("ERROR")   
+                 alert("Communicatie met server verbroken; Probeer het later opnieuw!");   
             } 
 		});
 	};

@@ -839,7 +839,8 @@ function api(action, body, callback) {
             callback(JSON.parse(resp));
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            allert("Communicatie met server verbroken;");
+            alert("Communicatie met server verbroken;");
+			location.reload();
         }
     });
 };
@@ -2080,27 +2081,126 @@ function full_in_changed_shift_location_day(data) {
 }
 
 function server(){
+	$("#festival_list").html("<div id='settings'><div id='set_settings'></div><div id='settings_stats'></div><div id='settings_mail_graph'></div><div id='set_logs_graph'></div></div>");
+	$("#festival_list").fadeIn(500);
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
     api("get_mail_logs", {
         "id": coockie.ID,
         "hash": coockie.TOKEN
-    }, function(){});
+    }, function(data){
+		let logs = "<table>";
+		logs = logs + "  <tr><th>address</th><th>subject</th><th>mail</th><th>headers</th><th>send request</th><th>send process</th><th>prio</th></tr>";
+		for(x = 0; x < data.length;x++){
+			logs = logs + "<tr><td>"+data[x].address+"</td><td>"+data[x].subject+"</td><td>"+data[x].mail_text+"</td><td>"+data[x].mail_headers+"</td><td>"+data[x].send_request+"</td><td>"+data[x].send_process+"</td><td>"+data[x].prio+"</td></tr>"
+		}
+		$("#settings_mail_graph").append(logs);
+	});
 	
     api("get_api_logs", {
         "id": coockie.ID,
         "hash": coockie.TOKEN
-    }, function(){});
+    }, function(data){
+		let logs = "<table>";
+		logs = logs + "  <tr><th>Date</th><th>request</th><th>data</th><th>user</th><th>IP address</th></tr>";
+		for(x = 0; x < data.length;x++){
+			logs = logs + "<tr><td>"+data[x].timestamp+"</td><td>"+data[x].api+"</td><td>"+data[x].data+"</td><td>"+data[x].name+"</td><td>"+data[x].ip+"</td></tr>"
+		}
+		$("#set_logs_graph").append(logs);
+	});
 	
 	api("get_stats", {
         "id": coockie.ID,
         "hash": coockie.TOKEN
-    }, function(){});
+    }, set_stats);
 	
 	api("get_settings", {
         "id": coockie.ID,
         "hash": coockie.TOKEN
-    }, function(){});
+    }, set_settings);
 }
+
+function set_settings(data){
+	$("#festival_list").fadeIn(500);
+	let settings_html = "<h2>Settings:</h2>"
+	
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">mail interval time: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><input type="text" id="settings_mail_interval_time" value="'+ data.mail_interval_time +'" name="festi_name"></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">mails per interval: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><input type="text" id="setting_mails_per_interval" name="festi_name" value="'+ data.mails_per_interval +'"></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">max api logs: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><input type="text" id="settings_max_api_logs" value="'+ data.max_api_logs +'" name="festi_name" ></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">max mail backlog: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><input type="text" id="setting_max_mail_backlog" name="festi_name" value="'+ data.max_mail_logs +'"></div></div>';
+	settings_html = settings_html + '<input type="submit" id="settings_update_submit" class="unsubscribe_user" name="settings" value="Update" placeholder="" style="background-color: red ;  margin-left:10px;">';
+	$("#set_settings").append(settings_html);
+	$("#settings_update_submit").click(function(){
+		
+		let settings_mail_interval_time = $("#settings_mail_interval_time").val();
+		let setting_mails_per_interval = $("#setting_mails_per_interval").val();
+		let settings_max_api_logs = $("#settings_max_api_logs").val();
+		let setting_max_mail_backlog = $("#setting_max_mail_backlog").val();
+		api("set_settings", {
+			"id": coockie.ID,
+			"hash": coockie.TOKEN,
+			"mail_interval_time": settings_mail_interval_time,
+			"mails_per_interval": setting_mails_per_interval,
+			"max_mail_logs": setting_max_mail_backlog,
+			"max_api_logs": settings_max_api_logs
+		}, function(){});
+		});
+	
+}
+
+function set_stats(data){
+	$("#festival_list").fadeIn(500);
+	let settings_html = "<h2>stats(last 24 hours):</h2>";
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Current mail buffer: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.mails_buffered +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total mail requests: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.total_mail_request +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total mails processed: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.total_mail_send +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total login attempts: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.total_api_login +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total successful login: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.success_logins +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total unique visitors: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.unique_visitors +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total users(known to us): </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.unique_users +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">total cron(should be +-1440): </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.cron_requests +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total requests to server: </label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.total_api_request +'</label></div></div>';
+	
+	settings_html = settings_html + '<input type="submit" id="open_logs" class="unsubscribe_user" name="settings" value="api logs" placeholder="" style="background-color: red ;  margin-left:10px;">';
+	settings_html = settings_html + '<input type="submit" id="open_mails" class="unsubscribe_user" name="settings" value="mail logs" placeholder="" style="background-color: red ;  margin-left:10px;">';
+	
+	$("#settings_stats").append(settings_html);
+	
+	$("#open_logs").click(function(){
+		$("#set_logs_graph").fadeIn();
+		$("#settings_mail_graph").fadeOut();
+	});
+	$("#open_mails").click(function(){
+		$("#set_logs_graph").fadeOut();
+		$("#settings_mail_graph").fadeIn();
+	});
+}
+
 
 function clearAll() {
     $("#add_fesitvail").fadeOut("fast");

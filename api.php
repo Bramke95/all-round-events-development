@@ -4424,7 +4424,7 @@ $data = $data .'
 			)));
 		}
 		admin_check($ID, $HASH, $db);	
-		$statement = $db->prepare('select * from logs;');
+		$statement = $db->prepare('select id,api,data,user_id,name,ip,timestamp from logs left join users_data on logs.user_id = users_data.users_Id_Users order by timestamp desc;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		
@@ -4451,7 +4451,7 @@ $data = $data .'
 			)));
 		}
 		admin_check($ID, $HASH, $db);	
-		$statement = $db->prepare('select * from mails;');
+		$statement = $db->prepare('select * from mails order by send_request desc;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		
@@ -4499,15 +4499,35 @@ $data = $data .'
 		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` where mails.send_process is null;');
 		$statement->execute(array());
 		$res5 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT( DISTINCT ip) FROM `logs` WHERE logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
+		$statement->execute(array());
+		$res6 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT( DISTINCT user_id) FROM `logs` WHERE logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
+		$statement->execute(array());
+		$res7 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT(*) FROM `logs` WHERE logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute) and logs.api = "cron_6b075fee6c0701feba287db06923fc54";');
+		$statement->execute(array());
+		$res8 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT(*) FROM hashess WHERE hashess.begin_date > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
+		$statement->execute(array());
+		$res9 = $statement->fetch(PDO::FETCH_ASSOC);
 
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0,
 			'total_api_request' => $res['COUNT(*)'],
 			'total_api_login' => $res2['COUNT(*)'],
-			'total mail_request' => $res3['COUNT(*)'],
-			'total mail_send' => $res4['COUNT(*)'],
-			'mails_buffered' => $res5['COUNT(*)']
+			'total_mail_request' => $res3['COUNT(*)'],
+			'total_mail_send' => $res4['COUNT(*)'],
+			'mails_buffered' => $res5['COUNT(*)'],
+			'unique_visitors' => $res6['COUNT( DISTINCT ip)'],
+			'unique_users' => $res7['COUNT( DISTINCT user_id)'],
+			'cron_requests' => $res8['COUNT(*)'],
+			'success_logins' => $res9['COUNT(*)']
 		)));
 	}
 	
@@ -4532,6 +4552,32 @@ $data = $data .'
 			$json = json_encode($res);
 			exit($json);
 		}
+		exit(json_encode (json_decode ("{}")));
+	}
+	
+	elseif ($action == "set_settings") {
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			
+			$mail_interval_time = $xml["mail_interval_time"];
+			$mails_per_interval = $xml["mails_per_interval"];
+			$max_api_logs = $xml["max_api_logs"];
+			$max_mail_logs = $xml["max_mail_logs"];
+			
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available"
+			)));
+		}
+		admin_check($ID, $HASH, $db);
+		$statement = $db->prepare('update settings set mail_interval_time=?, mails_per_interval=?, max_mail_logs=?, max_api_logs=? where settings_id=1');
+		$statement->execute(array($mail_interval_time, $mails_per_interval, $max_mail_logs, $max_api_logs));
 		exit(json_encode (json_decode ("{}")));
 	}
 		
@@ -4586,7 +4632,7 @@ $data = $data .'
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		admin_check($ID, $HASH, $db);
 		
-		$statement = $db->prepare('SELECT * FROM `logs` ORDER BY `timestamp` DESC LIMIT 5000');
+		$statement = $db->prepare('SELECT * FROM `logs` left join users_data on logs.user_id = users_data.users_Id_Users ORDER BY `timestamp` DESC LIMIT 5000');
 		$statement->execute(array());
 		$res_logs = $statement->fetchAll();
 		
@@ -4598,7 +4644,7 @@ $data = $data .'
 
 		// do your Db stuff here to get the content into $content
 		foreach ($res_logs as &$line) {
-			print $line['id'] . "@time:". $line['timestamp'] . "@remoteAddress:" . $line['ip'] .  "	" . $line['api'] . "	" . $line['data'] . "	" . $line['user_id'] . "\n";
+			print $line['id'] . "@time:". $line['timestamp'] . "@remoteAddress:" . $line['ip'] .  "	" . $line['api'] . "	" . $line['data'] . "	" . $line['name'] . "\n";
 		}
 		print "\n";
 		print "\n";
@@ -4614,13 +4660,29 @@ $data = $data .'
 		// mail service. This will be hit every 2 minutes and checks if mails need to be send
 		ignore_user_abort(true);
 		set_time_limit(0);
-		// ask the DB how many mails where send in the lsat 5 min 
-		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 3 minute);');
+		
+		
+		// select mails we can send 
+		$statement = $db->prepare('SELECT * FROM settings where settings_id = 1;');
 		$statement->execute();
+		$settings = $statement->fetchAll();
+		// delete old logs
+		$statement = $db->prepare('DELETE FROM logs WHERE id NOT IN (SELECT * FROM (SELECT id FROM logs ORDER BY timestamp desc LIMIT '. strval($settings[0]["max_api_logs"]) .') s);');
+		$statement->execute(array());
+		
+		// delete old mails
+		$statement = $db->prepare('DELETE FROM mails WHERE mail_id NOT IN (SELECT * FROM (SELECT mail_id FROM logs ORDER BY send_process desc LIMIT '. strval($settings[0]["max_mail_logs"]) .') s);');
+		$statement->execute(array());
+		
+		
+		
+		// ask the DB how many mails where send in the lsat x min 
+		$statement = $db->prepare('SELECT COUNT(*) FROM `mails` WHERE mails.send_process > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL '. strval($settings[0]["mail_interval_time"]) .' minute);');
+		$statement->execute(array());
 		$res = $statement->fetchAll();
 		
 		// 
-		$count = 6 - $res[0]["COUNT(*)"];
+		$count = intval($settings[0]["mails_per_interval"]) - $res[0]["COUNT(*)"];
 		// select mails we can send 
 		$statement = $db->prepare('SELECT * FROM mails where mails.send_process is NULL order by mails.prio asc LIMIT ' . strval($count) . ";");
 		$statement->execute(array());
@@ -4636,6 +4698,8 @@ $data = $data .'
 		// if mails need 
 		exit("Cron run OK.");
 	}
+	
 	else {
+		// no string matched so we move the client to home
 		header("Location: https://all-round-events.be/html/nl/home.html");
 	}

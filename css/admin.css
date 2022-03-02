@@ -15,6 +15,11 @@ img:hover {
 	transform: scale(1.2) !important; 
 }
 
+table {
+	table-layout: fixed;
+	width: 100%;
+}
+
 /* Dropdown Button */
 .dropbtn {
   background-color: #4CAF50;
@@ -108,6 +113,12 @@ input[type=submit] {
 }
 nav a {
 	margin-right: 1px !important;
+}
+
+table, th, td {
+  border: 1px solid;
+  word-wrap: break-word;
+  font-size: 11px;
 }
 
 .container img {
@@ -581,6 +592,14 @@ nav li {
 	float: left;
 }
 
+#set_logs_graph {
+	display: none;
+}
+
+#settings_mail_graph {
+	display: none;	
+}
+
 @media screen and (max-width: 70rem) {
 	body {
 	  padding: 1em;
@@ -589,11 +608,12 @@ nav li {
 	  width: 95% !important;
 	}
 	#top_menu {
-		height: 360px;
+		height: 395px;
 	}
 	#add_festit_init {
 		width:100%;
 	}
+	
 	.festi2 {
 		display:block;
 		border-radius: 11px;

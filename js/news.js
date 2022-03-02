@@ -65,7 +65,7 @@ function api(action, body, callback){
 			callback(JSON.parse(resp));
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
-			//window.location.href = "home.html";
+			alert("Communicatie met server verbroken; Probeer het later opnieuw!"); 
 		} 
 	});
 };
