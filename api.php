@@ -16,6 +16,7 @@
 		// => The token gives full access and the functions returns true
 
 		if(is_null($id)){
+			invalidate_token($id, $db);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -23,6 +24,7 @@
 			)));
 		}
 		if(is_integer($id)){
+			invalidate_token($id, $db);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -33,6 +35,7 @@
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if(!$res){
+			invalidate_token($id, $db);
 				exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -42,6 +45,7 @@
 		$token_db = $res["HASH"];
 		// check if the token excists 
 		if ($token_db != $token_user){
+			invalidate_token($id, $db);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -49,6 +53,11 @@
 			)));
 		}
 		return true; 
+	}
+	
+	function invalidate_token($id, $db){
+		$statement = $db->prepare('delete from hashess where users_Id_Users	=?;');
+		$statement->execute(array($id));
 	}
 	
 	// get ip from user 
@@ -67,6 +76,7 @@
 		// => The token is completely invalid and the api is returned with an error
 		// 
 		if(is_null($id)){
+			invalidate_token($id, $db);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -74,6 +84,7 @@
 			)));
 		}
 		if(is_integer($id)){
+			invalidate_token($id, $db);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -84,6 +95,7 @@
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if(!$res){
+			invalidate_token($id, $db);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -96,11 +108,18 @@
 		if ($token_db == $token_user && $admin == "1"){
 			return true; 
 		}
+		invalidate_token($id, $db);
 		exit(json_encode(array(
 			'status' => 409,
 			'error_type' => 4,
 			'error_message' => "No admin rights"
 		)));
+	}
+	
+	function log_bad_credentials($db, $email){
+		$ip = getRealUserIp();
+		$statement = $db->prepare('INSERT INTO logs (api, data, user_id, ip) VALUES(?, ?, ?, ?)');
+		$statement->execute(array("login_fail", $email, "0", $ip));
 	}
 	
 	function split_name($name) {
@@ -233,7 +252,6 @@
 		$statement->execute(array($email));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if ($res){
-
 			$user_hash = bin2hex(openssl_random_pseudo_bytes(40));
 			$statement = $db->prepare('INSERT INTO  hashess (HASH, Type, users_Id_Users) VALUES(?, ?, ?)');
 			$statement->execute(array($user_hash, 0,$res["ID_Users"]));
@@ -275,12 +293,32 @@
 				'error_message' => "Not all fields where available, need: email, pass"
 			)));
 		}
+		
+		$statement = $db->prepare('select COUNT(*) from logs where logs.api = "login_fail" and logs.data = ? and logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 minute);');
+		$statement->execute(array($email));
+		$res = $statement->fetch(PDO::FETCH_ASSOC);
+		if($res["COUNT(*)"] > 6){
+			// too many failed logins, fail the api and make hash invalid
+			$statement = $db->prepare('SELECT salt,pass,Id_Users,is_admin FROM users WHERE email = ?');
+			$statement->execute(array($email));
+			$res = $statement->fetch(PDO::FETCH_ASSOC);
+			$ID = $res["Id_Users"];
+			$statement = $db->prepare('DELETE FROM hashess where users_Id_Users = ?');
+			$statement->execute(array($ID));
+			exit(json_encode(array(
+				'status' => 403,
+				'error_type' => 21,
+				'error_message' => "Too many logins."
+			)));
+		}
+		
+		
 		// checking if the email is known to us, if not the login process is stoped. Due to safety reasons it is not told to the frontend
 		$statement = $db->prepare('SELECT email FROM users WHERE email = ?');
 		$statement->execute(array($email));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if (!$res){
-
+			log_bad_credentials($db, $email);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 6,
@@ -325,6 +363,13 @@
 		 }
 		 // the password is incorrect sp 
 		 else {
+			log_bad_credentials($db, $email);
+			$statement = $db->prepare('SELECT salt,pass,Id_Users,is_admin FROM users WHERE email = ?');
+			$statement->execute(array($email));
+			$res = $statement->fetch(PDO::FETCH_ASSOC);
+			$ID = $res["Id_Users"];
+			$statement = $db->prepare('DELETE FROM hashess where users_Id_Users = ?');
+			$statement->execute(array($ID));
 		 	exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 6,
@@ -2540,7 +2585,7 @@
 		$statement->execute(array($ID));
 		$user = $statement->fetch(PDO::FETCH_ASSOC);
 
-		$statement = $db->prepare('SELECT festivals.name FROM festivals inner join shifts on festivals.idfestival=shifts.festival_idfestival WHERE shifts.idshifts = ? and (festivals.status != 6 and festivals.status != 7);');
+		$statement = $db->prepare('SELECT festivals.name FROM festivals inner join shifts on festivals.idfestival=shifts.festival_idfestival WHERE shifts.idshifts = ? and (festivals.status != 6 and festivals.status != 7 and festivals.status != 8);');
 		$statement->execute(array($shift));
 		$festival = $statement->fetch(PDO::FETCH_ASSOC);
 
@@ -4424,7 +4469,7 @@ $data = $data .'
 			)));
 		}
 		admin_check($ID, $HASH, $db);	
-		$statement = $db->prepare('select id,api,data,user_id,name,ip,timestamp from logs left join users_data on logs.user_id = users_data.users_Id_Users order by timestamp desc;');
+		$statement = $db->prepare('select id,api,data,user_id,name,ip,timestamp from logs left join users_data on logs.user_id = users_data.users_Id_Users order by id desc;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		

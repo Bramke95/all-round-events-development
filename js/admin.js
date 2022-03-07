@@ -2233,5 +2233,8 @@ function clearAll() {
     $("#payouts_li").css({
         "textDecoration": "none"
     });
+	$("#server_li").css({
+        "textDecoration": "none"
+    });
 
 }

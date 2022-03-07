@@ -69,6 +69,9 @@
 			else if (res["error_type"] == 5){
 				$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
 			}
+			else if (res["error_type"] == 21){
+				$("#error").html("<p><strong>Uw account is tijdelijk geblokkeerd omdat er teveel inlogpogingen zijn gedetecteerd. Probeer het later opnieuw.</strong></p>");
+			}
 			else {
 				$("#error").html("<p><strong>De inloggegevens waren niet correct, gelieve opnieuw te proberen! </strong></p>");
 			}
