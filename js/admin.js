@@ -44,6 +44,16 @@ $(document).ready(function() {
             let date = $("#festi_date").val();
             var date_object = new Date(date);
             var input_date = formatDate(date_object);
+			
+			if(festiname.length < 2){
+				alert("Niet alles ingevuld!");
+				return;
+			}
+			if(date.length < 1){
+				alert("Niet alles ingevuld!");
+				return; 
+			}
+			
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("add_festival", {
                 "id": coockie.ID,
@@ -891,6 +901,15 @@ function put_change_date(data) {
         let date = $("#festi_date_change").val();
         var date_object = new Date(date);
         var input_date = formatDate(date_object)
+		if(festiname.length < 1){
+			alert("Niet alles ingevuld!");
+			return;
+		}
+		if(data.length < 1){
+			alert("Niet alles ingevuld!");
+			return;			
+		}
+		
         var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
         api("change_festival_data", {
             "id": coockie.ID,
@@ -1383,6 +1402,22 @@ function festival_shift_processing(data) {
                 let people_needed = $("#people_needed").val();
                 let reserved = $("#people_needed_reserved").val();
                 let days = $("#days").val();
+				if(shiftname.length < 1){
+					alert("Niet alles ingevuld!");
+					return;
+				}
+				if(people_needed.length < 1){
+					alert("Niet alles ingevuld!");
+					return;					
+				}
+				if(reserved.length < 1){
+					alert("Niet alles ingevuld!");
+					return;					
+				}
+				if(days.length < 1){
+					alert("Niet alles ingevuld!");
+					return;					
+				}
                 var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
                 api("add_shift", {
                     "id": coockie.ID,
@@ -1464,6 +1499,7 @@ function shift_processing(data) {
     $("#add_shift").hide();
     for (let x = 0; x < data.length; x++) {
         $("#festival" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts + " class='shift_line' ><div class='shift_title'><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div><p style='width:10%'>Dagen: " + data[x].length + "</p><p style='width:60%'>" + data[x].datails + "</p>" + "<p style='width:10%'>Bezetting: " + data[x].people_needed + "</p>" + "<p style='width:10%'>Reserve: " + data[x].spare_needed + "</p>" + "<input type='submit' id=" + data[x].idshifts + " class='add_location_day_shift' name='change festival' value='Opvang toevoegen' toevoegen' placeholder='' style='background-color: rgb(76, 175, 80) ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshifts + " class='add_day_shift' name='change festival' value='Dag toevoegen' placeholder='' style='background-color: rgb(76, 175, 80) ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshifts + " class='change_shift' name='delete festival' value='Wijzigen' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].idshifts + " class='delete_shift' name='delete festival' value='Verwijderen' placeholder='' style='background-color: red ;  margin-left:10px;'></div></div>");
+		$(".change_shift").off();
         $(".change_shift").click(function(event) {
             let id = event.target.attributes.id.value;
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -1505,6 +1541,19 @@ function shift_processing(data) {
                 let stop_db = formatDate(stop_object)
 
                 let money = $("#compensation").val();
+				
+				if(start.length < 1){
+					alert("Niet alles ingevuld!");
+					return;
+				}
+				if(stop.length < 1){
+					alert("Niet alles ingevuld!");
+					return;
+				}
+				if(money.length < 1){
+					alert("Niet alles ingevuld!");
+					return;
+				}
                 var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
                 api("add_shift_day", {
                     "id": coockie.ID,
@@ -1534,8 +1583,16 @@ function shift_processing(data) {
                 let loc_date = $("#location_time").val();
                 let loc_date_object = new Date(loc_date);
                 let loc_date_db = formatDate(loc_date_object)
-
                 let location = $("#external_location_info").val();
+				
+				if(loc_date.length < 1){
+					alert("Niet alles ingevuld!");
+					return;
+				}
+				if(location.length < 1){
+					alert("Niet alles ingevuld!");
+					return;
+				}
                 api("add_location", {
                     "id": coockie.ID,
                     "hash": coockie.TOKEN,
@@ -1821,7 +1878,19 @@ function fill_in_change_shift(data) {
         let days = $("#festi_days_change").val();
         var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
         if (name == "") {
-            alert("Geen naam opgegeven");
+            alert("Niet alles ingevuld!");
+            return;
+        }
+		if (reserve == "") {
+            alert("Niet alles ingevuld!");
+            return;
+        }
+		if (people == "") {
+            alert("Niet alles ingevuld!");
+            return;
+        }
+		if (days == "") {
+            alert("Niet alles ingevuld!");
             return;
         }
         api("change_shift", {
@@ -1976,7 +2045,20 @@ function load_shift_days_shifts(data) {
                 let stop_object = new Date(stop);
                 let stop_db = formatDate(stop_object)
 
-                let money = $("#compensation_change").val();
+				let money = $("#compensation_change").val();
+				if(start.length < 1){
+					alert("Niet alles ingevuld");
+					return;
+				}
+				if(stop.length < 1){
+					alert("Niet alles ingevuld");
+					return;
+				}
+				if(money.length < 1){
+					alert("Niet alles ingevuld");
+					return;
+				}
+				
                 var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
                 api("change_shift_day", {
                     "id": coockie.ID,

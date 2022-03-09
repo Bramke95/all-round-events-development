@@ -16,7 +16,7 @@
 		// => The token gives full access and the functions returns true
 
 		if(is_null($id)){
-			invalidate_token($id, $db);
+			invalidate_token($id, $db, false);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -24,7 +24,7 @@
 			)));
 		}
 		if(is_integer($id)){
-			invalidate_token($id, $db);
+			invalidate_token($id, $db, false);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -35,7 +35,6 @@
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if(!$res){
-			invalidate_token($id, $db);
 				exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -45,7 +44,7 @@
 		$token_db = $res["HASH"];
 		// check if the token excists 
 		if ($token_db != $token_user){
-			invalidate_token($id, $db);
+			invalidate_token($id, $db, false);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -55,7 +54,10 @@
 		return true; 
 	}
 	
-	function invalidate_token($id, $db){
+	function invalidate_token($id, $db, $override){
+		if($override){
+			return;
+		}
 		$statement = $db->prepare('delete from hashess where users_Id_Users	=?;');
 		$statement->execute(array($id));
 	}
@@ -70,13 +72,13 @@
 		}
 	 }
 	
-	function admin_check($id, $token_user, $db) {
+	function admin_check($id, $token_user, $db, $override) {
 		//
 		// does the same action as token_check but it also checks if the user is the admin, use this function for actions that need admin rights
 		// => The token is completely invalid and the api is returned with an error
 		// 
 		if(is_null($id)){
-			invalidate_token($id, $db);
+			invalidate_token($id, $db, $override);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -84,7 +86,7 @@
 			)));
 		}
 		if(is_integer($id)){
-			invalidate_token($id, $db);
+			invalidate_token($id, $db, $override);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -95,7 +97,7 @@
 		$statement->execute(array($id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		if(!$res){
-			invalidate_token($id, $db);
+			invalidate_token($id, $db, $override);
 			exit(json_encode(array(
 				'status' => 409,
 				'error_type' => 4,
@@ -108,7 +110,7 @@
 		if ($token_db == $token_user && $admin == "1"){
 			return true; 
 		}
-		invalidate_token($id, $db);
+		invalidate_token($id, $db, $override);
 		exit(json_encode(array(
 			'status' => 409,
 			'error_type' => 4,
@@ -312,8 +314,7 @@
 			)));
 		}
 		
-		
-		// checking if the email is known to us, if not the login process is stoped. Due to safety reasons it is not told to the frontend
+		// checking if the email is known to us, if not the login process is stopped. Due to safety reasons it is not told to the frontend
 		$statement = $db->prepare('SELECT email FROM users WHERE email = ?');
 		$statement->execute(array($email));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
@@ -495,7 +496,7 @@
 			)));
 		}
 		// check if the api had a valid token that has read/write property
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// See if the user is setting new date or overwriting it : 
 		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
 		$statement->execute(array($ID));
@@ -588,7 +589,7 @@
 				'error_message' => "Not all fields where available"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('SELECT * FROM users_data WHERE users_Id_Users = ?');
 		$statement->execute(array($user_id));
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
@@ -1246,7 +1247,7 @@
 			)));
 		}
 		// check if the user is and token is valid and it is admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, true);
 		exit(json_encode(array(
 			'status' => 200,
 			'error_type' => 0,
@@ -1278,13 +1279,13 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// entering the festical in the DB
 		$statement = $db->prepare('INSERT INTO festivals (date, details, status, name, full_shifts) VALUES (?,?,?,?,?)');
 		$statement->execute(array($date, $details, $status, $name, 0));
 		
 		// request all active festivals 
-		$statement = $db->prepare('SELECT * FROM festivals WHERE status != 6 and status != 7');
+		$statement = $db->prepare('SELECT * FROM `festivals` ORDER BY date DESC limit 15;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		
@@ -1325,14 +1326,14 @@
 			$query ='SELECT * FROM festivals WHERE idfestival = ? ;';
 			$statement = $db->prepare($query);
 			$statement->execute(array($festi_id));
-			admin_check($ID, $HASH, $db);
+			admin_check($ID, $HASH, $db, false);
 		}
 		// select all active events, also the hidden once 
 		else if ($type ==  "active"){
 			$query ='SELECT * FROM festivals WHERE status != 6 and status != 7 ORDER BY date ASC;';
 			$statement = $db->prepare($query);
 			$statement->execute(array());
-			admin_check($ID, $HASH, $db);
+			admin_check($ID, $HASH, $db, false);
 		}
 		
 		// select all active festivals
@@ -1343,8 +1344,8 @@
 		}
 		else {
 		// select last 15 festivals
-			$query ='SELECT * FROM `festivals`ORDER BY date DESC limit 15';
-			admin_check($ID, $HASH, $db);
+			$query ='SELECT * FROM `festivals`ORDER BY date DESC limit 15;';
+			admin_check($ID, $HASH, $db, false);
 			$statement = $db->prepare($query);
 			$statement->execute(array());
 		}
@@ -1382,7 +1383,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// changing the festival data
 		$statement = $db->prepare('UPDATE festivals SET date=?, details=?, name=? where idfestival=?;');
 		$statement->execute(array($date, $details, $name,$idfestival));
@@ -1417,7 +1418,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// entering the shift in the DB
 		$statement = $db->prepare('INSERT INTO shifts (name, datails, length, people_needed, spare_needed, festival_idfestival) VALUES (?,?,?,?,?,?)');
 		$statement->execute(array($name ,$discription,$length, $needed, $reserve,  $festi_id));
@@ -1440,11 +1441,11 @@
 	}
 	
 	//
-	// get a list of all the shifts that are active
+	// get a list of all the shifts that are active/open
 	//
 	//
 	elseif ($action == "get_shifts") {
-		// Todo => add data for reserve, full or not
+		// Todo => This gives too much data to the frontend.
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
 		try {
@@ -1459,7 +1460,7 @@
 			)));
 		}
 
-		token_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('SELECT festivals.status, festivals.name AS "festiname", shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6 and festivals.status != 7;');
 		$statement->execute();
 		$counter = 0;
@@ -1492,6 +1493,76 @@
 
 		if ($res){
 			$json = json_encode($res);
+			exit($json);
+		}
+		exit(json_encode (json_decode ("{}")));
+	}
+	
+	//
+	// get a list of all the shifts with open info
+	//
+	//
+	elseif ($action == "get_shifts_limited") {
+		// Todo => This gives too much data to the frontend.
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: ID, HASH"
+			)));
+		}
+
+		token_check($ID, $HASH, $db);
+		$result = array();
+		$statement = $db->prepare('SELECT festivals.status, festivals.name AS "festiname", shifts.idshifts , shifts.name,shifts.datails,shifts.length,shifts.people_needed,shifts.spare_needed,shifts.festival_idfestival  FROM shifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where festivals.status != 6 and festivals.status != 7 and festivals.status != 8;');
+		$statement->execute();
+		$counter = 0;
+		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+				
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type != 5');
+			$statement2->execute(array($row["idshifts"]));
+			$res2 = $statement2->fetchAll();
+			$subscribed = $res2[0]["count(distinct users_Id_Users)"];
+			
+			$statement2 = $db->prepare('select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type = 3;');
+			$statement2->execute(array($row["idshifts"]));
+			$res2 = $statement2->fetchAll();
+			$subscribed_final = $res2[0]["count(distinct users_Id_Users)"];
+
+
+			$statement3 = $db->prepare('select * from shift_days where 	shifts_idshifts=?');
+			$statement3->execute(array($row["idshifts"]));
+			$res3 = $statement3->fetchAll();
+			$work_days = count($res3);
+
+			$statement4 = $db->prepare('select * from locations where shift_id=?');
+			$statement4->execute(array($row["idshifts"]));
+			$res4 = $statement4->fetchAll();
+			$external_meeting_locations = count($res4);  
+			
+			$result[$counter]["festiname"] = $row["festiname"];
+			$result[$counter]["festival_idfestival"] = $row["festival_idfestival"];
+			$result[$counter]["idshifts"] = $row["idshifts"];
+			$result[$counter]["name"] = $row["name"];
+			$result[$counter]["datails"] = $row["datails"];
+			$result[$counter]["status"] = $row["status"];
+			$result[$counter]["length"] = $row["length"];
+			$result[$counter]["work_days"] = $work_days;
+			$result[$counter]["external_meeting_locations"] = $external_meeting_locations;
+			$result[$counter]["is_full"] = $row["people_needed"] <= $subscribed_final;
+			$result[$counter]["is_completely_full"] =(($row["people_needed"] + $row["spare_needed"])<= $subscribed_final);
+			$counter++;			
+			
+		}
+
+		if ($result){
+			$json = json_encode($result);
 			exit($json);
 		}
 		exit(json_encode (json_decode ("{}")));
@@ -1556,7 +1627,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// changing the festival data
 		$statement = $db->prepare('UPDATE shifts SET name=?, datails=?, people_needed=? , spare_needed=? , length=? WHERE idshifts=?;');
 		$statement->execute(array($name, $details, $people, $reserve, $days,$idshifts));
@@ -1586,7 +1657,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		
 		$statement = $db->prepare('SELECT * FROM work_day where shift_days_idshift_days = ?');
 		$statement->execute(array($idshifts));
@@ -1637,7 +1708,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// entering the complaint in the DB
 		$statement = $db->prepare('INSERT INTO shift_days (cost, start_date, shift_end, length, shifts_idshifts) VALUES (?,?,?,?,?)');
 		$statement->execute(array($money ,$start, $stop, $length, $shifts_idshifts));
@@ -1668,7 +1739,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('SELECT festivals.idfestival, festivals.status, shifts.idshifts, shift_days.cost, shift_days.idshift_days, shift_days.shift_end, shift_days.start_date, shifts.name FROM shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 AND festivals.status != 7;');
 		$statement->execute(array());
 		$counter = 0;
@@ -1780,7 +1851,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// changing the festival data
 		$statement = $db->prepare('UPDATE shift_days SET cost=?, start_date=?, shift_end=? WHERE idshift_days=?;');
 		$statement->execute(array($money, $start, $stop,$shift_days_id));		
@@ -1810,7 +1881,7 @@
 			)));
 		}
 		// this is an admin action, check if this is an admin
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		
 		$statement = $db->prepare('SELECT * FROM work_day where shift_days_idshift_days = ?');
 		$statement->execute(array($shift_day_id));
@@ -1939,7 +2010,7 @@
 		}
 		else {
 			// the user cannot subscribe because the festival is closed OR he is subscribing another user, the admin can however do anything he wants 
-			admin_check($ID, $HASH, $db);
+			admin_check($ID, $HASH, $db, false);
 			$status = 3;
 		}
 
@@ -2115,11 +2186,9 @@
 				"Content-type:text/html;charset=UTF-8" . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();
 				add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
-			
-			
 		}
 		elseif ($status != "0") {
-			admin_check($ID, $HASH, $db);
+			admin_check($ID, $HASH, $db, false);
 				$notification_text = 'Je zal jammer genoeg niet kunnen deelnemen aan  ' . $festival_name . ' in shift ' . $shift_info . '. Er komen snel andere evenementen! Hou je app in de gaten!';
 				$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
 				$statement->execute(array($notification_text, 0, $Id_Users));
@@ -2176,7 +2245,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select work_day.users_Id_Users, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users,shifts_idshifts  order by idwork_day;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
@@ -2204,7 +2273,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select work_day.reservation_type ,work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 order by idwork_day;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
@@ -2233,7 +2302,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select  picture_name, name,id_users as users_Id_Users,  size, date_of_birth, gender, adres_line_one, adres_line_two, driver_license, nationality, text, telephone, marital_state, employment, email from users_data INNER JOIN users on users.Id_Users = users_data.users_Id_Users inner join Images on (Images.users_Id_Users = users_data.users_Id_Users and Images.is_primary = 1) where name like ? limit 10;');
 		$statement->execute(array("%" . $search . "%"));
 		$res = $statement->fetchAll();
@@ -2263,7 +2332,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare("select * from festivals where idfestival = ?;");
 		$statement->execute(array($festi));
 		$res = $statement->fetchAll();
@@ -2296,7 +2365,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare("select * from festivals where idfestival = ?;");
 		$statement->execute(array($festi));
 		$res = $statement->fetchAll();
@@ -2485,7 +2554,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		
 		if($in != 2){
 			$statement = $db->prepare('update work_day set work_day.in=? where idwork_day=? and users_Id_Users=?;');
@@ -2524,7 +2593,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select work_day.Payout, festivals.idfestival, shifts.name, work_day.users_Id_Users, shifts.idshifts, shift_days.cost, users_data.adres_line_two, users_data.name, work_day.in, work_day.out, work_day.present, shift_days.start_date from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and (work_day.reservation_type = 3 or work_day.reservation_type = 5) ORDER BY work_day.users_Id_Users;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
@@ -2563,7 +2632,7 @@
 			$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
 			$statement->execute(array($notification_text, 0, $user_id));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('update shifts inner join shift_days on shift_days.shifts_idshifts = shifts.idshifts  inner join work_day on work_day.shift_days_idshift_days=shift_days.idshift_days set work_day.Payout = ? where idshifts=? and work_day.users_Id_Users=?;');
 		$statement->execute(array($payout_type_id, $shift_id, $user_id));
 		$res = $statement->fetchAll();
@@ -3142,7 +3211,7 @@
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$shift_day = isset($_GET['shift_day']) ? $_GET['shift_day'] : '';
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select shifts.name, shift_days.start_date, shift_days.shift_end , work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where shift_days.idshift_days=? and work_day.reservation_type = 3;');
 		$statement->execute(array($shift_day));
 		$res = $statement->fetchAll();
@@ -3190,7 +3259,7 @@
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$location_id= isset($_GET['location_id']) ? $_GET['location_id'] : '';
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('SELECT external_appointment.present, locations.location, locations.appointment_time, Images.picture_name,users_data.name, users_data.telephone FROM `external_appointment` INNER JOIN locations on locations.location_id = external_appointment.location_id INNER JOIN users_data on users_data.users_Id_Users = external_appointment.user_id INNER JOIN Images on Images.users_Id_Users = users_data.users_Id_Users WHERE external_appointment.location_id = ? and Images.is_primary =1');
 		$statement->execute(array($location_id));
 		$res = $statement->fetchAll();
@@ -3391,7 +3460,7 @@
 				'error_message' => "Not all fields where available, email"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		
 		// personal mail
 		if (strlen($email) > 0 && $festi_id == -2) {
@@ -3517,7 +3586,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select DISTINCT COUNT(size) as size, users_data.size from work_day inner join users_data on work_day.users_Id_Users = users_data.users_Id_Users inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.idfestival = ? and work_day.reservation_type = 3 GROUP BY users_data.size;');
 		$statement->execute(array($festival_id));
 		$res = $statement->fetchAll();
@@ -3548,7 +3617,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('INSERT INTO locations (location, appointment_time, shift_id) VALUES (?,?,?);');
 		$statement->execute(array($location, $appointment_time, $shift_id));
 		exit(json_encode (json_decode ("{}")));
@@ -3571,7 +3640,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('UPDATE locations SET location = ?, appointment_time = ? WHERE location_id = ?;');
 		$statement->execute(array($location, $appointment_time, $location_id));
 		exit(json_encode (json_decode ("{}")));
@@ -3593,7 +3662,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('DELETE FROM locations WHERE location_id=?;');
 		$statement->execute(array($location_id));
 		exit(json_encode (json_decode ("{}")));
@@ -3614,7 +3683,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare("SELECT locations.appointment_time, locations.location_id, locations.location, locations.shift_id, shifts.idshifts, shifts.datails, shifts.name, shifts.festival_idfestival FROM `locations` inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where festivals.status != 6 or festivals.status != 7;");
 		$statement->execute(array());
 		$res = $statement->fetchAll();
@@ -3668,7 +3737,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare("SELECT * FROM `locations` where location_id=?;");
 		$statement->execute(array($location_id));
 		$res = $statement->fetchAll();
@@ -3700,10 +3769,10 @@
 		}
 
 		if ($ID == $user_id){
-			token_check($ID, $HASH, $db);
+			token_check($ID, $HASH, $db, false);
 		}
 		else {
-			admin_check($ID, $HASH, $db);
+			admin_check($ID, $HASH, $db, false);
 		}
 		// check if festival is open
 		$statement = $db->prepare('INSERT INTO external_appointment_id (location_id, user_id) VALUES (?,?);');
@@ -3730,10 +3799,10 @@
 		}
 
 		if ($ID == $user_id){
-			token_check($ID, $HASH, $db);
+			token_check($ID, $HASH, $db, false);
 		}
 		else {
-			admin_check($ID, $HASH, $db);
+			admin_check($ID, $HASH, $db, false);
 		}
 		// check if festival is open
 		$statement = $db->prepare('update external_appointment_id set location_id = ? where location_id = ? and user_id=?;');
@@ -3839,7 +3908,7 @@
 			)));
 		}
 
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 
 		$statement = $db->prepare('select festivals.name from festivals inner JOIN shifts ON festivals.idfestival = shifts.festival_idfestival where shifts.idshifts = 27;');
 		$statement->execute(array($shift_id));
@@ -3908,7 +3977,7 @@
 			)));
 		}
 
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		
 		$statement = $db->prepare('SELECT festivals.name, festivals.status, idshifts from shifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN locations on locations.shift_id = shifts.idshifts where locations.location_id = ? LIMIT 1;');
 		$statement->execute(array($location_id));
@@ -3976,7 +4045,7 @@
 			)));
 		}
 
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		//mail
 		$statement = $db->prepare("DELETE external_appointment from external_appointment  inner JOIN locations on locations.location_id = external_appointment.location_id where locations.location_id =? and external_appointment.user_id=?");
 		$statement->execute(array($location_id, $user_id));
@@ -4023,7 +4092,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare("SELECT external_appointment.external_appointment_id, external_appointment.location_id, external_appointment.user_id, external_appointment.present,locations.shift_id, users_data.name, Images.picture_name FROM `external_appointment` inner join locations on locations.location_id = external_appointment.location_id inner join shifts on locations.shift_id = shifts.idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = external_appointment.user_id inner join Images on Images.users_Id_Users = external_appointment.user_id where (festivals.status != 6 or festivals.status != 7) and Images.is_primary = 1");
 		$statement->execute(array());
 		$res = $statement->fetchAll();
@@ -4050,7 +4119,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare("SELECT locations.location_id, locations.appointment_time, locations.location, locations.shift_id, users_data.name, users_data.telephone, Images.picture_name, users_data.users_Id_Users, external_appointment.present from locations inner join external_appointment on external_appointment.location_id = locations.location_id inner join users_data on users_data.users_Id_Users = external_appointment.user_id INNER join Images on Images.users_Id_Users=users_data.users_Id_Users WHERE Images.is_primary = 1 and locations.location_id = ?");
 		$statement->execute(array($location_id));
 		$res = $statement->fetchAll();
@@ -4078,7 +4147,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare("update external_appointment set present=? where user_id=? and location_id=?;");
 		$statement->execute(array($present, $user_id, $location_id));
 		exit(json_encode (json_decode ("{}")));
@@ -4101,7 +4170,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// select all the id's and email from one shift
 		$statement = $db->prepare("select DISTINCT users.email, users.id_Users ,users_data.name, festivals.name as festival_name from work_day INNER JOIN users on work_day.users_Id_Users = users.Id_Users inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner JOIN shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where shifts.festival_idfestival = ? and users.Id_Users not in (select DISTINCT external_appointment.user_id from external_appointment inner JOIN locations on locations.location_id = external_appointment.location_id inner join shifts on shifts.idshifts = locations.shift_id where shifts.festival_idfestival = ?)");
 		$statement->execute(array($festival_id, $festival_id));
@@ -4163,7 +4232,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// check if festival is open
 		$statement = $db->prepare('INSERT INTO work_day (reservation_type, shift_days_idshift_days, users_Id_Users) VALUES (?,?,?);');
 		$statement->execute(array("5" ,$shift_day_id, $Id_Users));
@@ -4187,7 +4256,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		// check if festival is open
 		$statement = $db->prepare('DELETE work_day from work_day  where work_day.reservation_type = ? and work_day.shift_days_idshift_days = ? and work_day.users_Id_Users =?;');
 		$statement->execute(array("5" ,$shift_day_id, $Id_Users));
@@ -4212,7 +4281,7 @@
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select festivals.idfestival from shift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival where shift_days.idshift_days = ?;');
 		$statement->execute(array($shift_day_id));
 		$res = $statement->fetchAll();
@@ -4259,7 +4328,7 @@
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select users_data.name,  DATE(users_data.date_of_birth), users_data.driver_license from work_day inner JOIN shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? GROUP BY work_day.users_Id_Users');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
@@ -4280,7 +4349,7 @@
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select users.is_admin, users_data.name, users.email, users_data.date_of_birth, users_data.driver_license, users_data.Gender, users_data.users_Id_Users from work_day inner JOIN shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on festivals.idfestival = shifts.festival_idfestival inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join users on users.Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and (work_day.reservation_type = 3 or work_day.reservation_type = 5) GROUP BY work_day.users_Id_Users ORDER BY `users_data`.`date_of_birth` DESC;');
 		$statement->execute(array($festi_id));
 		$res = $statement->fetchAll();
@@ -4312,12 +4381,16 @@
 		$xlsx = SimpleXLSXGen::fromArray( $excel_data );
 		$xlsx->downloadAs('pukkelpop_excel_alle_deelnemers.xlsx');
 	}
-
+	
+	//
+	// get 
+	//
+	//
 	elseif ($action == "csv_listing_festival_payout") {
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$festi_id= isset($_GET['festi_id']) ? $_GET['festi_id'] : '';
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select work_day.users_Id_Users, shift_days.cost, users_data.name, users_data.adres_line_two, festivals.name as festiname, work_day.Payout from work_day inner JOIN shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival inner JOIN users_data on users_data.users_Id_Users = work_day.users_Id_Users where festivals.idfestival = ? and ((work_day.in = 1 and work_day.out = 1) or work_day.present = 1);');
 		$statement->execute(array($festi_id));
 		$res_detail = $statement->fetchAll();
@@ -4413,6 +4486,11 @@ $data = $data .'
 		exit($data);
 
 	}
+	
+	//
+	// get all the workdays by user
+	//
+	//
 	elseif ($action == "user_work_days") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -4428,7 +4506,7 @@ $data = $data .'
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select * from Images where users_Id_Users =? and is_primary = 1');
 		$statement->execute(array($user_id));
 		$res = $statement->fetchAll();
@@ -4452,8 +4530,10 @@ $data = $data .'
 			exit(json_encode (json_decode ("{}")));
 		}
 	}
-	
+	//
 	// get all the logs;
+	//
+	//
 	elseif ($action == "get_api_logs") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -4468,7 +4548,7 @@ $data = $data .'
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);	
+		admin_check($ID, $HASH, $db, false);	
 		$statement = $db->prepare('select id,api,data,user_id,name,ip,timestamp from logs left join users_data on logs.user_id = users_data.users_Id_Users order by id desc;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
@@ -4479,8 +4559,10 @@ $data = $data .'
 		}
 		exit(json_encode (json_decode ("{}")));
 	}
-	
-	// get all the mails;
+	// 
+	// get all the mails send in order
+	//
+	//
 	elseif ($action == "get_mail_logs") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -4495,7 +4577,7 @@ $data = $data .'
 				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
 			)));
 		}
-		admin_check($ID, $HASH, $db);	
+		admin_check($ID, $HASH, $db, false);	
 		$statement = $db->prepare('select * from mails order by send_request desc;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
@@ -4524,7 +4606,7 @@ $data = $data .'
 				'error_message' => "Not all fields where available"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('SELECT COUNT(*) FROM `logs` WHERE logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
 		$statement->execute(array());
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
@@ -4575,7 +4657,10 @@ $data = $data .'
 			'success_logins' => $res9['COUNT(*)']
 		)));
 	}
-	
+	//
+	// get the current log settings
+	//
+	//
 	elseif ($action == "get_settings") {
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
@@ -4589,7 +4674,7 @@ $data = $data .'
 				'error_message' => "Not all fields where available"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('select * from settings where settings.settings_id = 1;');
 		$statement->execute(array());
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
@@ -4599,7 +4684,10 @@ $data = $data .'
 		}
 		exit(json_encode (json_decode ("{}")));
 	}
-	
+	//
+	// change the log/api settings
+	//
+	//
 	elseif ($action == "set_settings") {
 		$xml_dump = file_get_contents('php://input');
 		$xml = json_decode($xml_dump, true);
@@ -4620,13 +4708,16 @@ $data = $data .'
 				'error_message' => "Not all fields where available"
 			)));
 		}
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		$statement = $db->prepare('update settings set mail_interval_time=?, mails_per_interval=?, max_mail_logs=?, max_api_logs=? where settings_id=1');
 		$statement->execute(array($mail_interval_time, $mails_per_interval, $max_mail_logs, $max_api_logs));
 		exit(json_encode (json_decode ("{}")));
 	}
 		
-	
+	//
+	// option to not get mails anymore that are send to all users
+	//
+	//
 	elseif ($action == "mail_unsubscribe") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -4646,7 +4737,10 @@ $data = $data .'
 		$statement->execute(array(0, $ID));
 		exit(json_encode (json_decode ("{}")));
 	}
-	
+	//
+	// subscribe to mailing list
+	//
+	//
 	elseif ($action == "mail_subscribe") {
 		// get the contenct from the api body
 		$xml_dump = file_get_contents('php://input');
@@ -4675,7 +4769,7 @@ $data = $data .'
 		
 		$ID = isset($_GET['ID']) ? $_GET['ID'] : '';
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
-		admin_check($ID, $HASH, $db);
+		admin_check($ID, $HASH, $db, false);
 		
 		$statement = $db->prepare('SELECT * FROM `logs` left join users_data on logs.user_id = users_data.users_Id_Users ORDER BY `timestamp` DESC LIMIT 5000');
 		$statement->execute(array());

@@ -259,7 +259,7 @@ function festival_shift_processing(data){
 	
 	// load shift 
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
-	api("get_shifts",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing);
+	api("get_shifts_limited",{"id" : coockie.ID, "hash" : coockie.TOKEN}, shift_processing);
 	
 	// no active events, print message to let user know
 	if (data.length == undefined || data.length == 0){
@@ -312,8 +312,8 @@ function shift_processing(data){
 		for (let x = 0; x < data.length; x++){
 		// calculate values
 		
-			let is_full = (parseInt(data[x].people_needed) <= parseInt(data[x].subscribed_final));
-			let is_completely_full = ((parseInt(data[x].people_needed) + parseInt(data[x].spare_needed)) <= parseInt(data[x].subscribed));
+			let is_full = data[x].is_full;
+			let is_completely_full = data[x].is_completely_full;
 			let is_subscrubed = false;
 			let is_registered = false;
 			let is_manual = false;
@@ -429,7 +429,3 @@ function subscribe_callback(res){
 	}
 	
 }
-
-
-
-
