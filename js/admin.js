@@ -266,7 +266,7 @@ function shift_messenger_boxing_specific(data){
 function users_select_box(){
     $("#festival_list").fadeOut("fast");
     $("#user_select").show()
-
+	$("#user_search2").off();
     $("#user_search2").keydown(function() {
     	let user_part = $("#user_search2").val();
     	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -2318,5 +2318,4 @@ function clearAll() {
 	$("#server_li").css({
         "textDecoration": "none"
     });
-
 }
