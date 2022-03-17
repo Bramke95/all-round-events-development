@@ -61,6 +61,7 @@ input[type=submit] {
   border-radius: 4px;
   cursor: pointer;
   float: right;
+  margin-top: 5px;
   
 }
 
@@ -211,9 +212,10 @@ input[type=file] {
 }
 
 #picture_placeholder {
-  height: 100%;
+
   background-color: #f2f2f2;
   border-radius: 5px;
+  overflow: auto;
 }
 
 div.show-image {

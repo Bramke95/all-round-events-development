@@ -2253,7 +2253,7 @@ function set_stats(data){
 	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total login attempts: </label></div>';
 	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.total_api_login +'</label></div></div>';
 	
-	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total successful login: </label></div>';
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total unique successful login: </label></div>';
 	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.success_logins +'</label></div></div>';
 	
 	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total unique visitors: </label></div>';
@@ -2267,6 +2267,12 @@ function set_stats(data){
 	
 	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total requests to server: </label></div>';
 	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.total_api_request +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Failed logins:</label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ data.failed_logins +'</label></div></div>';
+	
+	settings_html = settings_html + '<div class="row"><div class="col-25"><label for="fname">Total none cron requests:</label></div>';
+	settings_html = settings_html + '<div class="col-75"><label for="fname">'+ (data.total_api_request - data.cron_requests) +'</label></div></div>';
 	
 	settings_html = settings_html + '<input type="submit" id="open_logs" class="unsubscribe_user" name="settings" value="api logs" placeholder="" style="background-color: red ;  margin-left:10px;">';
 	settings_html = settings_html + '<input type="submit" id="open_mails" class="unsubscribe_user" name="settings" value="mail logs" placeholder="" style="background-color: red ;  margin-left:10px;">';

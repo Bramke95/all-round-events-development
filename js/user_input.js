@@ -7,7 +7,6 @@
  */
 
 
-
 ;(function() { 
 
 	 // global variables that are needed to use the api 
@@ -116,6 +115,16 @@
 		if (res.error_type == 4){
 			window.location.href = "login.html";
 		}
+		if (res.error_type == 8){
+			$(".checkbox_mail").off();
+			$('.checkbox_mail').prop('checked', true);
+			$(".checkbox_mail").change(function(event) {
+				alert("Je acount is nog niet volledig, gelieve eerst je gegevens in te vullen.");
+				$('.checkbox_mail').prop('checked', true);
+				return;
+			});
+			return;
+		}
 		if (res != 100){
 			$("#fname").val(res.name);
 
@@ -151,7 +160,6 @@
 					var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 					api("mail_unsubscribe", {"id" : coockie.ID, "hash" : coockie.TOKEN}, autofill);
 				}
-				
 			});
 			
 		}
@@ -309,6 +317,7 @@
 	}
 
 	function get_pictures_callback(res){
+		$('body').css('cursor', 'default');
 		$("#picture_placeholder").html("");
 		for(var i = 0; i < res.length; i++) {
 			if (res[i].is_primary == 0){
@@ -430,7 +439,8 @@
             e.preventDefault();
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             var formData = new FormData($("#form_img")[0]);
-            formData.append("auth", JSON.stringify(coockie))
+			$('body').css('cursor', 'wait');
+            formData.append("auth", JSON.stringify(coockie));
             $.ajax({
                 url : $("#form_img").attr('action'),
                 type : 'POST',
@@ -449,7 +459,7 @@
 						alert("Het uploaden van de afbeelding is mislukt!  ");
 					}
 					else {
-						api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN},get_pictures_callback) 
+						api("get_pictures",{"id" : coockie.ID, "hash" : coockie.TOKEN}, get_pictures_callback) 
 					}
                                             
                 },

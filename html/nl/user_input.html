@@ -86,37 +86,37 @@
 
 		    <div class="row">
 		      <div class="col-25">
-		        <label for="fname">Volledig Adres:</label>
+		        <label for="adres">Volledig Adres:</label>
 		      </div>
 		      <div class="col-75">
-		        <input type="text" id="address_1" name="full_name" autocomplete="off" placeholder="Straat + nr + postcode + gemeente">
+		        <input type="text" id="address_1" name="full_name" autocomplete="off_2" readonly onfocus="this.removeAttribute('readonly');" placeholder="Straat + nr + postcode + gemeente">
 		      </div>
 		    </div>
 
 		    <div class="row">
 		      <div class="col-25">
-		        <label for="fname">Rekeningnummer: </label>
+		        <label for="bank_number">Rekeningnummer: </label>
 		      </div>
 		      <div class="col-75">
-		        <input type="text" id="address_2" name="full_name"  autocomplete="off" placeholder="Rekeningnummer">
+		        <input type="text" id="address_2" name="full_name"  autocomplete="off_2" readonly onfocus="this.removeAttribute('readonly');" placeholder="Rekeningnummer">
 		      </div>
 		    </div>
 
 		    <div class="row">
 		      <div class="col-25">
-		        <label for="fname">Telefoonnummer: </label>
+		        <label for="tel">Telefoonnummer: </label>
 		      </div>
 		      <div class="col-75">
-		        <input type="text" id="tel" name="full_name"  autocomplete="off" placeholder="Telefoonnummer">
+		        <input type="text" id="tel" name="full_name"  autocomplete="off_2" readonly onfocus="this.removeAttribute('readonly');" placeholder="Telefoonnummer">
 		      </div>
 		    </div>
 
 		    <div class="row">
 		      <div class="col-25">
-		        <label for="fname">Rijksregisternummer: </label>
+		        <label for="social_number">Rijksregisternummer: </label>
 		      </div>
 		      <div class="col-75">
-			  <input type="text" id="license" autocomplete="off" placeholder="Rijksregisternummer">
+			  <input type="text" id="license" autocomplete="off_2" readonly onfocus="this.removeAttribute('readonly');" placeholder="Rijksregisternummer">
 		      </div>
 		    </div>
 
@@ -192,11 +192,11 @@
 			<h2>Verander wachtwoord:</h2>
 			<div class="row">
 		      <div class="col-25">
-		        <label for="subject">Nieuw wachtwoord: </label>
+		        <label for="pass_change">Nieuw wachtwoord: </label>
 		      </div>
 		      <div class="col-75">
-		        <input type="password" placeholder="Nieuw wachtwoord" name="psw" required id="pass_textfield">
-		        <input type="password" placeholder="Herhaal nieuw wachtwoord" name="psw" required id="pass_textfield2">
+		        <input type="password" placeholder="Nieuw wachtwoord" name="psw" readonly onfocus="this.removeAttribute('readonly');" required id="pass_textfield">
+		        <input type="password" placeholder="Herhaal nieuw wachtwoord" name="psw" readonly onfocus="this.removeAttribute('readonly');" required id="pass_textfield2">
 		      </div>
 		    </div>
 		    <div class="row">

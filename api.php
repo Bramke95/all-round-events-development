@@ -4642,6 +4642,10 @@ $data = $data .'
 		$statement = $db->prepare('SELECT COUNT(*) FROM hashess WHERE hashess.begin_date > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute);');
 		$statement->execute(array());
 		$res9 = $statement->fetch(PDO::FETCH_ASSOC);
+		
+		$statement = $db->prepare('SELECT COUNT(*) FROM `logs` WHERE logs.timestamp > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 1440 minute) and logs.api = "login_fail";');
+		$statement->execute(array());
+		$res10 = $statement->fetch(PDO::FETCH_ASSOC);
 
 		exit(json_encode(array(
 			'status' => 200,
@@ -4654,7 +4658,8 @@ $data = $data .'
 			'unique_visitors' => $res6['COUNT( DISTINCT ip)'],
 			'unique_users' => $res7['COUNT( DISTINCT user_id)'],
 			'cron_requests' => $res8['COUNT(*)'],
-			'success_logins' => $res9['COUNT(*)']
+			'success_logins' => $res9['COUNT(*)'],
+			'failed_logins' => $res10['COUNT(*)']
 		)));
 	}
 	//
