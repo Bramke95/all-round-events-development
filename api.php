@@ -3463,7 +3463,7 @@
 		admin_check($ID, $HASH, $db, false);
 		
 		// personal mail
-		if (strlen($email) > 0 && $festi_id == -2) {
+		if ($festi_id == -2) {
 			$id_pusher = $line["id_Users"];
 			$message = "<html><p>" . str_replace("\n","</br>", $text) . "</p></html>";
 			$message_mail = "<html><p>" . str_replace("\n","</br></p><p>", $text) . "</p><p><small>
@@ -3484,7 +3484,7 @@
 		}
 
 		// mail everybody except the people that have disabled from the mailing list 
-		if($festi_id == -2){
+		if($festi_id == -1){
 			$statement = $db->prepare("SELECT * FROM users where subscribed = 1;");
 			$statement->execute(array());
 			$res = $statement->fetchAll();
@@ -3514,6 +3514,7 @@
 				$statement->execute(array($message, 0, $id_pusher));
 				
 			}
+			exit(json_encode (json_decode ("{}")));
 		}
 
 		// select all the id's and email from one shift

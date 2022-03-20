@@ -137,26 +137,20 @@ $(document).ready(function() {
             let text = $("#text_text_messenger").val();
             let subject = $("#text_subject_messenger").val();
 			
-			if(festid_id == -2){
-                festid_id = -2;
+			// all mails
+			if(festid_id == -1){
                 shift_id != -2;
             }
-			// mail everybody
-            if(festid_id == -1){
-                festid_id = -2;
+			// personal mail
+            if(festid_id == -2){
                 shift_id != -2;
             }
 			
-			// mail everybody 
-            if(shift_id != -1){
+			//set festiID to zero 
+            if(shift_id > -1 && festid_id > 0){
                  festid_id = -1;
             }
-			if(festid_id != -2){
-				if (!confirm("Je staat op het punt een grote hoeveelheid mails te versturen, ben je zeker?")){
-					return;
-				}
-			}
-
+			
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
             api("message", {
                 "id": coockie.ID,
