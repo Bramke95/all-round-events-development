@@ -1556,7 +1556,7 @@
 			$result[$counter]["work_days"] = $work_days;
 			$result[$counter]["external_meeting_locations"] = $external_meeting_locations;
 			$result[$counter]["is_full"] = $row["people_needed"] <= $subscribed_final;
-			$result[$counter]["is_completely_full"] =(($row["people_needed"] + $row["spare_needed"])<= $subscribed_final);
+			$result[$counter]["is_completely_full"] =(($row["people_needed"] + $row["spare_needed"])<= $subscribed);
 			$counter++;			
 			
 		}
@@ -2192,16 +2192,16 @@
 				$notification_text = 'Je zal jammer genoeg niet kunnen deelnemen aan  ' . $festival_name . ' in shift ' . $shift_info . '. Er komen snel andere evenementen! Hou je app in de gaten!';
 				$statement = $db->prepare('INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);');
 				$statement->execute(array($notification_text, 0, $Id_Users));
-				$subject = 'All-Round Events: Update voor  ' . $festival_name;
+				$subject = 'All-Round Events: Uitgeschreven voor  ' . $festival_name;
 				$message = '<html>
 								<p>Beste,</p>
 								<p>Helaas zal je niet kunnen deelnemen aan  ' . $festival_name . '. </br></p>
 								<p> Je had jezelf opgegeven voor volgende dagen: :</p>
 								' . $shift_info .
 								"<p></p>
-								<p>Helaas waren we al met voldoende vrijwilligers voor dit evenement, kijk zeker uit naar onze evenementen!</p>
+								<p>Wellicht waren er al voldoende mensen ingeschreven voor dit evenement.</p>
 								<p></p>
-								<p>Met vriendelijke groeten</p>
+								<p>Met vriendelijke groeten en hopelijk tot een andere keer!</p>
 								<p><small>
 									All Round Events VZW
 									Meester Van Der Borghtstraat 10
@@ -3212,7 +3212,7 @@
 		$HASH = isset($_GET['HASH']) ? $_GET['HASH'] : '';
 		$shift_day = isset($_GET['shift_day']) ? $_GET['shift_day'] : '';
 		admin_check($ID, $HASH, $db, false);
-		$statement = $db->prepare('select shifts.name, shift_days.start_date, shift_days.shift_end , work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where shift_days.idshift_days=? and work_day.reservation_type = 3;');
+		$statement = $db->prepare('select shifts.name, shift_days.start_date, shift_days.shift_end , work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where shift_days.idshift_days=? and (work_day.reservation_type = 3 or work_day.reservation_type = 5);');
 		$statement->execute(array($shift_day));
 		$res = $statement->fetchAll();
 		require('fpdf.php');

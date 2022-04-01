@@ -148,7 +148,7 @@ $(document).ready(function() {
 			
 			//set festiID to zero 
             if(shift_id > -1 && festid_id > 0){
-                 festid_id = -1;
+                 festid_id = -3;
             }
 			
             var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
