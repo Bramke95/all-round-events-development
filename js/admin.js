@@ -300,6 +300,13 @@ function add_user_search_result2(data){
 			$("#country").val(user.nationality);
 			$("#text").val(user.text);
 			$("#marital_state").val(user.marital_state);
+			$("#remarks").val(user.remarks);
+			if(user.blocked == "1"){
+				$(".checkbox_blacklist").prop('checked', true);
+			}
+			else{
+				$(".checkbox_blacklist").prop('checked', false);
+			}
 			$("#user_info").show();
             $(".container img").remove();
             $(".user_serach_work_listing").remove();
@@ -321,7 +328,13 @@ function add_user_search_result2(data){
 				var country = $("#country").val();
 				var text = $("#text").val();
 				var marital_state = $("#marital_state").val();
-				insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size);
+				var remarks = $("#remarks").val();
+				var blocked_bool = $(".checkbox_blacklist").prop('checked');
+				var blocked = "0";
+				if(blocked_bool){
+					blocked = "1";
+				}
+				insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size, remarks, blocked);
 			});
 
             $(".user_serach_work_listing").off();
@@ -361,6 +374,13 @@ function add_user_search_result10(user){
 	$("#country").val(user.nationality);
 	$("#text").val(user.text);
 	$("#marital_state").val(user.marital_state);
+	$("#remarks").val(user.remarks);
+	if(user.blocked == "1"){
+		$(".checkbox_blacklist").prop('checked', true);
+	}
+	else{
+		$(".checkbox_blacklist").prop('checked', false);
+	}
 	$("#user_info").show();
     $(".container img").remove();
     $(".user_serach_work_listing").remove();
@@ -382,7 +402,13 @@ function add_user_search_result10(user){
 		var country = $("#country").val();
 		var text = $("#text").val();
 		var marital_state = $("#marital_state").val();
-		insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size);
+		var remarks = $("#remarks").val();
+		var blocked_bool = $(".checkbox_blacklist").prop('checked');
+		var blocked = "0";
+		if(blocked_bool){
+			blocked = "1";
+		}
+		insert(user, date_of_birth, gender, address_1, address_2, telephone, driving_license, country, text, marital_state, size, remarks, blocked);
 	});
 
     $(".user_serach_work_listing").off();
@@ -584,6 +610,9 @@ function add_user_search_result3(data) {
             })
             selected_user = id;
             $("#user_data2").html("<img src=/" + user.picture_name + " alt='Toevoegen van lid'><label><strong>Naam: </strong></label><p>" + user.name + "<p> <label><strong>Geboortedatum: </strong></label><p>" + user.date_of_birth + "<p>     <label><strong>rijksregister: </strong></label><p>" + user.driver_license + "<p>");
+			if(user.blocked == "1"){
+				$("#user_data2").append("<div id='blocked_warning'><shift_processing>Vrijwilliger staat op blacklist!<strong></div>");
+			}
             $(window).scrollTop(scroll);
             setTimeout(function(){$(window).scrollTop(scroll);}, 30);
             
@@ -724,7 +753,7 @@ function populate_subscriptions_by_shift_days(data){
     });
 }
 
-function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state, size){
+function insert(user, dateofbirth, gender, address_1, address_2, telephone, driver_license, country, text, marital_state, size, remarks, blocked){
 	var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
 	body = {
 		"id" 	: coockie.ID,
@@ -741,6 +770,8 @@ function insert(user, dateofbirth, gender, address_1, address_2, telephone, driv
 		"telephone" : telephone,
 		"marital_state" : marital_state,
 		"text": text,
+		"remarks" : remarks,
+		"blocked" : blocked
 	}
 	api("insert_main_admin", body, function(){
 		alert("opgeslagen");
@@ -1679,6 +1710,9 @@ function add_user_search_result(data) {
             })
             selected_user = id;
             $("#user_data").html("<img src=/" + user.picture_name + " alt='Toevoegen van lid'><label><strong>Naam: </strong></label><p>" + user.name + "<p>	<label><strong>Geboortedatum: </strong></label><p>" + user.date_of_birth + "<p>		<label><strong>rijksregister: </strong></label><p>" + user.driver_license + "<p>");
+			if(user.blocked == "1"){
+				$("#user_data").append("<div id='blocked_warning'><shift_processing>Vrijwilliger staat op blacklist!<strong></div>");
+			}
             setTimeout(function(){$(window).scrollTop(scroll);}, 30);
         })
     }
@@ -1726,11 +1760,11 @@ function subscribers_callback(data) {
         }
         if (data[x].reservation_type == 3) {
             user_status = "Ingeschreven";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p id='"+ data[x].users_Id_Users +"' class='name_shift_line' style='width:20%;margin-top:22px;'>" + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select user="+ data[x].users_Id_Users +" id=shift"+ data[x].shifts_idshifts +" class='select_external_location'><option class='select_external_location_option' id='-1'>Nog geen gekozen</option></select></p></div></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div style='background-color:limegreen' id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p id='"+ data[x].users_Id_Users +"' class='name_shift_line' style='width:20%;margin-top:22px;'>" + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='Uitschrijven' placeholder='' style='background-color: red ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'> Opvang keuze: </p><p><select user="+ data[x].users_Id_Users +" id=shift"+ data[x].shifts_idshifts +" class='select_external_location'><option class='select_external_location_option' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         if (data[x].reservation_type == 99) {
             user_status = "reservelijst";
-            $("#shift" + data[x].shifts_idshifts).append("<div id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p id='"+ data[x].users_Id_Users +"' class='name_shift_line' style='width:20%;margin-top:22px;'>" + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'>  Opvang keuze: </p><p><select user="+ data[x].users_Id_Users +" id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
+            $("#shift" + data[x].shifts_idshifts).append("<div style='background-color:yellow' id='shift" + data[x].shifts_idshifts + "' class='shift_day_line'><div style='width:15%' id='img_user' ><img src=/" + data[x].picture_name + " width='auto' height='60px'></div><p id='"+ data[x].users_Id_Users +"' class='name_shift_line' style='width:20%;margin-top:22px;'>" + data[x].name + "<p><p style='width:20%;margin-top:22px;'>Status: " + user_status + "<p><input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='unsubscribe_user' name='delete festival' value='weigeren' placeholder='' style='background-color: red ;  margin-left:10px;'>" + "<input type='submit' id=" + data[x].users_Id_Users + " shift ='" + data[x].shifts_idshifts + "' class='subscribe_user' name='delete festival' value='Inschrijven' placeholder='' style='background-color: green ;  margin-left:10px;'></p><p style='margin-left:10px;margin-top:22px;'>  Opvang keuze: </p><p><select user="+ data[x].users_Id_Users +" id=shift"+ data[x].shifts_idshifts +" ><option class='select_external_location' id='-1'>Nog geen gekozen</option></select></p></div></div>");
         }
         $(".unsubscribe_user").off();
         $(".unsubscribe_user").click(function(event) {

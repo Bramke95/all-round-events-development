@@ -487,6 +487,8 @@
 			$marital_state = $xml["marital_state"];
 			$employment = $xml["employment"];
 			$text = $xml["text"];
+			$remarks = $xml["remarks"];
+			$blocked = $xml["blocked"];
 
 		} catch (Exception $e) {
 			exit(json_encode(array(
@@ -503,12 +505,12 @@
 		$res = $statement->fetch(PDO::FETCH_ASSOC);
 		//  put everything in the database 
 		if(!$res){
-		$statement = $db->prepare('INSERT INTO users_data (name, size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-				$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $user_id)); 
+		$statement = $db->prepare('INSERT INTO users_data (name, size, date_of_birth, Gender, adres_line_one, adres_line_two, driver_license, nationality, telephone, marital_state, text, employment, remarks, blocked, users_Id_Users) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);');
+				$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment,$remarks, $blocked, $user_id)); 
 		}
 		else {
-		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, employment=? where users_Id_Users=?');
-		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $user_id)); 
+		$statement = $db->prepare('UPDATE users_data set name=?, size=?, date_of_birth=?, Gender=?, adres_line_one=?, adres_line_two=?, driver_license=?, nationality=?, telephone =?, marital_state=?, text=?, employment=?, remarks=?, blocked=? where users_Id_Users=?;');
+		$statement->execute(array($name, $size, $date_of_birth, $gender, $address_line_one, $adress_line_two, $driver_license, $nationality, $telephone, $marital_state, $text, $employment, $remarks, $blocked, $user_id)); 
 		}
 		// end the api
 		exit(json_encode(array(
@@ -567,6 +569,7 @@
 			'marital_state' => $res['marital_state'],
 			'email' => $res2['email'],
 			'subscribed' => $res2['subscribed'],
+			'blocked' => $res['blocked'],
 			'text' => $res['text']
 		)));
 	}
@@ -626,6 +629,8 @@
 			'marital_state' => $res['marital_state'],
 			'email' => $res2['email'],
 			'text' => $res['text'],
+			'blocked' => $res['blocked'],
+			'remarks' => $res['remarks'],
 			'picture_name' => $res3['picture_name']
 		)));
 	}
@@ -1990,6 +1995,14 @@
 				'errpr_message' => "no info found, fill in user data",
 			)));
 		}
+		//check if is blocked
+		if($res["blocked"] == "1"){
+			exit(json_encode(array(
+				'status' => 500,
+				'error_type' => 9,
+				'errpr_message' => "User is blocked",
+			)));	
+		}
 
 		
 		$statement = $db->prepare('delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; ');
@@ -2303,7 +2316,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db, false);
-		$statement = $db->prepare('select  picture_name, name,id_users as users_Id_Users,  size, date_of_birth, gender, adres_line_one, adres_line_two, driver_license, nationality, text, telephone, marital_state, employment, email from users_data INNER JOIN users on users.Id_Users = users_data.users_Id_Users inner join Images on (Images.users_Id_Users = users_data.users_Id_Users and Images.is_primary = 1) where name like ? limit 10;');
+		$statement = $db->prepare('select  picture_name, name,id_users as users_Id_Users,  size, date_of_birth, gender, adres_line_one, adres_line_two, driver_license, nationality, text, telephone, marital_state, employment, remarks, blocked, email from users_data INNER JOIN users on users.Id_Users = users_data.users_Id_Users inner join Images on (Images.users_Id_Users = users_data.users_Id_Users and Images.is_primary = 1) where name like ? limit 10;');
 		$statement->execute(array("%" . $search . "%"));
 		$res = $statement->fetchAll();
 		if ($res){

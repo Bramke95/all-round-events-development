@@ -465,6 +465,9 @@ label {
 .row{
 	height:70px;
 }
+.row2{
+	height:100px;
+}
 
 .festi {
 	width : 98%;
@@ -604,6 +607,15 @@ nav li {
 
 #settings_mail_graph {
 	display: none;	
+}
+
+.checkbox_blacklist {
+	margin: 15px !important;
+}
+
+#blocked_warning {
+	color: red;
+	font-size: 30px;
 }
 
 @media screen and (max-width: 70rem) {

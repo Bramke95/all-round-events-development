@@ -4,7 +4,9 @@ var TOKEN = "";
 var LOGGED_IN = false;
 var open_id = -1;
 var url = "../../api.php?action=";
-unemployment = false;
+var unemployment = false;
+var blocked = false; 
+
 		
 // entry point for code
 $( document ).ready(function() {
@@ -52,6 +54,9 @@ function check_user_data(res){
 	}
 	if (res.employment == "2"){
 		unemployment = true;
+	}
+	if(res.blocked == 1){
+		blocked = true;
 	}
 }
 
@@ -346,7 +351,11 @@ function shift_processing(data){
 					if (!confirm("Aandacht! Omdat je werkloos bent, moet je voor elk evenement een toelating krijgen van de VDAB. U vindt dit document per dienst op deze pagina. Schrijf u dus alleen in als u dit document heeft ingevuld en bij de juiste instantie heeft ingeleverd. Anuleer als u uw inschrijving niet wilt vervoledigen! Klik OK als u de inschrijving wilt voltooien.")){
 						return;
 					}
-				}		
+				}
+				if(blocked){
+					alert("Je account is geblokkeerd, hierdoor is het niet mogelijk om jezelf in te schrijven. Voor verdere vragen of inschrijven kan je een support contacteren. ");
+					return;
+				}						
 
 				var open_id = event.target.attributes.id.value;
 				var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
@@ -421,6 +430,10 @@ function subscribe_callback(res){
 	}
 	else if (res.status == 550){
 		alert("De shift waarvoor u zich wilde inschrijven is ondertussen reeds volzet. U bent toegevoegd aan onze reservelijst. We contacteren u vanaf dat er een plaatsje vrij komt. ");
+		load_festivals_shifts()
+	}
+	else if (res.status == 500){
+		alert("Uw account is geblokeerd, u kunt zich niet inschrijven.");
 		load_festivals_shifts()
 	}
 	else {
