@@ -618,6 +618,12 @@ nav li {
 	font-size: 30px;
 }
 
+.friend_mention {
+	width:15%;
+	margin-top:22px;
+	margin-left:8px;
+}
+
 @media screen and (max-width: 70rem) {
 	body {
 	  padding: 1em;

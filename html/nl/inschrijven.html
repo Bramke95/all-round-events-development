@@ -34,16 +34,26 @@
 	</div>
 	<div id='add_external_location_div'>
 		<h1>Selecteer je opvang locatie: </h1>
-
 		<div id="external_location_div">
-
 		</div>
-		
-		
 		<div id='control_external_user'>
-			<input type="submit" id="validate_external_location" name="add" value="Opslaan" placeholder="" style="background-color: #4CAF50 ; margin-top:10px;">
+			<input type="submit" id="validate_external_location" name="add" value="Opslaan" placeholder="" style="background-color: #4CAF50 ; margin-top:10px; margin-left: 10px;">
 			<input type="submit" id="abort_external_location" name="abort" value="Annuleren" placeholder="" style="background-color: red ;  margin-top:10px;">
-			
+		</div>
+	</div>
+	
+	<div id='add_friend'>
+		<h1>Samenwerking aanvragen: </h1>
+		<div id="friend_div">
+			<p>Hier kan je een vriend of partner zijn naam ingeven. Tijdens het samenstellen van de shiften zullen we vervolgens rekening houden met deze voorkeur.</p>
+			<p>Hou aub rekening met volgende zaken</p>
+			<p>	-> Zorg dat je partner ook is ingeschreven in dezelfde shift!</p>
+			<p>	-> Deze voorkeur opgeven geeft geen enkele garantie. Er wordt enkel zo goed als praktich mogelijk rekening mee gehouden. </p>
+			<input type="text" id="friend_name" name="friend_full_name"  autocomplete="off_2" readonly onfocus="this.removeAttribute('readonly');" placeholder="Voornaam + achternaam">
+		</div>
+		<div id='control_external_user'>
+			<input type="submit" id="validate_add_friend" name="add" value="Opslaan" placeholder="" style="background-color: #4CAF50 ;">
+			<input type="submit" id="abort_add_friend" name="abort" value="Annuleren" placeholder="" style="background-color: red ;">
 		</div>
 	</div>
 		

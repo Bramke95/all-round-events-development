@@ -142,6 +142,19 @@
 		$statement->execute(array($email, $subject, $message, $headers, $prio));
 	}
 	
+//******************************************************************************************************************************
+//										maintanance 
+//******************************************************************************************************************************
+	/*
+	$xml_dump = file_get_contents('php://input');
+	$xml = json_decode($xml_dump,true);
+	$ID = $xml["id"];
+	if($ID != 1){
+		header("Location: https://all-round-events.be/maintenance.html");
+	}
+	*/
+	
+	
 	
 //******************************************************************************************************************************
 //										SETUP ENVIRONMENT
@@ -1940,7 +1953,7 @@
 			)));
 		}
 		
-		$statement = $db->prepare('SELECT reservation_type, idshifts FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7');
+		$statement = $db->prepare('SELECT reservation_type, idshifts, friend FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7');
 		$statement->execute(array($ID));
 		$res = $statement->fetchAll();
 		
@@ -2259,7 +2272,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db, false);
-		$statement = $db->prepare('select work_day.users_Id_Users, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users,shifts_idshifts  order by idwork_day;');
+		$statement = $db->prepare('select friend, work_day.users_Id_Users, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 GROUP BY work_day.users_Id_Users,shifts_idshifts  order by idwork_day;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		if ($res){
@@ -2287,7 +2300,7 @@
 			)));
 		}
 		admin_check($ID, $HASH, $db, false);
-		$statement = $db->prepare('select work_day.reservation_type ,work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 order by idwork_day;');
+		$statement = $db->prepare('select work_day.reservation_type ,work_day.shift_days_idshift_days, work_day.users_Id_Users,work_day.in, work_day.out, work_day.present, users_data.telephone, users_data.name, shifts_idshifts, reservation_type, idwork_day, picture_name, friend from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join users_data on users_data.users_Id_Users = work_day.users_Id_Users inner join Images on (Images.users_Id_Users = work_day.users_Id_Users and Images.is_primary = 1) inner join shifts on shifts.idshifts = shift_days.shifts_idshifts inner join festivals on shifts.festival_idfestival = festivals.idfestival where  festivals.status != 6 and festivals.status != 7 order by idwork_day;');
 		$statement->execute(array());
 		$res = $statement->fetchAll();
 		if ($res){
@@ -4779,6 +4792,33 @@ $data = $data .'
 		$statement->execute(array(1, $ID));
 		exit(json_encode (json_decode ("{}")));
 	}
+	
+	//
+	// add friend to workday
+	//
+	//
+	elseif ($action == "add_friend") {
+		// get the contenct from the api body
+		$xml_dump = file_get_contents('php://input');
+		$xml = json_decode($xml_dump, true);
+		try {
+			$ID = $xml["id"];
+			$HASH = $xml["hash"];
+			$shift_id = $xml["shift_id"];
+			$friend_name = $xml["friend_name"];
+		} catch (Exception $e) {
+			exit(json_encode(array(
+				'status' => 409,
+				'error_type' => 4,
+				'error_message' => "Not all fields where available, need: name, details, status, date, ID, HASH"
+			)));
+		}
+		token_check($ID, $HASH, $db);
+		$statement = $db->prepare('update work_day INNER join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days inner join shifts on shifts.idshifts = shift_days.shifts_idshifts set work_day.friend = ? where work_day.users_Id_Users = ? and shifts.idshifts = ?;');
+		$statement->execute(array($friend_name, $ID, $shift_id));
+		exit(json_encode (json_decode ("{}")));
+	}
+	
 	
 	//
 	// get all the rest access logs and the mail logs 
