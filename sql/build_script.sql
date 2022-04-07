@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: all-round-events.be.mysql.service.one.com:3306
--- Gegenereerd op: 17 mrt 2022 om 14:42
+-- Gegenereerd op: 07 apr 2022 om 15:23
 -- Serverversie: 10.3.34-MariaDB-1:10.3.34+maria~focal
 -- PHP-versie: 7.2.24-0ubuntu0.18.04.11
 
@@ -278,7 +278,9 @@ CREATE TABLE `users_data` (
   `text` varchar(2000) DEFAULT NULL,
   `users_Id_Users` int(11) NOT NULL,
   `employment` int(11) DEFAULT NULL,
-  `users_data_id` int(11) NOT NULL
+  `users_data_id` int(11) NOT NULL,
+  `blocked` int(11) NOT NULL DEFAULT 0,
+  `remarks` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -295,7 +297,8 @@ CREATE TABLE `work_day` (
   `users_Id_Users` int(11) NOT NULL,
   `in` int(11) DEFAULT NULL,
   `out` int(11) DEFAULT NULL,
-  `Payout` int(11) DEFAULT NULL
+  `Payout` int(11) DEFAULT NULL,
+  `friend` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
