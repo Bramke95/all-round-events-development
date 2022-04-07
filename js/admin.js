@@ -510,7 +510,6 @@ function festival_shift_day_processing(data){
             "festi_id": id
         }, show_shirts_dialog);
         });
-
         // change festival
     }
     $("#festival_list").fadeIn("fast");
@@ -566,7 +565,7 @@ function manual_subscription_shift_days(data){
     
     $("#add_shift").hide();
     for (let x = 0; x < data.length; x++) {
-        $("#festi" + data[x].idfestival).append("<div id=shiftday" + data[x].idshift_days + " class='shift_line' ><div class='shift_title'><div style='width:100%' class='festi_date'><p><strong>Shift: " + data[x].name + "</p><div class='shift_title'><div style='width:20%' class='festi_date'><p>start: " + data[x].start_date + "</p></div><p style='width:20%'>Einde: " + data[x].shift_end + "</p><p style='width:20%'>Prijs:" + data[x].cost + "</p><p style='width:20%'>Aantal ingeschreven: " + data[x].users_total + "</p><input type='submit' id='shiftday"+ data[x].idshift_days +"' class='add_user_to_shift_day' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'></div></div>");
+        $("#festi" + data[x].idfestival).append("<div id=shiftday" + data[x].idshift_days + " class='shift_line' ><div class='shift_title'><div style='width:100%' class='festi_date'><p>Shift: " + data[x].name + "</p><div class='shift_title'><div style='width:20%' class='festi_date'><p>start: " + data[x].start_date + "</p></div><p style='width:20%'>Einde: " + data[x].shift_end + "</p><p style='width:20%'>Prijs:" + data[x].cost + "</p><p style='width:20%'>Aantal ingeschreven: " + data[x].users_total + "</p><input type='submit' id='shiftday"+ data[x].idshift_days +"' class='add_user_to_shift_day' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'><label id=usershow" + data[x].idshift_days + " class='switch'><input id=usershow" + data[x].idshift_days + " type='checkbox'><span class='slider round'></span></label></div></div>");
     }
     $(".add_user_to_shift_day").off();
     $(".add_user_to_shift_day").click(function(){
@@ -592,6 +591,18 @@ function manual_subscription_shift_days(data){
             }, add_user_search_result3);
         });
     });
+	$(".switch").off();
+	$(".switch").change(function(event) {
+		let id = event.target.attributes.id.value;
+        selected_shift_day = id.replace(/[a-z]/gi, '');
+		if($("#usershow" + selected_shift_day + " input").is(":checked")){
+			$("#shiftday"+ selected_shift_day +" .shift_day_line").css('display', 'flex');
+		}
+		else {
+			$("#shiftday"+ selected_shift_day +" .shift_day_line").fadeOut(250);
+		}
+	});
+	
 }
 
 function add_user_search_result3(data) {
@@ -1253,6 +1264,7 @@ function get_subscribers_checkbox_callback(data) {
         }
     }
     $("#list_select_placeholder").html(user_html);
+	$(".shift_day_line").css('display', 'flex');
     
     
     $("#download_pdf").click(function(event) {
@@ -1658,21 +1670,18 @@ function shift_processing_short(data) {
     }, subscribers_callback);
 
     $("#add_shift").hide();
-    //TODO Add following functionality: 
-    // mail all: THe option to mail all the people in the shift
-    // pdf creation 
 
-    
     for (let x = 0; x < data.length; x++) {
-            let button_sub = "";
+        let button_sub = "";
         if(data[x].work_days == 0){
             button_sub = "<p>Geen dagen in shift!</p>";
         }
         else {
             button_sub = "<input type='submit' id=useradd" + data[x].idshifts + " class='add_user_to_shift' name='change festival' value='manueel inschrijven' placeholder='' style='background-color: green ;  margin-left:15px;;  margin-right:15px'>";   
         }
-        $("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts + " class='shift_line' ><div class='shift_title'><div style='width:15%' class='festi_date'><h2>" + data[x].name + "</h2></div>"+ button_sub +"</input><p style='width:20%'>benodigde bezetting: " + data[x].people_needed + "</p>" + "<p style='width:20%'>gewenste reserve: " + data[x].spare_needed + "</p> " + "<p style='width:20%'>ingeschreven: " + data[x].subscribed_final + "</p><p style='width:20%'>geregistreerd: " + (data[x].subscribed - data[x].subscribed_final) + "</p></div></div>");
+        $("#" + data[x].festival_idfestival).append("<div id=shift" + data[x].idshifts + " class='shift_line' ><div class='shift_title'><div style='width:15%' class='festi_date'><h2>" + data[x].name + "</h2></div>"+ button_sub +"</input><p style='width:20%'>benodigde bezetting: " + data[x].people_needed + "</p>" + "<p style='width:20%'>gewenste reserve: " + data[x].spare_needed + "</p> " + "<p style='width:20%'>ingeschreven: " + data[x].subscribed_final + "</p><p style='width:20%'>geregistreerd: " + (data[x].subscribed - data[x].subscribed_final) + "</p><label id=usershow" + data[x].idshifts + " class='switch'><input id=usershow" + data[x].idshifts + " type='checkbox'><span class='slider round'></span></label></div></div>");
     }
+	$(".add_user_to_shift").off();
     $(".add_user_to_shift").click(function() {
         let id = event.target.attributes.id.value;
         selected_shift = id.replace(/[a-z]/gi, '');
@@ -1691,6 +1700,18 @@ function shift_processing_short(data) {
             }, add_user_search_result);
         });
     });
+	$(".switch").off();
+	$(".switch").change(function(event) {
+		let id = event.target.attributes.id.value;
+        selected_shift = id.replace(/[a-z]/gi, '');
+		if($("#usershow" + selected_shift + " input").is(":checked")){
+			$("#shift"+ selected_shift +" .shift_day_line").css('display', 'flex');
+		}
+		else {
+			$("#shift"+ selected_shift +" .shift_day_line").fadeOut(250);
+		}
+	});
+	
 
 
 }
@@ -2116,6 +2137,7 @@ function load_shift_days_shifts(data) {
 
         });
     }
+	$(".shift_day_line").css('display', 'flex');
     api("get_locations", {
         "id": coockie.ID,
         "hash": coockie.TOKEN
