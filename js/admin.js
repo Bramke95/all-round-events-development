@@ -436,6 +436,7 @@ function callback_user_search_workdays(data) {
     $('#user_options_admin_select').fadeOut(300);
     $("#user_search_listing").fadeIn(300);
     $("#user_search_listing").draggable();
+	$(".shift_day_line").css("display", "flex");
 
 
 }
