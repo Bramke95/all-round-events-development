@@ -535,6 +535,13 @@ label {
 	border-radius: 6px;
 	padding: 3px;
 }
+.shift_day_line2 {
+	display: flex;
+	margin: 5px;
+	background-color: darkturquoise;
+	border-radius: 6px;
+	padding: 3px;
+}
 .user_line {
 	display: flex;
 	margin: 5px;
