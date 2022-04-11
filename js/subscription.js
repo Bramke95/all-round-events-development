@@ -383,6 +383,7 @@ function shift_processing(data) {
                     "id": coockie.ID,
                     "hash": coockie.TOKEN,
                     "Id_Users": coockie.ID,
+					"reserve_override": "0",
                     "idshifts": open_id.replace(/\D/g, '')
                 }, subscribe_callback);
             });

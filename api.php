@@ -2388,6 +2388,7 @@ elseif ($action == "user_subscribe") {
         $HASH = $xml["hash"];
         $shift_id = $xml["idshifts"];
         $Id_Users = $xml["Id_Users"];
+		$reserve_override = $xml["reserve_override"];
     } catch (Exception $e) {
         exit(
             json_encode([
@@ -2459,6 +2460,9 @@ elseif ($action == "user_subscribe") {
         // the user cannot subscribe because the festival is closed OR he is subscribing another user, the admin can however do anything he wants
         admin_check($ID, $HASH, $db, false);
         $status = 3;
+		if($reserve_override == "1"){
+			$status = 99;
+		}
     }
 
     $statement = $db->prepare(

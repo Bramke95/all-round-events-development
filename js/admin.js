@@ -1698,6 +1698,7 @@ function shift_processing_short(data) {
         let id = event.target.attributes.id.value;
         selected_shift = id.replace(/[a-z]/gi, '');
         $("#add_user_manual").fadeIn(500);
+		$("#manual_user_abort").off();
         $("#manual_user_abort").click(function() {
             $("#add_user_manual").fadeOut(500);
         });
@@ -1766,6 +1767,24 @@ function add_user_search_result(data) {
             "id": coockie.ID,
             "hash": coockie.TOKEN,
             "Id_Users": selected_user,
+			"reserve_override": "0",
+            "idshifts": selected_shift
+        }, festival_shift_subscribers);
+
+    });
+    $("#manual_user_start_reserve").off();
+    $("#manual_user_start_reserve").click(function(event) {
+        scroll = $(window).scrollTop() + 20;
+        $("#add_user_manual").fadeOut(500);
+        var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+        if (coockie.ID == selected_user) {
+            selected_user = "admin";
+        }
+        api("user_subscribe", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "Id_Users": selected_user,
+			"reserve_override": "1",
             "idshifts": selected_shift
         }, festival_shift_subscribers);
 
@@ -1816,6 +1835,7 @@ function subscribers_callback(data) {
                 "id": coockie.ID,
                 "hash": coockie.TOKEN,
                 "idshifts": shift,
+				"reserve_override": "0",
                 "Id_Users": user
             }, festival_shift_subscribers());
         });
