@@ -125,7 +125,7 @@ function api(action, body, callback) {
 function id_to_status(shift_id, id, is_already_subscribed, is_full, is_completely_full, is_empty_days, has_external_locations, is_registered, is_manual, is_interested, is_reserved) {
     var unemployment_but = "<input type='submit' id=unemployment" + shift_id + " class='unemployment_to_festival' name='Werkloos' value='Werkloosheidsattest Downloaden' placeholder='' style='background-color: cornflowerblue ;  margin-left:10px;'>";
     var external_locations = "";
-    var add_friend = "<input type='submit' id=add_friend" + shift_id + " class='add_friend_button' name='ingeschrijven' value='Samenwerking aanvragen' placeholder='' style='background-color: green ;  margin-left:10px;'>";;
+    var add_friend = "<input type='submit' id=add_friend" + shift_id + " class='add_friend_button' name='ingeschrijven' value='Ben je met twee?' placeholder='' style='background-color: green ;  margin-left:10px;'>";;
 
     // user has been subscribed manually and doesn't follow the shift(s). All further actions should be done by an admin
     if (is_manual) {
