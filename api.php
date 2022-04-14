@@ -1395,6 +1395,105 @@ elseif ($action == "upload_picture") {
         }
     }
 }
+
+//
+// uploading an picture to the website
+// -> forsee ID, HASH
+// -> forsee image as fromdata
+// -> check status code
+//
+elseif ($action == "upload_festival_file") {
+    $xml_dump = json_encode(json_decode($_POST["auth"]));
+    $xml1 = json_decode($xml_dump, true);
+	$xml_dump = json_encode(json_decode($_POST["data"]));
+	$xml2 = json_decode($xml_dump, true);
+    try {
+        $ID = $xml1["ID"];
+        $HASH = $xml1["TOKEN"];
+		$festival = $xml2["festi_id"];
+    } catch (Exception $e) {
+        exit(
+            json_encode([
+                "status" => 409,
+                "error_type" => 4,
+                "error_message" =>
+                    "Not all fields where available, need: ID, HASH",
+            ])
+        );
+    }
+    // check if the user is and token is valid
+    admin_check($ID, $HASH, $db, false);
+
+    // make sure Id is clean
+    $ID = str_replace('"', "", $ID);
+
+    // handle file write:
+    // -> generate random hash
+    // -> check if file is an images with a size in reasons
+    // -> write image to file system with the random hash as name
+    // -> save hash name to DB and link it to user
+    $random_hash = bin2hex(openssl_random_pseudo_bytes(32));
+    $target_dir = "files/";
+    $target_file = $target_dir . basename($_FILES["file"]["name"]);
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    $target_file = $target_dir . $random_hash . "." . $imageFileType;
+	
+    // Check file size
+    if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+        $ID = str_replace('"', "", $ID);
+        $statement = $db->prepare(
+            "INSERT INTO festivals_files (original_filename, filename, festi_id) VALUES (?,?,?);"
+        );
+        $statement->execute([$_FILES["file"]["name"], $target_file, $festival]);
+        exit(
+            json_encode([
+                "status" => 200,
+                "error_type" => 0,
+                "error_message" => "OK, image uploaded",
+            ])
+        );
+    } else {
+        //echo "Sorry, there was an error uploading your file.";
+    }
+}
+
+//
+// get all files for festival
+//
+//
+
+elseif ($action == "get_festi_files") {
+	$xml_dump = file_get_contents("php://input");
+    $xml = json_decode($xml_dump, true);
+	try {
+		$ID = $xml["id"];
+		$HASH = $xml["hash"];
+		$festival_id = $xml["festival_id"];
+	}
+	catch(Exception $e){
+        exit(
+            json_encode([
+                "status" => 409,
+                "error_type" => 4,
+                "error_message" =>
+                    "Not all fields where available, need: ID, HASH",
+            ])
+        );
+	}
+	admin_check($ID, $HASH, $db, false);
+	$statement = $db->prepare(
+        "SELECT * from festivals_files where festivals_files.festi_id =?;"
+    );
+    $statement->execute([$festival_id]);
+    $res = $statement->fetchAll();
+	if ($res) {
+        $json = json_encode($res);
+        exit($json);
+    }
+	exit(json_encode(json_decode("{}")));
+}
+
 //
 // requests all pictures by user, this function only provides the unique id of the picture, the picture itself is only the relative url
 //
@@ -1437,6 +1536,60 @@ elseif ($action == "get_pictures") {
         ])
     );
 }
+
+//
+// delete a picture from a user. This function removes the DB entry AND the picture itself.
+//
+//
+elseif ($action == "delete_festi_file") {
+    $xml_dump = file_get_contents("php://input");
+    $xml = json_decode($xml_dump, true);
+    try {
+        $ID = $xml["id"];
+        $HASH = $xml["hash"];
+        $festi_file = $xml["festi_file"];
+    } catch (Exception $e) {
+        exit(
+            json_encode([
+                "status" => 409,
+                "error_type" => 4,
+                "error_message" =>
+                    "Not all fields where available, need: ID, HASH",
+            ])
+        );
+    }
+    // check if the user is and token is valid
+    admin_check($ID, $HASH, $db, false);
+
+    $statement = $db->prepare(
+        "SELECT * FROM festivals_files where festivals_files_id=?;"
+    );
+    $statement->execute([$festi_file]);
+    $res = $statement->fetch(PDO::FETCH_ASSOC);
+	$file = "";
+    if ($res) {
+		$file = $res["filename"];
+    }
+	
+	if (file_exists($file)) {
+        unlink($file);
+    }
+	
+
+    $statement = $db->prepare(
+        "DELETE FROM festivals_files WHERE festivals_files_id=?;"
+    );
+    $statement->execute([$festi_file]);
+
+    exit(
+        json_encode([
+            "status" => 200,
+            "error_type" => 0,
+            "error_message" => "ok",
+        ])
+    );
+}
+
 //
 // delete a picture from a user. This function removes the DB entry AND the picture itself.
 //

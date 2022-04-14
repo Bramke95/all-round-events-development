@@ -172,6 +172,22 @@ table, th, td {
 	box-shadow: 5px 10px 20px 0px;
 }
 
+#festival_files {
+	z-index: 5;
+	height : auto;
+	position: relative; 
+    padding: 1em; 
+    width: 675px; 
+    border: 4px solid white;
+	background-color: darkgray;
+	border-radius: 20px;
+	position: fixed;
+	top: 25%;
+	left: 32%;
+	box-shadow: 5px 10px 20px 0px;	
+	display: none;
+}
+
 #change_fesitvail_dialog{
 	z-index: 5;
 	height : auto;
@@ -696,6 +712,16 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+.download_festi_file:hover{
+	text-decoration: underline;
+	cursor:pointer;
+}
+
+.delete_festi_file:hover{
+	text-decoration: underline;
+	cursor:pointer;
+}
+
 @media screen and (max-width: 70rem) {
 	body {
 	  padding: 1em;
@@ -957,6 +983,17 @@ input:checked + .slider:before {
 		position:fixed;
 		top: 0%;
 		left: 0%;		
+	}
+	
+	#festival_files {
+		top: 0px;
+		left: 0px;
+		width: 98%;
+		height: 100%;
+		padding: 1px;
+		position:fixed;
+		top: 0%;
+		left: 0%;
 	}
 	#add_shift {
 		top: 0px;

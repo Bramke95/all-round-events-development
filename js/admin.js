@@ -13,6 +13,7 @@ var selected_user = 0;
 var selected_festival_presense = 0;
 var selected_location_precense = 0;
 var selected_shift_presense = 0;
+var selected_festi_files = 0;
 var selected_shift_day_manual_man = -1;
 var selected_location_manual_man = -1;
 var festival_payout = -1;
@@ -2016,7 +2017,7 @@ function festival_processing(data) {
         return;
     }
     for (let x = 0; x < data.length; x++) {
-        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_festival' name='mail' value='Verstuur event update mails!' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_external_location' name='mail' value='Verstuur opvang keuze.' placeholder='Verstuurt naar iedereen in het festival om een keuze te maken over welke opvang ze willen.' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='export_mode' name='csv' value='Export' placeholder='Download CSV' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='csv_festival_payout_download' name='csv' value='Uitbetalings Bestand' placeholder='Download kbc XML' style='background-color: red ;  margin-left:10px;'></input></div>");
+        $("#festival_list").append("<div id=" + data[x].idfestival + " class='festi2' ><div style='width:20%' class='festi_date'><h2>" + data[x].name + "</h2></div style='width:10%'><p>" + data[x].date + "</p><p style='width:60%'>" + data[x].details + "</p>" + get_select(data[x].idfestival) + "<input type='submit' id=" + data[x].idfestival + " class='change_festival' name='change festival' value='wijzingen' placeholder='' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='mail_external_location' name='mail' value='Verstuur opvang keuze.' placeholder='Verstuurt naar iedereen in het festival om een keuze te maken over welke opvang ze willen.' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='festi_files' name='mail' value='Bestanden' placeholder='Bestanden' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='export_mode' name='csv' value='Export' placeholder='Download CSV' style='background-color: red ;  margin-left:10px;'></input><input type='submit' id=" + data[x].idfestival + " class='csv_festival_payout_download' name='csv' value='Uitbetalings Bestand' placeholder='Download kbc XML' style='background-color: red ;  margin-left:10px;'></input></div>");
         $('#' + data[x].idfestival + " select").val(data[x].status);
         // change festival
         $(".change_festival").off();
@@ -2033,6 +2034,50 @@ function festival_processing(data) {
             $("#change_festival_abort").click(function(event) {
                 $("#change_fesitvail_dialog").fadeOut(500);
             });
+        });
+        $(".festi_files").off();
+        $(".festi_files").click(function(event) {
+            let festi = event.target.attributes.id.value;
+			selected_festi_files = festi;
+			$("#festi_file_list").html("");
+			$("#festival_files").fadeIn(250);
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            api("get_festi_files", {
+                "id": coockie.ID,
+                "hash": coockie.TOKEN,
+                "festival_id": festi
+            }, add_files_to_file_div);
+			$("#festi_files_close").off();
+			$("#festi_files_close").click(function(event){
+				$("#festival_files").fadeOut(250);
+			});
+		// upload file 	
+		$("#form_file").off();
+        $("#form_file").submit(function(e){
+            e.preventDefault();
+            var coockie = JSON.parse(getCookie("YOUR_CV_INLOG_TOKEN_AND_ID"));
+            var formData = new FormData($("#form_file")[0]);
+            formData.append("auth", JSON.stringify(coockie));
+			formData.append("data", JSON.stringify({"festi_id": selected_festi_files}));
+            $.ajax({
+                url : $("#form_file").attr('action'),
+                type : 'POST',
+                data : formData,
+                contentType : false,
+                processData : false,
+                success: function(resp) {
+					api("get_festi_files", {
+						"id": coockie.ID,
+						"hash": coockie.TOKEN,
+						"festival_id": festi
+					}, add_files_to_file_div);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                    alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+                } 
+            });
+        });
+			
         });
         $(".festi_status").off();
         $(".festi_status").change(function(event) {
@@ -2107,6 +2152,51 @@ function festival_processing(data) {
 
 function mail_done(data) {
     alert("Alle mails zijn verzonden!");
+}
+
+function add_files_to_file_div(data){
+	$("#festi_file_list").html("");
+	for(x=0; x < data.length; x++){
+		$("#festi_file_list").append("<div id=file'"+ data[x].festivals_files_id  + "' class='shift_day_line2'><p uri_server='"+ data[x].filename +"' uri_original='"+ data[x].original_filename +"' class='download_festi_file' id='file"+ data[x].festivals_files_id  + "' style='width:80%'>"+ data[x].original_filename +"</p><p class='delete_festi_file' id='file"+ data[x].festivals_files_id  + "' style='width:20%'>Verwijder</p></div>");
+	}
+	$(".download_festi_file").off();
+	$(".download_festi_file").click(function(){
+		let festi_file = event.target.attributes.id.value;
+		let festi_url_server = event.target.attributes.uri_server.value
+		let festi_url_original = event.target.attributes.uri_original.value
+		window.URL = window.URL || window.webkitURL;
+		var xhr = new XMLHttpRequest(),
+			  a = document.createElement('a'), file;
+		xhr.open('POST', ("../../" + festi_url_server), true);
+		xhr.responseType = 'blob';
+		xhr.onload = function () {
+			file = new Blob([xhr.response], { type : 'application/octet-stream' });
+			a.href = window.URL.createObjectURL(file);
+			a.download = festi_url_original;  // Set to whatever file name you want
+			// Now just click the link you created
+			// Note that you may have to append the a element to the body somewhere
+			// for this to work in Firefox
+			a.click();
+		};
+		xhr.send();
+	});
+	$(".delete_festi_file").off();
+	$(".delete_festi_file").click(function(){
+		let festi_file = event.target.attributes.id.value;
+		api("delete_festi_file", {
+            "id": coockie.ID,
+            "hash": coockie.TOKEN,
+            "festi_file": festi_file.replace(/[a-z]/gi, '')
+        }, function(){
+		api("get_festi_files", {
+			"id": coockie.ID,
+			"hash": coockie.TOKEN,
+			"festival_id": selected_festi_files
+		}, add_files_to_file_div);
+		});
+
+	});
+	
 }
 
 function load_shift_days_shifts(data) {

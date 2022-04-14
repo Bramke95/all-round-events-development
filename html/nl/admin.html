@@ -1,4 +1,4 @@
-
+<html>
 <body>
 	<head>
 		<title>All Round Events</title>
@@ -711,6 +711,21 @@
 			
 		</div>
 	</div>
+	
+	<div id='festival_files'>
+		<h1>Bestanden voor evenement: </h1>
+		<div class="festi_file_upload">
+			<form action="../../api.php?action=upload_festival_file" id="form_file" method="GET" role="form" enctype="multipart/form-data">
+				<input type="file" name="file" multiple>
+				<button id="upload" type="submit">Uploaden!</button>
+			</form>
+		</div>
+		<div id="festi_file_list">
 
+		</div>
+		<div id='control_add_user'>
+			<input type="submit" id="festi_files_close" name="abort" value="Sluiten" placeholder="" style="background-color: green ;  margin-top:10px;">
+		</div>
+	</div>
 </body>
 </html>
