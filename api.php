@@ -1983,7 +1983,7 @@ elseif ($action == "get_shifts") {
     $counter = 0;
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $statement2 = $db->prepare(
-            "select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type != 5"
+            "select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type != 5 and work_day.reservation_type != 50;"
         );
         $statement2->execute([$row["idshifts"]]);
         $res2 = $statement2->fetchAll();
@@ -2050,7 +2050,7 @@ elseif ($action == "get_shifts_limited") {
     $counter = 0;
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $statement2 = $db->prepare(
-            "select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type != 5"
+            "select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type != 5 and work_day.reservation_type != 50;"
         );
         $statement2->execute([$row["idshifts"]]);
         $res2 = $statement2->fetchAll();
@@ -2604,7 +2604,7 @@ elseif ($action == "user_subscribe") {
         //the user can subscribe
         token_check($ID, $HASH, $db);
         $statement2 = $db->prepare(
-            "select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ?;"
+            "select count(distinct users_Id_Users) from work_day inner join shift_days on work_day.shift_days_idshift_days = shift_days.idshift_days where shift_days.shifts_idshifts = ? and work_day.reservation_type !=50;;"
         );
         $statement2->execute([$shift_id]);
         $res2 = $statement2->fetchAll();
@@ -2792,17 +2792,19 @@ elseif ($action == "user_subscribe") {
     $status = $res[0]["status"];
     $festival_name = $res[0]["name"];
 
-    // mail the user!
+    // get the user email
     $statement = $db->prepare("SELECT email from users where Id_Users = ?");
     $statement->execute([$Id_Users]);
     $res = $statement->fetchAll();
     $email = $res[0]["email"];
 
+	// get the shift name and shift day data for mail content
     $statement = $db->prepare(
         "select idshift_days, start_date, shift_end, cost  from shift_days INNER JOIN shifts ON shifts.idshifts = shift_days.shifts_idshifts where shifts.idshifts = ?;"
     );
     $statement->execute([$shift_id]);
     $res = $statement->fetchAll();
+	$shiftname = $res[0]["name"];
     $shift_info = "";
 
     foreach ($res as &$shift) {
@@ -2815,6 +2817,12 @@ elseif ($action == "user_subscribe") {
             $shift["cost"] .
             "euro </p>";
     }
+	
+	//check what the current user status is
+	$statement = $db->prepare("select work_day.reservation_type from work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days where work_day.users_Id_Users = ? and shift_days.shifts_idshifts = ?;");
+	$statement->execute([$Id_Users, $shift_id]);
+	$res = $statement->fetchAll();
+	$current_status = $res[0]["reservation_type"];
 
     if ($ID == $Id_Users && $status != "0") {
         token_check($ID, $HASH, $db);
@@ -2822,7 +2830,7 @@ elseif ($action == "user_subscribe") {
             "Ja bent nu uitgeschreven voor " .
             $festival_name .
             " in shift " .
-            $shift["name"] .
+            $shiftname .
             " . Hopelijk tot een volgende keer!";
         $statement = $db->prepare(
             "INSERT INTO notifications (notification, global,user_id) VALUES (?,?,?);"
@@ -2839,7 +2847,7 @@ elseif ($action == "user_subscribe") {
 								' .
             $shift_info .
             "<p></p>
-								<p>Alvast bedankt om ons te verwittigen en hopelijk tot een andere keer!  </p>
+								<p>Alvast bedankt om ons te verwittigen! </p>
 								<p></p>
 								<p>Met vriendelijke groeten</p>
 								<p><small>
@@ -2860,8 +2868,32 @@ elseif ($action == "user_subscribe") {
             "X-Mailer: PHP/" .
             phpversion();
         add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
+		
+		// update workday status to 50 
+		if($current_status == 3){
+			$statement = $db->prepare("update work_day inner join shift_days on shift_days.idshift_days = work_day.shift_days_idshift_days set work_day.reservation_type=50 where work_day.users_Id_Users = ? and shift_days.shifts_idshifts = ?;");
+			$statement->execute([$Id_Users, $shift_id]);
+		}
+		else {
+			$statement = $db->prepare(
+			"delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; "
+			);
+			$statement->execute([$Id_Users, $shift_id]);
+
+			$statement = $db->prepare(
+				"delete external_appointment from external_appointment inner join locations on locations.location_id = external_appointment.location_id where external_appointment.user_id=? and locations.shift_id = ?"
+			);
+			$statement->execute([$Id_Users, $shift_id]);
+		}
+		
     } elseif ($status != "0") {
         admin_check($ID, $HASH, $db, false);
+		
+		// check if workday status is 50, in that case we don't send mail
+		
+		
+		
+		
         $notification_text =
             "Je zal jammer genoeg niet kunnen deelnemen aan  " .
             $festival_name .
@@ -2903,18 +2935,20 @@ elseif ($action == "user_subscribe") {
             "\r\n" .
             "X-Mailer: PHP/" .
             phpversion();
-        add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
-    }
-
-    $statement = $db->prepare(
+		if($current_status != 50){
+			add_to_mail_queue($db, $email, $subject, $message, $headers, 2);
+		}
+		// remove all 
+	    $statement = $db->prepare(
         "delete s.* from work_day s inner join shift_days w on w.idshift_days = s.shift_days_idshift_days where s.users_Id_Users = ? and w.shifts_idshifts = ?; "
-    );
-    $statement->execute([$Id_Users, $shift_id]);
+		);
+		$statement->execute([$Id_Users, $shift_id]);
 
-    $statement = $db->prepare(
-        "delete external_appointment from external_appointment inner join locations on locations.location_id = external_appointment.location_id where external_appointment.user_id=? and locations.shift_id = ?"
-    );
-    $statement->execute([$Id_Users, $shift_id]);
+		$statement = $db->prepare(
+			"delete external_appointment from external_appointment inner join locations on locations.location_id = external_appointment.location_id where external_appointment.user_id=? and locations.shift_id = ?"
+		);
+		$statement->execute([$Id_Users, $shift_id]);
+    }
 
     exit(
         json_encode([

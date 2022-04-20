@@ -344,7 +344,7 @@ function shift_processing(data) {
             for (let y = 0; y < subscriptions.length; y++) {
                 if (subscriptions[y].idshifts == data[x].idshifts) {
                     is_manual = subscriptions[y].reservation_type == 5
-                    is_subscrubed = true;
+                    is_subscrubed = subscriptions[y].reservation_type != 50;
                     is_registered = subscriptions[y].reservation_type == 2;
                     is_interested = subscriptions[y].reservation_type == 0;
                     is_reserved = subscriptions[y].reservation_type == 99;

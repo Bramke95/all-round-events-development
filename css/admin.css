@@ -770,6 +770,11 @@ input:checked + .slider:before {
 		margin: 1px !important;
 		float: none !important;
 	}
+	.festi_files {
+		width: 100% !important;
+		margin: 1px !important;
+		float: none !important;
+	}
 	.export_mode {
 		width: 100% !important;
 		margin: 1px !important;
