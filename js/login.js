@@ -58,7 +58,7 @@
 			$("#error").html("<p><strong>De server is niet bereikbaar, bent u nog verbonden met het Internet?</strong></p>");
 		}
 		if (res["status"] == 200) {
-			setCookie('YOUR_CV_INLOG_TOKEN_AND_ID',JSON.stringify({"ID":  res.id  ,'TOKEN':  res.hash }), 14);
+			setCookie('YOUR_CV_INLOG_TOKEN_AND_ID',JSON.stringify({"ID":  res.id  ,'TOKEN':  res.hash ,'is_admin': res.is_admin}), 14);
 			window.location.href = "inschrijven.html";
 			
 		}

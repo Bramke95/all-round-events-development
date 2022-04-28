@@ -460,6 +460,7 @@ elseif ($action == "login") {
                 "error_type" => 0,
                 "id" => $ID,
                 "hash" => $user_hash,
+				"is_admin" => $is_admin,
             ])
         );
     }
@@ -5774,7 +5775,7 @@ elseif ($action == "user_work_days") {
     }
 
     $statement = $db->prepare(
-        "SELECT reservation_type, idshifts, shift_days.start_date, shift_days.shift_end, shifts.name, festivals.name as festiname FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7;"
+        "SELECT reservation_type, idshifts, shift_days.start_date, shift_days.shift_end, shifts.name, festivals.name as festiname FROM work_day INNER JOIN shift_days ON work_day.shift_days_idshift_days = shift_days.idshift_days INNER JOIN shifts ON shift_days.shifts_idshifts = shifts.idshifts INNER JOIN festivals on festivals.idfestival = shifts.festival_idfestival where work_day.users_Id_Users = ? AND festivals.status != 6 AND festivals.status != 7 and (reservation_type = 3 or reservation_type = 2);"
     );
     $statement->execute([$user_id]);
     $res = $statement->fetchAll();
