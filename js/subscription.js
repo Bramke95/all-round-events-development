@@ -373,7 +373,7 @@ function shift_processing(data) {
                     }
                 }
                 if (blocked) {
-                    alert("Je account is geblokkeerd, hierdoor is het niet mogelijk om jezelf in te schrijven. Voor verdere vragen of inschrijven kan je een support contacteren. ");
+                    alert("Je account is geblokkeerd, hierdoor is het niet mogelijk om jezelf in te schrijven. Voor verdere vragen of inschrijvingen kan je support contacteren. ");
                     return;
                 }
 

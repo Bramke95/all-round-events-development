@@ -5659,6 +5659,7 @@ elseif ($action == "csv_listing_festival_payout") {
     </GrpHdr>';
     foreach ($res_detail as &$user) {
         $bank_number = str_replace(" ", "", $user["adres_line_two"]);
+		$bank_number = strtoupper($bank_number);
         $data =
             $data .
             '
@@ -5697,7 +5698,7 @@ elseif ($action == "csv_listing_festival_payout") {
         </PmtId>
         <Amt>
           <InstdAmt Ccy="EUR">' .
-            $user["SUM(shift_days.cost)"] .
+            $user["cost"] .
             '</InstdAmt>
         </Amt>
         <CdtrAgt>
