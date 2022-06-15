@@ -1835,7 +1835,7 @@ elseif ($action == "get_festivals") {
         $statement->execute([]);
     } else {
         // select last 15 festivals
-        $query = "SELECT * FROM `festivals`ORDER BY date DESC limit 15;";
+        $query = "SELECT * FROM `festivals`ORDER BY date DESC limit 25;";
         admin_check($ID, $HASH, $db, false);
         $statement = $db->prepare($query);
         $statement->execute([]);

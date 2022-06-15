@@ -186,6 +186,9 @@ table, th, td {
 	left: 32%;
 	box-shadow: 5px 10px 20px 0px;	
 	display: none;
+	max-height: 300px;
+	overflow: scroll;
+	
 }
 
 #change_fesitvail_dialog{
